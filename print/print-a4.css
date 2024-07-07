@@ -1,0 +1,30 @@
+@page {
+    height:297mm;
+    width:210mm;
+    size:a4;
+}
+@media print {
+    footer{
+    page-break-after: always;
+    }
+    tr{
+    page-break-inside: avoid;
+    }
+    table#accountInfo {
+    overflow: hidden;
+    }
+    #ttlLastEmpty{
+            overflow: hidden;
+    }
+}
+
+  /*  footer {page-break-after: always;}*/
+  /*  #items {*/
+  /* background-image:url('logo/logoSVG.php?color=999&stroke=');*/
+  /* -webkit-print-color-adjust: exact;*/
+   
+    /* Center and scale the image nicely */
+  
+  /*  background-repeat: round;*/
+  /*  background-size: contain;*/
+  /*}*/

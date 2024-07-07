@@ -1,0 +1,240 @@
+html,
+body {
+    font-family: 'Roboto', sans-serif;
+    size: a4;
+}
+
+.material-icons {
+    vertical-align: middle;
+    /* new */
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    /*display: flex;*/
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    display: inline;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    /*background-color: red;*/
+}
+
+.text {
+    align-self: center;
+}
+
+.alert {
+    position: relative;
+    display: flex;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+
+
+#notices {
+    border-left: 6px solid #7BB744;
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+#notice {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+i {
+    margin-right: 10px;
+    color: #999;
+    vertical-align: middle;
+}
+
+
+#header {
+    background-color: #efefef;
+    direction: ltr;
+}
+
+hr {
+    width: 100%;
+    height: .5px;
+    size: 1px;
+    color: #7BB744;
+    background-color: #7BB744;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+span {
+    align-self: center;
+    text-align: center;
+}
+
+#companyInfo {
+    margin-top: 20px;
+    padding-right: 20px;
+
+    font-size: 12px;
+    text-align: right;
+    color: #000000;
+    position: relative;
+    display: flex;
+    /*padding: 0.75rem 1.25rem;*/
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    justify-content: flex-end;
+}
+
+#invoice {
+    max-width: 800px;
+    margin: 0 auto;
+    height: 297mm;
+    width: 210mm;
+}
+
+#icon-align {
+    vertical-align: text-bottom;
+}
+
+#bigi {
+
+    font-size: 28px;
+    text-align: right;
+    color: #7BB744;
+    padding-right: 20px;
+
+
+
+}
+
+/* #billship td:before{
+content: "<span class='material-icons md-dark md-inactive'>face</span>";
+color:red;
+} */
+#billship span {
+    color: #999;
+    align-content: center;
+    align-self: center;
+    margin-right: 5px;
+    vertical-align: middle;
+    font-size: 20px;
+    margin: 10px;
+
+}
+
+#company img {
+    margin-top: -5px;
+    margin-left: 50px;
+    max-width: 200px;
+    height: auto
+}
+
+#tableHeadFirst {
+    text-align: start;
+
+}
+
+#tableHeadLast {
+    text-align: right;
+}
+
+#tableHeadCenter {
+    text-align: center;
+}
+
+#thanks {
+    font-size: 1em;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+#company {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#items {
+
+    width: inherit;
+
+    border: 2px solid;
+
+    height: 210mm;
+    column-count: 6;
+
+
+}
+
+#billship td,
+#items td,
+#items th {
+    padding-left: 10px;
+}
+
+#items th {
+    border-bottom: 1px solid #000
+}
+
+#appQrCode {
+    padding-right: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#contentQrCode {
+    width: auto;
+    height: auto;
+    max-width: 140px;
+
+    margin-right: 20px;
+    margin-left:20px;
+}
+
+img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+#items td {
+    border-bottom: 1px solid #999;
+    border-right: 1px solid #999;
+    outline: none !important;
+}
+
+#items td:last-child {
+    border-bottom: 1px solid #999;
+    border-right: 0px solid #999;
+}
+
+.idesc {
+    color: #000;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    margin: 5px;
+    overflow: hidden;
+    
+}
+
+
+
+.right {
+    text-align: right
+}
+
+#notes {
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px
+}

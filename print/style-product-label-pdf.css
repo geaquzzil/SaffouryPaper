@@ -1,0 +1,169 @@
+
+html,body {
+    font-family: 'Roboto', sans-serif;
+    size: a4 ;
+    width:210mm;
+    height:297mm;
+    margin:0;
+     /*font-size: 100px;*/
+
+}
+#bigi {
+    font-size: 26px;
+    text-align: right;
+    color: #8d8988;
+    padding-right: 35px;
+    margin-top:-47px;
+
+}
+#header {
+  width: 100%;
+  height: 10mm;
+  /* Center child horizontally*/
+  display: flex;
+  /*display: -webkit-box;*/
+  
+  justify-content: center;
+  /*webkit-justify-content: center;*/
+  /*-webkit-box-pack: center;*/
+  
+}
+#invoice {
+     /*display: flex;*/
+    margin: 0 auto;
+    height: 297mm;
+    width: 100%;
+    /*display: none;*/
+    display: -webkit-box;
+    display: flex;
+    
+	/*align-items: flex;*/
+	/*-webkit-align-self: -webkit-box;*/
+	/*-webkit-align-self: flex;*/
+	 /*flex-direction: column;*/
+	 /*-webkit-align-self:column;*/
+}
+table {
+  -webkit-table-layout:fixed;
+  table-layout: fixed  ;
+  width: 100% ;
+  
+  align-items: stretch;
+  -webkit-align-items: stretch;
+  height:200mm;
+  
+}
+#items {
+    margin-top: 10px;
+    border-color: #8d8988;
+    border-right: 1.5px solid;
+    border-left: 1.5px solid;
+    border-bottom: 1.5px solid;
+    height:200mm;
+
+}
+footer{
+    width:auto;
+    color:gray;
+    font-weight: bold;
+    padding:10px;
+}
+
+
+
+
+#billship td,
+#items td,
+#items th {
+    padding-left: 10px;
+    overflow:hidden;
+}
+
+#items th {
+    border-bottom: 1px solid #000
+}
+small{
+    font-size:small;
+    margin-top:5px;
+    padding:4px;
+}
+
+#notices {
+    border-left: 6px solid #7BB744;
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+#notice {
+    margin-top: 5px;
+    font-size: 14px;
+}
+#tableHeadFirst {
+    text-align: start;
+
+}
+img {
+    height: 85mm;
+    width: 100%;
+    object-fit: contain;
+    -webkit-object-fit:contain;
+}
+
+#items td {
+    border-bottom: 1px solid #999;
+    border-right: 1px solid #999;
+    outline: none !important;
+}
+#items td:last-child {
+    border-bottom: 1px solid #999;
+    border-right: 0px solid #999;
+}
+
+.idesc {
+    color: #000;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    -webkit-text-align:center;
+    margin: 5px;
+    
+}
+#notes {
+    background: #efefef;
+    padding: 10px;
+    margin:0px;
+}
+
+/*<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' media='all' type='text/css'/>*/
+/*<link media='all' rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'/>*/
+@page {
+    size: 210mm 297mm;
+    margin:0px;
+}
+/*@media print {*/
+/*    footer{*/
+/*    page-break-after: always;*/
+/*    }*/
+/*    tr{*/
+/*    page-break-inside: avoid;*/
+/*    }*/
+/*    table#accountInfo {*/
+/*    overflow: hidden;*/
+/*    }*/
+/*    #ttlLastEmpty{*/
+/*            overflow: hidden;*/
+/*    }*/
+/*}*/
+
+  /*  footer {page-break-after: always;}*/
+  /*  #items {*/
+  /* background-image:url('logo/logoSVG.php?color=999&stroke=');*/
+  /* -webkit-print-color-adjust: exact;*/
+   
+    /* Center and scale the image nicely */
+  
+  /*  background-repeat: round;*/
+  /*  background-size: contain;*/
+  /*}*/
+

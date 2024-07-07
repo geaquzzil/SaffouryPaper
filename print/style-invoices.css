@@ -1,0 +1,379 @@
+html,
+body {
+    font-family: 'Roboto',sans-serif;
+    size: a4 ;
+    width:210mm;
+    height:297mm;
+    margin:0px;
+}
+#bigi {
+    font-size: 26px;
+    text-align: right;
+    color: #7BB744;
+    padding-right: 35px;
+    margin-top:-47px;
+
+}
+#header {
+  width: 100%;
+  height: auto;
+  /* Center child horizontally*/
+  display: flex;
+  justify-content: center;
+}
+#invoice {
+     /*display: flex;*/
+    margin: 0 auto;
+    height: 297mm;
+    width: 100%;
+    display: flex;
+	align-items: flex;
+	 flex-direction: column;
+}
+
+.material-icons {
+  vertical-align: middle; /* new */
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+/*display: flex;*/
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  display: inline;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  /*background-color: red;*/
+}
+.text {
+    align-self: center;
+}
+.alert {
+  position: relative;
+   display: flex;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+#notices {
+    border-left: 6px solid #7BB744;
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+#notice {
+     margin-top: 5px;
+    font-size: 14px;
+}
+[dir='rtl'] #billship span {
+    color: #999;
+    align-content: center;
+    align-self: center;
+    margin-right: 5px;
+    vertical-align: middle;
+    font-size: 20px;
+    margin: 2px;
+}
+[dir='rtl'] i{
+ 
+    margin-left: 10px;
+    color: #999;
+     vertical-align: middle;
+}
+  
+i {
+    margin-right: 10px;
+    color: #999;
+     vertical-align: middle;
+}
+
+
+
+
+
+#billInfoFirst {
+    text-align: start;
+    width: 33%;
+}
+
+#billInfoCenter {
+    text-align: center;
+    width: 33%;
+}
+
+#billInfoLast strong{
+     text-align: end;
+   color: #7BB744;
+}
+#billInfoLast {
+    text-align: end;
+    width: 33%;
+   
+}
+footer {
+  text-align: center;
+  margin:3px;
+  font-size:14px;
+  
+}
+hr {
+    width: 100%;
+     height: .5px;
+    size: 1px;
+    color: #7BB744;
+     background-color: #7BB744;
+  border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+span {
+    align-self: center;
+    text-align: center;
+}
+
+
+
+#icon-align {
+    vertical-align: text-bottom;
+}
+/* #billship  td:before{
+    content: "<span class='material-icons md-dark md-inactive'>face</span>";
+    color:red;
+} */
+#billship span {
+    color: #999;
+    align-content: center;
+    align-self: center;
+    margin-right: 5px;
+    vertical-align: middle;
+    font-size: 20px;
+    margin: 10px;
+
+}
+div #tableMargin{
+    margin-right:10px;
+    margin-left:10px;
+}
+table #items {
+    display: table;
+    border-collapse: separate;
+    box-sizing: border-box;
+    text-indent: initial;
+    border-spacing: 2px;
+    border-color: grey;
+}
+
+#totalText {
+    font-size: 20px;
+    color: #7BB744;
+}
+[dir='rtl'] #billship strong{
+     margin-top: 0px;
+    margin-left: 0px;
+}
+#billship strong {
+    margin-top: 20px;
+    margin-left: 40px;
+}
+
+#billship tr {
+    text-align: right;
+}
+img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+#company img {
+    margin-top: -5px;
+    margin-left: 50px;
+    max-width: 200px;
+    height: auto
+}
+#tableInvoiceTotalInWords{
+    text-align: start;
+    color:#999;
+}
+#tableHeadFirst {
+    text-align: start;
+}
+
+#tableHeadLast {
+    text-align: end;
+}
+
+#tableHeadCenter {
+    text-align: center;
+}
+
+#thanks {
+    font-size: 1em;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+#billship{
+        width: 100%;
+        margin-top: 10px;
+        align-items: stretch;
+        padding-left:25px;
+        padding-right:25px;
+          background-color: #efefef;
+}
+#items {
+     width: 100%;
+     table-layout: fixed;
+    /*border-collapse: collapse;*/
+    margin-top:4px;
+}
+#items td,
+#items th {
+    padding: 10px
+}
+
+#items th {
+    color: #7BB744;
+    border-bottom: 1px solid #7BB744;
+}
+#appQrCode{
+    padding-right:10px;
+    margin-right:10px;
+    margin-bottom:10px;
+}
+td {
+    text-align: right;
+}
+
+#items td {
+    /*background-color: rgb(249, 249, 249);*/
+    border-bottom: 1px solid #ccc
+}
+
+.idesc {
+    color: #999
+}
+
+td#ttlLastLastRight {
+    border-bottom: 0px solid #ccc;
+    font-weight: 700;
+    color:  #7BB744;
+    text-align: end;
+}
+#contentQrCode {
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+    margin-left:20px;
+       text-align:center;
+}
+td#idescQr {
+        background-color: white;
+          border-bottom: 0px solid #ccc;
+              text-align: center;
+}
+.idescQr {
+    text-align: center;
+    margin: 5px;
+    background-color: white;
+    
+}
+td#accountInfoTD2 {
+     background-color: white;
+    border-bottom: 0px solid #ccc;
+    text-align: start;
+    font-size:14px;
+    padding:0px;
+    padding-left:5px;
+}
+td#accountInfoTD {
+     background-color: white;
+    border-bottom: 0px solid #ccc;
+    text-align: start;
+    font-size:14px;
+    padding:0px;
+    padding-left:10px;
+    color:gray;
+}
+table#accountInfo {
+    padding: 0px;
+}
+th#accountInfoTH {
+    color:  #7BB744;
+    border-bottom: 0px solid #7db642;
+    text-align: start;
+    padding:5px;
+}
+div#ttlLastLastLeft {
+    color:black;
+}
+[dir='rtl'] #billInfoLast strong{
+     text-align: end;
+   color: #7BB744;
+}
+[dir="rtl"] table#accountInfo {
+    padding: 6px;
+}
+[dir="rtl"] td#ttlLastLastRight {
+    border-bottom: 0px solid #ccc;
+    font-weight: 700;
+    color:  #7BB744;
+    text-align: end;
+    direction: ltr;
+}
+[dir="rtl"] small.idesc
+{
+    text-align: end;
+    direction: ltr;
+}
+[dir="rtl"] th.idesc
+{
+    text-align: end;
+    direction: ltr;
+}
+td#ttlLastLastLeft {
+    border-bottom: 0px solid #ccc;
+    font-weight: 700;
+    text-align: start;
+    color:  #7BB744;
+
+}
+
+td#ttlLastEmpty {
+    background-color: #FFFFFF;
+
+    border-bottom: 0px solid #ccc;
+    text-align: start;
+    padding: 0px;
+    padding-left: 10px;
+}
+
+td#ttlLastRight {
+    /*background-color: rgb(249, 249, 249);*/
+    border-bottom: 1px solid #ccc
+}
+
+td#ttlLastLeft {
+    /*background-color: rgb(249, 249, 249);*/
+    text-align: start;
+    border-bottom: 1px solid #ccc
+}
+
+.right {
+    text-align: right
+}
+
+#notes {
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px
+}
+@page {
+     margin: 0px;
+}

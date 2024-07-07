@@ -1,0 +1,24 @@
+@page {
+    size: a5 landscape;
+    width:210mm;
+    height:148.5mm;
+    /*margin-left: 5px;*/
+    /*margin-right: 5px;*/
+    /*margin-top: 5px;*/
+    /*margin-bottom: 5px;*/
+    /*margin: 10px;*/
+}
+@media print {
+footer{
+     /*display: block;*/
+    page-break-after: always;
+}
+  /*  #items {*/
+  /*      background-image:url('logo/logoSVG.php?color=999&stroke=');*/
+  /* -webkit-print-color-adjust: exact;*/
+  /* width: 80%;*/
+  /*  height: auto;*/
+  /*  background-repeat: round;*/
+  /*  background-size: contain;*/
+  /*}*/
+}

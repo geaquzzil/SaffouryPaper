@@ -1,0 +1,117 @@
+html,body {
+    font-family: 'Roboto', sans-serif;
+    size: a4 ;
+    width:210mm;
+    height:297mm;
+    margin:0px;
+
+}
+#bigi {
+    font-size: 26px;
+    text-align: right;
+    color: #8d8988;
+    padding-right: 35px;
+    margin-top:-47px;
+
+}
+#header {
+  width: 100%;
+  height: auto;
+  /* Center child horizontally*/
+  display: flex;
+  justify-content: center;
+}
+#invoice {
+     /*display: flex;*/
+    margin: 0 auto;
+    height: 297mm;
+    width: 100%;
+    display: flex;
+	align-items: flex;
+	 flex-direction: column;
+}
+table {
+  table-layout: fixed  ;
+  width: 100% ;
+  align-items: stretch;
+  height:100%;
+  
+}
+#items {
+    margin-top: 10px;
+    border-color: #8d8988;
+    border-right: 1.5px solid;
+    border-left: 1.5px solid;
+    border-bottom: 1.5px solid;
+
+}
+footer{
+    width:auto;
+    color:gray;
+    font-weight: bold;
+    padding:10px;
+}
+
+
+
+
+#billship td,
+#items td,
+#items th {
+    padding-left: 10px;
+    overflow:hidden;
+}
+
+#items th {
+    border-bottom: 1px solid #000
+}
+small{
+    font-size:small;
+    margin-top:5px;
+    padding:4px;
+}
+
+#notices {
+    border-left: 6px solid #7BB744;
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+#notice {
+    margin-top: 5px;
+    font-size: 14px;
+}
+#tableHeadFirst {
+    text-align: start;
+
+}
+img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+#items td {
+    border-bottom: 1px solid #999;
+    border-right: 1px solid #999;
+    outline: none !important;
+}
+#items td:last-child {
+    border-bottom: 1px solid #999;
+    border-right: 0px solid #999;
+}
+
+.idesc {
+    color: #000;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    margin: 5px;
+    
+}
+#notes {
+    background: #efefef;
+    padding: 10px;
+    margin-top: 30px
+}

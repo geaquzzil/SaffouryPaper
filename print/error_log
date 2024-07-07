@@ -1,0 +1,35 @@
+[02-Oct-2022 23:13:56 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'wkhtmlto\Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
+[02-Oct-2022 23:14:59 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
+[02-Oct-2022 23:16:09 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'wkhtml\Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
+[02-Oct-2022 23:16:22 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'Pdf\Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
+[02-Oct-2022 23:16:33 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'wkhtml\wkhtml\Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
+[02-Oct-2022 23:17:34 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'wkhtmlto\Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
+[02-Oct-2022 23:17:52 Asia/Damascus] PHP Fatal error:  Uncaught Error: Class 'wkhtmlto\wkhtmlto\Pdf' not found in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php:189
+Stack trace:
+#0 /home1/saffoury/public_html/SaffouryPaper2/print/index.php(65): Invoicr->outputPDFContentUsingWKPDF()
+#1 {main}
+  thrown in /home1/saffoury/public_html/SaffouryPaper2/print/invlib/invoicr.php on line 189
