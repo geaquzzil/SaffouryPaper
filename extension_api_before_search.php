@@ -1,5 +1,7 @@
 <?php 
 
+
+
 $BEFORE_SEARCH_OBJECT[SIZE] = function(&$object) {
     if(!isSetKeyFromObj($object,"length")){
         setKeyValueFromObj($object,"length",0);
