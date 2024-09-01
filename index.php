@@ -1,6 +1,6 @@
 <?php 
 
-
+	///deprecated mysql producst_prices no use for it we can use products_type
 
 
 	header("Access-Control-Allow-Origin: *");

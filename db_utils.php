@@ -162,7 +162,7 @@ function getSearchQueryAttributesOrDontUnSetID($object,$tableName){
 		        if(is_numeric($value)){
 		            $query=addslashes($tableName).".`".$key."` LIKE '".$value."'"; 
 		        }else{
-		            $query=addslashes($tableName).".`".$key."` LIKE '".$value."%'"; 
+		            $query=addslashes($tableName).".`".$key."` LIKE '%".$value."%'"; 
 		        }
 			    
 			    $whereQuery[]=$query;
