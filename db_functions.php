@@ -39,6 +39,14 @@ function getFetshTableWithQueryOptions($iD,$tableName,$option){
 	    $newQuery=has_word($newQuery,"WHERE")?
 			($newQuery." AND ".$option["SEARCH_QUERY"]):
 			($newQuery." WHERE ".$option["SEARCH_QUERY"]);
+			
+// 		if(getRequestValue('table')==$tableName){
+// 	     	if(isset($option["WHERE_EXTENSION"])){
+// 		$newQuery=$newQuery." ".has_word($newQuery,"WHERE")?
+// 			($newQuery." AND ( ".$option["WHERE_EXTENSION"]." )"):
+// 			($newQuery." WHERE ".$option["WHERE_EXTENSION"]);
+// 	}   
+// 	    }
 	}
 	if(isset($option["ORDER_BY_EXTENSTION"])){
 		$newQuery=$newQuery.$option["ORDER_BY_EXTENSTION"];
@@ -46,8 +54,12 @@ function getFetshTableWithQueryOptions($iD,$tableName,$option){
 	if(isset($option["LIMIT"])){
 		$newQuery=$newQuery." ".$option["LIMIT"];
 	}
-// 	echo $newQuery;
-// 	die;
+	if(getRequestValue('table')==$tableName){
+	   // echo $newQuery."\ns\n";
+	   //  	die;
+	}
+	
+
 	return getFetshTableWithQuery($newQuery);
 }
 function getFetshALLTableWithQueryOptions($tableName,$option){
@@ -72,9 +84,17 @@ function getFetshALLTableWithQueryOptions($tableName,$option){
 			($newQuery." WHERE ".$option["WHERE_EXTENSION"]);
 	}
 	if(isset($option["SEARCH_QUERY"])){
+	    
 	$newQuery=has_word($newQuery,"WHERE")?
 			($newQuery." AND ( ".$option["SEARCH_QUERY"]." )"):
 			($newQuery." WHERE ".$option["SEARCH_QUERY"]);
+// 	if(getRequestValue('table')==$tableName){
+// 	     	if(isset($option["WHERE_EXTENSION"])){
+// 		$newQuery=$newQuery." ".has_word($newQuery,"WHERE")?
+// 			($newQuery." AND ( ".$option["WHERE_EXTENSION"]." )"):
+// 			($newQuery." WHERE ".$option["WHERE_EXTENSION"]);
+// 	}   
+// 	    }
 	}
 	if(isset($option["ORDER_BY_EXTENSTION"])){
 		$newQuery=$newQuery.$option["ORDER_BY_EXTENSTION"];
@@ -82,13 +102,10 @@ function getFetshALLTableWithQueryOptions($tableName,$option){
 	if(isset($option["LIMIT"])){
 		$newQuery=$newQuery." ".$option["LIMIT"];
 	}
-// 		if(isset($option["SEARCH_QUERY"])){
-// 		    	echo $newQuery;
-// 	die;
-
-// 		}
-// 			echo $newQuery;
-// 	die;
+    if(getRequestValue('table')==$tableName){
+	   // echo $newQuery."\ns\n";
+	   //  	die;
+	}
 	return getFetshALLTableWithQuery($newQuery);
 }
 function getFetshTableWithQuery($query){

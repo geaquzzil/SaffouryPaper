@@ -1,6 +1,7 @@
 <?php 
-
 	///deprecated mysql producst_prices no use for it we can use products_type
+
+
 
 
 	header("Access-Control-Allow-Origin: *");
@@ -15,6 +16,7 @@
 	require_once ("extension_api.php");
 	$User;
 	$RequestTableColumns=array();
+	
 	$acceptedRequest=array("action","table");
 	$acceptedAction=array("list","view","add","edit","delete");
 //	echo "AIT";
@@ -133,6 +135,7 @@ function getOptions(){
 	 
 	    $option["SEARCH_QUERY"]=  getSearchQueryMasterStringValue( getRequestValue('searchStringQuery'),$tableName);
 	    if(!empty($RequestTableColumnsCustom)){
+	        
 	        $whereQuery=array();
 	        
 	        //this line to add AND VIA implode because the implode function does not add any value if array ===1
@@ -149,9 +152,28 @@ function getOptions(){
 	           }else{
 	              $joinedQuery= implode(" AND ",$whereQuery);
 	           }
+	           
 	        $option["WHERE_EXTENSION"]=  $joinedQuery;
 	    }
-	   // print_r( $option["SEARCH_QUERY"]);
+	    if(!empty($RequestTableColumns)){
+	        
+	        $whereQuery=array();
+	        
+	        //this line to add AND VIA implode because the implode function does not add any value if array ===1
+	        foreach($RequestTableColumns as $rtc){
+	            
+	            $requestValue=getRequestValue("<".$rtc.">");
+	            
+		        if(!isEmptyString($requestValue)){
+	                $whereQuery[]=	$rtc." LIKE '".$requestValue."'";
+		            }
+	            }
+	             
+	           $joinedQuery= "";
+	            $joinedQuery= implode(" AND ",$whereQuery);
+	           //echo $joinedQuery."   sdasda";
+	        $option["WHERE_EXTENSION"]=  $joinedQuery;
+	    }
 	}else{
 	if($WHERE_EXTENSION){	
 		$whereQuery=array();
@@ -470,8 +492,10 @@ function validateRequestDAndOTables(){
 	global $RequestTableColumnsCustom;
 	$RequestTableColumns=array();
 	$RequestTableColumnsCustom=array();
+
 	foreach(array_keys($requestAttributes) as $ra){
 	    $tableColumn=getTableColumnFromRequest($ra);
+	    	
 		if(isTableColumn($ra)){
 			if(empty($tableColumns)){$tableColumns=getTableColumns($tableName);}
 			if(!in_array($tableColumn, ($tableColumns)) )
