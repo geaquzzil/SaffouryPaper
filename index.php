@@ -102,6 +102,7 @@ function getOptions(){
     }
 	$ASC=checkRequestValue('ASC');
 	$DESC=checkRequestValue('DESC');
+	//which contains the last iD
 	$COMPRESS=checkRequestValue('COMPRESS');
 	$WHERE_EXTENSION=!empty($RequestTableColumns) || !empty($RequestTableColumnsCustom);
 	$LIMIT=isListLimit();
