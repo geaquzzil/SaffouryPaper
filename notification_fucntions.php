@@ -285,6 +285,7 @@ function doNotification($object, $tableName, $action)
 				break;
 		}
 	}
+	
 }
 function sendNotificationProcess($object, $tableName)
 {
