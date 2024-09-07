@@ -71,11 +71,14 @@ function send_notification($tokens, $message)
 	);
 
 
-	$object;
-	$object['json'] = $message;
-	$object['tokkens'] = $tokens;
-
-	addEditObjectWithoutNoti(json_decode(json_encode($object), false), "notifications", getOptions());
+	$object=array();
+	$object['json'] =  substr(json_encode($message['message']), 1, -1); 
+	$object['tokens'] = json_encode($tokens);
+	
+	
+	$ob=json_decode(json_encode($object),false);
+    // print_r($ob);
+	addEditObjectWithoutNoti($ob, "notifications", getOptions());
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
