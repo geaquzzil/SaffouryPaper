@@ -257,7 +257,9 @@ class webSocketServer
                  */
                 $this->Log("Telling Client to start on  #$SocketID");
                 $uuid = $this->guidv4();
-                $msg = (object) ['opcode' => 'ready', 'uuid' => $uuid, 'iD' => $_GET['iD']];
+                // $headers = apache_request_headers(); , 'iD' => $headers['iD']
+
+                $msg = (object) ['opcode' => 'ready', 'uuid' => $uuid];
                 $this->Clients[$SocketID]->uuid = $uuid;
                 $this->Write($SocketID, json_encode($msg));
                 // onOpen($Client);
