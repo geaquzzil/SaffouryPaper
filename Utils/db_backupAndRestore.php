@@ -8,10 +8,6 @@
 /**
  * Define database parameters here
  */
-define("DB_USER", 'saffoury_qussai');
-define("DB_PASSWORD", 'K-O-K-Y1');
-define("DB_NAME", 'saffoury_paper');
-define("DB_HOST", 'localhost');
 define("BACKUP_DIR", 'myphp-backup-files'); // Comment this line to use same script's directory ('.')
 define("TABLES", '*'); // Full backup
 //define("TABLES", 'table1, table2, table3'); // Partial backup

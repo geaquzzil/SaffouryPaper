@@ -73,12 +73,13 @@ class runSocketServer
  * start 
  * ***********************************************
  */
-require __DIR__ . "/threadclient.php";
-$t = new SocketThread();
-if ($t->start()) {
-    while ($t->isRunning()) {
-        echo ".";
-        usleep(100);
-    }
-    $t->join();
-}
+
+// require __DIR__ . "/threadclient.php";
+// $t = new SocketThread();
+// if ($t->start()) {
+//     while ($t->isRunning()) {
+//         echo ".";
+//         usleep(100);
+//     }
+//     $t->join();
+// }

@@ -21,7 +21,7 @@ function getArrayForginKeys($tableName)
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
-  REFERENCED_TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . DATABASE_NAME . "'");
+  REFERENCED_TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . DB_DATABASE . "'");
 }
 //Field Type Key
 function getTableColumns($tableName)
@@ -43,7 +43,7 @@ function getObjectForginKeys($tableName)
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
-  TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . DATABASE_NAME . "'");
+  TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . DB_DATABASE . "'");
 }
 function getShowTablesWithOrderByForginKey()
 {
@@ -54,7 +54,7 @@ function getShowTablesWithOrderByForginKey()
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
- TABLE_SCHEMA = '" . DATABASE_NAME . "'
+ TABLE_SCHEMA = '" . DB_DATABASE . "'
     GROUP BY TABLE_NAME
    Order by Count(REFERENCED_TABLE_NAME) ASC");
 }
@@ -67,7 +67,7 @@ function QueryOfTablesWithOrderByForginKey()
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
- TABLE_SCHEMA = '" . DATABASE_NAME . "'
+ TABLE_SCHEMA = '" . DB_DATABASE . "'
     GROUP BY TABLE_NAME
    Order by Count(REFERENCED_TABLE_NAME) ASC";
 }
@@ -75,24 +75,24 @@ WHERE
 function getAllTables()
 {
 	global $tablesNames;
-	$tablesNames = getFetshAllTableWithQuery("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DATABASE_NAME . "'");
+	$tablesNames = getFetshAllTableWithQuery("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "'");
 	return $tablesNames;
 }
 function getAllTablesString()
 {
-	return getStrings("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DATABASE_NAME . "'", TABLE_NAME);
+	return getStrings("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "'", TABLE_NAME);
 }
 function getAllTablesWithoutViewString()
 {
 	return getStrings(
-		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DATABASE_NAME . "' AND TABLE_TYPE <> 'VIEW' ",
+		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "' AND TABLE_TYPE <> 'VIEW' ",
 		TABLE_NAME
 	);
 }
 function getAllTablesViewString()
 {
 	return getStrings(
-		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DATABASE_NAME . "' AND TABLE_TYPE = 'VIEW' ",
+		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "' AND TABLE_TYPE = 'VIEW' ",
 		TABLE_NAME
 	);
 }

@@ -186,7 +186,7 @@ function get_regestrations_id($object, $tableName)
 function getRegestrationsIDTable($object, $tableName)
 {
 	$id = is_numeric($object) ? $object : $object["iD"];
-	$conn = mysqli_connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASS, DATABASE_NAME);
+	$conn = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 	$sql = " Select token From " . $tableName . " WHERE iD='$id'";
 	$result = mysqli_query($conn, $sql);
 	$tokens = array();
