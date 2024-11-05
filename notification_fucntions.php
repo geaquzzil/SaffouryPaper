@@ -19,6 +19,13 @@ define('FB_RETURN', 'FB_RETURN');
 
 define('FB_ORDER_REMINDER', 'FB_ORDER_REMINDER');
 
+define('FB_NOTIFICATION_TYPE', 'type');
+define('FB_NOTIFICATION_MESSAGE', 'object');
+define('FB_NOTIFICATION_DATA', 'data');
+define('FB_REG_ID', 'registration_ids');
+define('FB_NOTIFICATION_TO', 'to');
+define('FB_TOPICS', '/topics/New');
+
 $acceptedNotifications =
 	array(
 		//extenstions
@@ -50,12 +57,7 @@ $acceptedNotifications =
 		CRED
 	);
 
-define('FB_NOTIFICATION_TYPE', 'type');
-define('FB_NOTIFICATION_MESSAGE', 'object');
-define('FB_NOTIFICATION_DATA', 'data');
-define('FB_REG_ID', 'registration_ids');
-define('FB_NOTIFICATION_TO', 'to');
-define('FB_TOPICS', '/topics/New');
+
 
 function send_notification($tokens, $message)
 {
@@ -71,13 +73,13 @@ function send_notification($tokens, $message)
 	);
 
 
-	$object=array();
-	$object['json'] =  substr(json_encode($message['message']), 1, -1); 
+	$object = array();
+	$object['json'] =  substr(json_encode($message['message']), 1, -1);
 	$object['tokens'] = json_encode($tokens);
-	
-	
-	$ob=json_decode(json_encode($object),false);
-    // print_r($ob);
+
+
+	$ob = json_decode(json_encode($object), false);
+	// print_r($ob);
 	addEditObjectWithoutNoti($ob, "notifications", getOptions());
 
 	$ch = curl_init();
@@ -201,7 +203,7 @@ function getRegestrationsIDTable($object, $tableName)
 
 function send_reminder($customer, $message)
 {
-	send_notification(get_regestrations_id_non_checkpermission($customer), get_notification_object($message, FB_GENERAL_NOTIFCATION));
+	// send_notification(get_regestrations_id_non_checkpermission($customer), get_notification_object($message, FB_GENERAL_NOTIFCATION));
 }
 
 
@@ -288,7 +290,6 @@ function doNotification($object, $tableName, $action)
 				break;
 		}
 	}
-	
 }
 function sendNotificationProcess($object, $tableName)
 {
@@ -468,4 +469,3 @@ function get_notification_object($object, $ACTION)
 	$json[FB_NOTIFICATION_MESSAGE] = json_encode($object);
 	return array("message" => json_encode($json));
 }
-?>

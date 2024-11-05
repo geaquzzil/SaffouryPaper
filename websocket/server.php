@@ -73,4 +73,21 @@ class runSocketServer
  * start 
  * ***********************************************
  */
-(new runSocketServer())->run();
+
+$t = new s();
+if ($t->start()) {
+    while ($t->isRunning()) {
+        echo ".";
+        usleep(100);
+    }
+    $t->join();
+}
+class s extends Thread
+{
+    public function __construct() {}
+    public function run()
+    {
+        (new runSocketServer())->run();
+        //do something time consuming
+    }
+}
