@@ -8,6 +8,21 @@ function returnResponseCompress($response)
 	echo ($data);
 	die;
 }
+function returnResponseSlim($response)
+{
+	if (is_null($response) || empty($response)) {
+		//TODO remove comment on publish	http_response_code(204);
+	}
+	$data = "";
+	if (isFlutterRequest()) {
+		// $data=beforeReturnResponseObjectExtenstion((json_encode($response,JSON_NUMERIC_CHECK )),getRequestValue('table')); 
+
+		$data = getResponseDataForFlutter($response);
+	} else {
+		$data = beforeReturnResponseObjectExtenstion((json_encode($response)), getRequestValue('table'));
+	}
+	return $data;
+}
 function returnResponse($response)
 {
 	if (is_null($response) || empty($response)) {
@@ -134,17 +149,4 @@ function checkResponse($resonse)
 	}
 	return false;
 }
-require_once("security.php");
-require_once("php_utils.php");
 
-require_once("notification_fucntions.php");
-
-require_once("db_api.php");
-require_once("db_utils.php");
-require_once("db_functions.php");
-
-require_once("sqlBalances.php");
-require_once("sqlCustomers.php");
-require_once("sqlProducts.php");
-require_once("sqlAnalysis.php");
-require_once("sqlMoneyFunds.php");

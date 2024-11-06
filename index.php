@@ -1,27 +1,118 @@
 <?php
 
 require 'vendor/autoload.php';
+require("db_config.php");
+require("inc/config.php");
+require("extension_api.php");
+require __DIR__ . "/inc/bootstrap.php";
+require_once("security.php");
+require_once("php_utils.php");
+
+require_once("notification_fucntions.php");
+
+require_once("db_api.php");
+require_once("db_utils.php");
+require_once("db_functions.php");
+
+require_once("sqlBalances.php");
+require_once("sqlCustomers.php");
+require_once("sqlProducts.php");
+require_once("sqlAnalysis.php");
+require_once("sqlMoneyFunds.php");
 ///deprecated mysql producst_prices no use for it we can use products_type
 
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Factory\AppFactory;
+// use \Slim;
 
 
-$app = new Slim\App();
+// ini_set('display_errors', 1); // todo on publish comment this
+// error_reporting(E_ERROR | E_WARNING | E_PARSE);  // todo on publish comment this
+$app = new Slim\App(array(
+	// 'debug' => true,
+	'mode' => 'development',
+	'log.enabled' => true,
+	'settings' => [
+		'addContentLengthHeader' => false
+	]
+	// 'mode' => 'production'
+));
+// $app->configureMode('production', function () use ($app) {
+// 	$app->config(array(
+// 		'log.enable' => true,
+// 		'debug' => false
+// 	));
+// });
 
+// // Only invoked if mode is "development"
+// $app->configureMode('development', function () use ($app) {
+// 	$app->config(array(
+// 		'log.enable' => false,
+// 		'debug' => true
+// 	));
+// });
 
-$app->get('/', function (Request $request, Response $response, $args) {
-	$response->getBody()->write("Helgglo!");
-	return $response;
+$app->get('/{tableName}', function (Request $req, Response $res, $args) {
+
+	$queryParams = $req->getQueryParams();
+	$tableName = $args["tableName"];
+
+	$objcets = null;
+	$details = null;
+
+	$objects = $queryParams['objectTables'];
+	$details = $queryParams['detailTables'];
+
+	// return $res;
+	// echo " ds" . ($req);
+
+	// print_r($queryParams);
+
+	// // $options = getOptions();
+	// $res->getBody()->write($args["tableName"]);
+	// return $res;
+	$data = depthSearch(null, $tableName, 1, $details, $objects, null);
+	print_r($data);
+	$res->getBody()->write(returnResponseSlim($data));
+	return $res;
 });
+// $app->post('/', function (Request $req, Response $res, $args) {
+
+// 	// setUser();
+// 	$res->getBody()->write("dsadas");
+// 	return $res;
+// 	// return $res;
+// 	// echo " ds" . ($req);
+// 	// print_r($req);
+
+
+// 	$options = getOptions();
+// 	$data = depthSearch(null, getRequestValue('table'), getRecursiveLevel(), getRequireArrayTables(), getRequireObjectTable(), $options);
+// 	if (!is_null($options) &&  isset($options["COMPRESS"])) {
+// 		$res->getBody()->write(returnResponseSlim($data));
+// 	} else {
+// 		$res->getBody()->write(returnResponseSlim($data));
+// 	}
+// 	return $res;
+// });
+// $app->get('/', function (Request $request, Response $response, $args) {
+// 	$response->getBody()->write("Helgglo!");
+// 	return $response;
+// });
+
+$c = $app->getContainer();
+$c['phpErrorHandler'] = function ($c) {
+	return function ($request, $response, $error) use ($c) {
+		return $response->withStatus(500)
+			->withHeader('Content-Type', 'text/html')
+			->write($error);
+	};
+};
 $app->run();
 die;
 
-// ini_set('display_errors', 0); // todo on publish comment this
-// error_reporting(E_ERROR | E_WARNING | E_PARSE);  // todo on publish comment this
-require __DIR__ . "/inc/bootstrap.php";
+
 header("Access-Control-Allow-Origin: *");
 header('Access-Control-Allow-Headers: *');
 header("Access-Control-Allow-Origin: Access-Control-Allow-Origin, Accept");
@@ -30,9 +121,7 @@ header("Access-Control-Allow-Methods: GET,POST,HEAD,PUT");
 header("Access-Control-Allow-Headers: Access-Control-Allow-Origin, Accept");
 header("Access-Control-Allow-Headers: Access-Control-Allow-Origin, X-Requested-With, Content-Type, Accept, Origin, Authorization, X-Authorization,Platform");
 ini_set('zlib.output_compression_level', 6);
-require_once("db_config.php");
-require_once("inc/config.php");
-require_once("extension_api.php");
+
 $User;
 $RequestTableColumns = array();
 
