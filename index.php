@@ -1,4 +1,6 @@
 <?php
+// ini_set('display_errors', 0); // todo on publish comment this
+// error_reporting(E_ERROR | E_WARNING | E_PARSE);  // todo on publish comment this
 
 require 'vendor/autoload.php';
 require("db_config.php");
@@ -21,96 +23,120 @@ require_once("sqlAnalysis.php");
 require_once("sqlMoneyFunds.php");
 ///deprecated mysql producst_prices no use for it we can use products_type
 
+// use Fig\Http\Message\StatusCodeInterface;
+// use Psr\Http\Message\ResponseInterface as Response;
+// use Psr\Http\Message\ServerRequestInterface as Request;
+// use Slim\Factory\AppFactory;
+// use Slim\Factory\ServerRequestCreatorFactory;
+// use Slim\Exception\NotFoundException;
+// use Slim\Http\StatusCode;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-// use \Slim;
+// AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+// ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
 
+// $app = AppFactory::create();
 
-// ini_set('display_errors', 1); // todo on publish comment this
-// error_reporting(E_ERROR | E_WARNING | E_PARSE);  // todo on publish comment this
-$app = new Slim\App(array(
-	// 'debug' => true,
-	'mode' => 'development',
-	'log.enabled' => true,
-	'settings' => [
-		'addContentLengthHeader' => false
-	]
-	// 'mode' => 'production'
-));
-// $app->configureMode('production', function () use ($app) {
-// 	$app->config(array(
-// 		'log.enable' => true,
-// 		'debug' => false
-// 	));
-// });
+// /**
+//  * The routing middleware should be added earlier than the ErrorMiddleware
+//  * Otherwise exceptions thrown from it will not be handled by the middleware
+//  */
+// $app->addRoutingMiddleware(true, true, true);
 
-// // Only invoked if mode is "development"
-// $app->configureMode('development', function () use ($app) {
-// 	$app->config(array(
-// 		'log.enable' => false,
-// 		'debug' => true
-// 	));
-// });
+// // $app->setBasePath("index.php");
 
-$app->get('/{tableName}', function (Request $req, Response $res, $args) {
+// $app->setBasePath("/SaffouryPaper2/index.php");
 
-	$queryParams = $req->getQueryParams();
-	$tableName = $args["tableName"];
+// /**
+//  * Add Error Middleware
+//  *
+//  * @param bool                  $displayErrorDetails -> Should be set to false in production
+//  * @param bool                  $logErrors -> Parameter is passed to the default ErrorHandler
+//  * @param bool                  $logErrorDetails -> Display error details in error log
+//  * @param LoggerInterface|null  $logger -> Optional PSR-3 Logger  
+//  *
+//  * Note: This middleware should be added last. It will not handle any exceptions/errors
+//  * for middleware added after it.
+//  */
+// // $errorMiddleware = $app->addErrorMiddleware(true, true, true);
+// // $app->configureMode('production', function () use ($app) {
+// // 	$app->config(array(
+// // 		'log.enable' => true,
+// // 		'debug' => false
+// // 	));
+// // });
 
-	$objcets = null;
-	$details = null;
+// // // Only invoked if mode is "development"
+// // $app->configureMode('development', function () use ($app) {
+// // 	$app->config(array(
+// // 		'log.enable' => false,
+// // 		'debug' => true
+// // 	));
+// // });
 
-	$objects = $queryParams['objectTables'];
-	$details = $queryParams['detailTables'];
+// $app->get('/{tableName}', function (Request $req, Response $res, array $args) {
 
-	// return $res;
-	// echo " ds" . ($req);
+// 	$queryParams = $req->getQueryParams();
+// 	$tableName = $args["tableName"];
 
-	// print_r($queryParams);
+// 	// $objcets = null;
+// 	// $details = null;
 
-	// // $options = getOptions();
-	// $res->getBody()->write($args["tableName"]);
-	// return $res;
-	$data = depthSearch(null, $tableName, 1, $details, $objects, null);
-	print_r($data);
-	$res->getBody()->write(returnResponseSlim($data));
-	return $res;
-});
-// $app->post('/', function (Request $req, Response $res, $args) {
+// 	// $objects = $queryParams['objectTables'];
+// 	// $details = $queryParams['detailTables'];
 
-// 	// setUser();
-// 	$res->getBody()->write("dsadas");
-// 	return $res;
 // 	// return $res;
 // 	// echo " ds" . ($req);
-// 	// print_r($req);
+
+// 	// print_r($queryParams);
+
+// 	// $options = getOptions();
+// 	// $res->getBody()->write($args["tableName"]);
+// 	// return $res;
+
+// 	// $data = depthSearch(null, $tableName, 1, [], [], $options);
+// 	// print_r($data);
 
 
-// 	$options = getOptions();
-// 	$data = depthSearch(null, getRequestValue('table'), getRecursiveLevel(), getRequireArrayTables(), getRequireObjectTable(), $options);
-// 	if (!is_null($options) &&  isset($options["COMPRESS"])) {
-// 		$res->getBody()->write(returnResponseSlim($data));
-// 	} else {
-// 		$res->getBody()->write(returnResponseSlim($data));
-// 	}
-// 	return $res;
+// 	$data = array('name' => 'Bob', 'age' => 40);
+// 	$payload = json_encode($data);
+
+// 	$res->getBody()->write(returnResponseSlim($payload));
+// 	return $res->withHeader('Content-Type', 'application/json')->withStatus(200);
 // });
-// $app->get('/', function (Request $request, Response $response, $args) {
-// 	$response->getBody()->write("Helgglo!");
-// 	return $response;
-// });
+// // $app->post('/', function (Request $req, Response $res, $args) {
 
-$c = $app->getContainer();
-$c['phpErrorHandler'] = function ($c) {
-	return function ($request, $response, $error) use ($c) {
-		return $response->withStatus(500)
-			->withHeader('Content-Type', 'text/html')
-			->write($error);
-	};
-};
-$app->run();
-die;
+// // 	// setUser();
+// // 	$res->getBody()->write("dsadas");
+// // 	return $res;
+// // 	// return $res;
+// // 	// echo " ds" . ($req);
+// // 	// print_r($req);
+
+
+// // 	$options = getOptions();
+// // 	$data = depthSearch(null, getRequestValue('table'), getRecursiveLevel(), getRequireArrayTables(), getRequireObjectTable(), $options);
+// // 	if (!is_null($options) &&  isset($options["COMPRESS"])) {
+// // 		$res->getBody()->write(returnResponseSlim($data));
+// // 	} else {
+// // 		$res->getBody()->write(returnResponseSlim($data));
+// // 	}
+// // 	return $res;
+// // });
+// // $app->get('/', function (Request $request, Response $response, $args) {
+// // 	$response->getBody()->write("Helgglo!");
+// // 	return $response;
+// // });
+
+// // $c = $app->getContainer();
+// // $c['phpErrorHandler'] = function ($c) {
+// // 	return function ($request, $response, $error) use ($c) {
+// // 		return $response->withStatus(500)
+// // 			->withHeader('Content-Type', 'text/html')
+// // 			->write($error);
+// // 	};
+// // };
+// $app->run();
+// die;
 
 
 header("Access-Control-Allow-Origin: *");

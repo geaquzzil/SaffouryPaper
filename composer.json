@@ -1,5 +1,50 @@
 {
+    "name": "etq/restful",
+    "description": "SaffouryPaper REST API with Slim PHP Framework.",
+    "authors": [
+        {
+            "name": "Qussai Al-Saffoury",
+            "email": "geaquzzil@gmail.com",
+            "homepage": "https://github.com/geaquzzil"
+        }
+    ],
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "keywords": [
+        "php",
+        "slim-micro-framework",
+        "rest-api",
+        "mysql",
+        "slim3",
+        "slim",
+        "rest",
+        "api"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Etq\\Restful\\": "src/"
+        }
+    },
     "require": {
-        "slim/slim": "3.*"
+        "slim/slim": "3.*",
+        "slim/psr7": "^1.7",
+        "nyholm/psr7": "^1.8",
+        "nyholm/psr7-server": "^1.1",
+        "guzzlehttp/psr7": "1",
+        "laminas/laminas-diactoros": "^3.5",
+        "firebase/php-jwt": "^6.10",
+        "monolog/monolog": "^3.7",
+        "vlucas/phpdotenv": "^5.6",
+        "slim/php-view": "^3.4",
+        "illuminate/database": "~5.1"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "kylekatarnls/update-helper": true,
+            "pestphp/pest-plugin": true
+        }
     }
 }
