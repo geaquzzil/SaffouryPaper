@@ -1,0 +1,2 @@
+[2024-11-08T03:10:43.792001+01:00] slim-app.CRITICAL: Identifier "task_service" is not defined. [] {"uid":"d026fe9"}
+[2024-11-08T03:10:49.563783+01:00] slim-app.CRITICAL: Identifier "task_service" is not defined. [] {"uid":"aaa4166"}

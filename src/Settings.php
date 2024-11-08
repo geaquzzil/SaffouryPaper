@@ -10,6 +10,11 @@ return [
             'template_path' => __DIR__ . '/../Templates/',
         ],
 
+        'redis' => [
+            'enabled' => $_SERVER['REDIS_ENABLED'],
+            'url' => $_SERVER['REDIS_URL'],
+        ],
+
         // Monolog settings
         'logger' => [
             'name' => 'slim-app',

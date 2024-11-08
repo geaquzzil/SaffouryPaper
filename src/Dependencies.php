@@ -3,6 +3,7 @@
 
 
 # DIC configuration
+use Etq\Restful\Service\RedisService;
 
 $container = $app->getContainer();
 
@@ -44,6 +45,12 @@ $container['db'] = function ($container) {
     return $capsule;
 };
 
+
+$container['redis_service'] = static function ($container): RedisService {
+    $redis = $container->get('settings')['redis'];
+
+    return new RedisService(new \Predis\Client($redis['url']));
+};
 
 # custom errorHandler
 $container['errorHandler'] = function ($c) {

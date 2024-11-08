@@ -3,8 +3,9 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-
+$app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus');
 $app->get('/', 'Etq\Restful\Controller\DefaultController:getHelp');
+// $app->post('/login', \App\Controller\User\Login::class);
 $app->get('/{tableName}', function (Request $req, Response $res, array $args) {
 
     $queryParams = $req->getQueryParams();
