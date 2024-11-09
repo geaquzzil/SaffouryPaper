@@ -7,13 +7,11 @@ namespace Composer\Autoload;
 class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
 {
     public static $files = array (
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
-        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
-        'c14aa555f2c09024d741b443e292daa4' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions.php',
         '07d7f1a47144818725fd8d91a907ac57' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/create_uploaded_file.php',
         'da94ac5d3ca7d2dbab84ce561ce72bfd' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/marshal_headers_from_sapi.php',
         '3d97c8dcdfba8cb85d3b34f116bb248b' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/marshal_method_from_sapi.php',
@@ -32,7 +30,6 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
             'Symfony\\Contracts\\Translation\\' => 30,
             'Symfony\\Component\\Translation\\' => 30,
             'Slim\\Views\\' => 11,
-            'Slim\\Psr7\\' => 10,
             'Slim\\' => 5,
         ),
         'P' => 
@@ -43,11 +40,6 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
             'Psr\\Container\\' => 14,
             'Predis\\' => 7,
             'PhpOption\\' => 10,
-        ),
-        'N' => 
-        array (
-            'Nyholm\\Psr7\\' => 12,
-            'Nyholm\\Psr7Server\\' => 18,
         ),
         'M' => 
         array (
@@ -66,13 +58,11 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
         ),
         'G' => 
         array (
-            'GuzzleHttp\\Psr7\\' => 16,
             'GrahamCampbell\\ResultType\\' => 26,
         ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
-            'Fig\\Http\\Message\\' => 17,
             'FastRoute\\' => 10,
         ),
         'E' => 
@@ -112,10 +102,6 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
         array (
             0 => __DIR__ . '/..' . '/slim/php-view/src',
         ),
-        'Slim\\Psr7\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/slim/psr7/src',
-        ),
         'Slim\\' => 
         array (
             0 => __DIR__ . '/..' . '/slim/slim/Slim',
@@ -145,14 +131,6 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
         ),
-        'Nyholm\\Psr7\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nyholm/psr7/src',
-        ),
-        'Nyholm\\Psr7Server\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nyholm/psr7-server/src',
-        ),
         'Monolog\\' => 
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
@@ -177,10 +155,6 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
         array (
             0 => __DIR__ . '/..' . '/illuminate/container',
         ),
-        'GuzzleHttp\\Psr7\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
-        ),
         'GrahamCampbell\\ResultType\\' => 
         array (
             0 => __DIR__ . '/..' . '/graham-campbell/result-type/src',
@@ -188,10 +162,6 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
-        ),
-        'Fig\\Http\\Message\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/fig/http-message-util/src',
         ),
         'FastRoute\\' => 
         array (

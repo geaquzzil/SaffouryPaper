@@ -17,14 +17,19 @@ class App
         $dotenv->load();
         $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_PORT']);
 
-        $settings = require __DIR__ . '/../src/Settings.php';
+        $settings = require_once __DIR__ . '/../src/Settings.php';
         # app instance
         $app = new \Slim\App($settings);
 
         # dependencies
-        require __DIR__ . '/../src/Dependencies.php';
+        require_once __DIR__ . '/../src/Dependencies.php';
+
+        require_once __DIR__ . '/../src/Repositories.php';
+
+        require_once __DIR__ . '/Services.php';
+
         # routes
-        require __DIR__ . '/../src/Routes.php';
+        require_once __DIR__ . '/../src/Routes.php';
 
         $this->app = $app;
 

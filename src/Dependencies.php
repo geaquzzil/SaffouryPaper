@@ -33,8 +33,24 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
-# database
 $container['db'] = function ($container) {
+    $database = $container->get('settings')['db'];
+    $dsn = sprintf(
+        'mysql:host=%s;dbname=%s;port=%s;charset=utf8',
+        $database['host'],
+        $database['name'],
+        $database['port']
+    );
+    $pdo = new PDO($dsn, $database['user'], $database['pass']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    // $pdo->exec("set names utf8");
+
+    return $pdo;
+};
+# database
+$container['capsule'] = function ($container) {
     $capsule = new \Illuminate\Database\Capsule\Manager;
     $settings = $container->get('settings')['db'];
     $capsule->addConnection($settings);

@@ -8,13 +8,38 @@ namespace Etq\Restful\Controller;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+use Etq\Restful\Repository;
+
+
 final class DefaultController extends BaseController
 {
     private const API_VERSION = '2.23.0';
+    public function getTabels(Request $request, Response $response): Response
+    {
+        $url = $this->container->get('settings')['app']['domain'];
 
+
+        $tables = $this->container['repository']->getAllTables();
+        $endpoints = array();
+        for ($i = 0; $i < count($tables); $i++) {
+            $table = $tables[$i];
+            $endpoints[$table["table_name"]] = ($url . '/api/v1/' . $table["table_name"]);
+        }
+
+        $message = [
+            'endpoints' => $endpoints,
+            'version' => self::API_VERSION,
+            'timestamp' => time(),
+        ];
+
+        return $this->jsonResponse($response, 'success', $message, 200);
+    }
     public function getHelp(Request $request, Response $response): Response
     {
         $url = $this->container->get('settings')['app']['domain'];
+        $db = $this->container->get('db');
+
+
         $endpoints = [
             'tasks' => $url . '/api/v1/tasks',
             'users' => $url . '/api/v1/users',
