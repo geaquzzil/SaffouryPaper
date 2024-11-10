@@ -8,7 +8,6 @@ use Etq\Restful\Repository\Repository;
 
 class Service extends BaseService
 {
-    private const REDIS_KEY = 'user:%s';
 
     public function __construct(
         protected RedisService $redisService,

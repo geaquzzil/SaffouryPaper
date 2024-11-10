@@ -4,6 +4,7 @@
 
 # DIC configuration
 use Etq\Restful\Service\RedisService;
+use Etq\Restful\Handler\ApiError;
 
 $container = $app->getContainer();
 
@@ -69,21 +70,24 @@ $container['redis_service'] = static function ($container): RedisService {
 };
 
 # custom errorHandler
-$container['errorHandler'] = function ($c) {
-    return function ($request, $response, $exception) use ($c) {
-        if ($exception instanceof \DomainException || $exception instanceof \Firebase\JWT\SignatureInvalidException) {
-            return $response->withJson(['message' => $exception->getMessage()], 401);
-        }
+$container['errorHandler'] = static fn(): ApiError => new ApiError();
 
-        if ($exception instanceof \Firebase\JWT\ExpiredException) {
-            return $response->withJson(['message' => 'The provided token as expired.'], 401);
-        }
 
-        if ($exception instanceof \InvalidArgumentException || $exception instanceof \UnexpectedValueException) {
-            return $response->withJson(['message' => $exception->getMessage()], 400);
-        }
+// function ($c) {
+//     return function ($request, $response, $exception) use ($c) {
+//         if ($exception instanceof \DomainException || $exception instanceof \Firebase\JWT\SignatureInvalidException) {
+//             return $response->withJson(['message' => $exception->getMessage()], 401);
+//         }
 
-        $c->logger->critical($exception->getMessage());
-        return $response->withJson(['message' => "Sorry, We're having technical difficulties processing your request. Our Developers would fix this issue as soon as possible."], 500);
-    };
-};
+//         if ($exception instanceof \Firebase\JWT\ExpiredException) {
+//             return $response->withJson(['message' => 'The provided token as expired.'], 401);
+//         }
+
+//         if ($exception instanceof \InvalidArgumentException || $exception instanceof \UnexpectedValueException) {
+//             return $response->withJson(['message' => $exception->getMessage()], 400);
+//         }
+
+//         $c->logger->critical($exception->getMessage());
+//         return $response->withJson(['message' => "Sorry, We're having technical difficulties processing your request. Our Developers would fix this issue as soon as possible."], 500);
+//     };
+// };
