@@ -56,11 +56,15 @@ final class DefaultController extends BaseController
 
         return $this->jsonResponse($response, 'success', $message, 200);
     }
-
+    public function getPing(Request $request, Response $response): Response
+    {
+        $data = ['time' => gmdate('Y-m-d H:i:s')];
+        return $this->jsonResponse($response, 'success', $data, 200);
+    }
     public function getStatus(Request $request, Response $response): Response
     {
         $status = [
-            'stats' => $this->getDbStats(),
+            // 'stats' => $this->getDbStats(),
             'MySQL' => 'OK',
             'Redis' => $this->checkRedisConnection(),
             'version' => self::API_VERSION,
