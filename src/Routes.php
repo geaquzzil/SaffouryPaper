@@ -7,6 +7,7 @@ use Etq\Restful\Repository;
 $app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus');
 $app->get('/', 'Etq\Restful\Controller\DefaultController:getHelp');
 $app->get('/tables', 'Etq\Restful\Controller\DefaultController:getTabels');
+$app->post('/login', \Etq\Restful\Controller\User\Login::class);
 // $app->post('/login', \App\Controller\User\Login::class);
 $app->get('/{tableName}', function (Request $req, Response $res, array $args) {
 
