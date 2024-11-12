@@ -18,7 +18,7 @@ class AuthMiddleware
         }
         $userJwt = $this->getUserToken($request);
         $jwtToken = JWT::decode($userJwt, getenv('APP_SECRET'), [getenv('JWT_ALGORITHM')]);
-        $user = User::with('blacklistedTokens')->where('id', $jwtToken->data->userId)->first();
+        $user = UserRepository::with('blacklistedTokens')->where('id', $jwtToken->data->userId)->first();
         if ($user->blacklistedTokens()->where('token_jti', $jwtToken->jti)->get()->first()) {
             throw new \DomainException('Your token has been logged out.');
         }

@@ -81,11 +81,11 @@ final class AuthController
             return $response->withJson(['message' => 'Username or Password field not provided.'], 400);
         }
 
-        if (User::where('username', $userData['username'])->first()) {
+        if (UserRepository::where('username', $userData['username'])->first()) {
             return $response->withJson(['message' => 'Username already exist.'], 409);
         }
 
-        User::firstOrCreate(
+        UserRepository::firstOrCreate(
             [
                 'username' => $userData['username'],
                 'password' => password_hash($userData['password'], PASSWORD_DEFAULT),
