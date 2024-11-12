@@ -1,24 +1,18 @@
 <?php
+
 namespace Etq\Restful\Actions;
 
 use Monolog\Logger;
 
-class Mapper
+class Mapper extends  BaseMapper
 {
-    protected $db;
- 
-    public function __construct(\PDO $db)
-    {
-
-        $this->db = $db;
-    }
 
     /**
      * Fetch all authors
      *
      * @return [Author]
      */
-    public function fetchAll(string $tableName,?Options $options=null)
+    public function fetchAll(string $tableName, ?Options $options = null): mixed
     {
         $sql = "SELECT * FROM author ORDER BY name ASC";
         $stmt = $this->db->query($sql);
@@ -36,7 +30,7 @@ class Mapper
      *
      * @return Author|false
      */
-    public function loadById($id)
+    public function view(string $tableName, $id): mixed
     {
         $sql = "SELECT * FROM author WHERE author_id = :author_id";
         $stmt = $this->db->prepare($sql);
@@ -55,7 +49,7 @@ class Mapper
      *
      * @return Author
      */
-    public function insert(Author $author)
+    public function insert(string $tableName, $object): mixed
     {
         $data = $author->getArrayCopy();
         $data['created'] = date('Y-m-d H:i:s');
@@ -74,7 +68,7 @@ class Mapper
      *
      * @return Author
      */
-    public function update(Author $author)
+    public function update(string $tableName, $objcet): mixed
     {
         $data = $author->getArrayCopy();
         $data['updated'] = date('Y-m-d H:i:s');
@@ -97,10 +91,10 @@ class Mapper
     /**
      * Delete an author
      *
-     * @param $id       Id of author to delete
+     * @param $object       Id of author to delete
      * @return boolean  True if there was an author to delete
      */
-    public function delete($id)
+    public function delete(string $tableName, $object): mixed
     {
         $data['author_id'] = $id;
         $query = "DELETE FROM author WHERE author_id = :author_id";
@@ -110,4 +104,12 @@ class Mapper
 
         return (bool)$stmt->rowCount();
     }
+}
+enum ServerAction
+{
+    case VIEW;
+    case LIST;
+    case EDIT;
+    case DELETE;
+    case ADD;
 }

@@ -2,6 +2,8 @@
 
 namespace Etq\Restful\Actions;
 
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 class Options
 {
     private ?SearchOption $searchOption;
@@ -19,11 +21,15 @@ class Options
     private ?int $limit;
 
 
-    
+    public function __construct(protected Request $request) {}
 
-
+    public function getQuery(): string
+    {
+        return ""; //TODO 
+    }
     public function getLimitOrPageCountOffset(): ?string
     {
+
         if (!is_null($this->limit)) {
             return "LIMIT $this->limit";
         }

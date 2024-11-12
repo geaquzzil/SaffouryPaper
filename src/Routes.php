@@ -8,7 +8,42 @@ $app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus');
 $app->get('/ping', 'Etq\Restful\Controller\DefaultController:getPing');
 $app->get('/', 'Etq\Restful\Controller\DefaultController:getHelp');
 $app->get('/tables', 'Etq\Restful\Controller\DefaultController:getTabels');
+
+$app->post('/resetPassword');
+$app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
+$app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
+
 $app->post('/login', \Etq\Restful\Controller\User\Login::class);
+
+$app->group('/api/v1', function () use ($app): void {
+
+
+    //add authintication if no authintication found set default auth
+    //add permission 
+    $app->group('/tasks', function () use ($app): void {
+        $app->get('', Task\GetAll::class);
+        $app->post('', Task\Create::class);
+        $app->get('/{id}', Task\GetOne::class);
+        $app->put('/{id}', Task\Update::class);
+        $app->delete('/{id}', Task\Delete::class);
+    })->add(new Auth());
+
+    $app->group('/users', function () use ($app): void {
+        $app->get('', User\GetAll::class)->add(new Auth());
+        $app->post('', User\Create::class);
+        $app->get('/{id}', User\GetOne::class)->add(new Auth());
+        $app->put('/{id}', User\Update::class)->add(new Auth());
+        $app->delete('/{id}', User\Delete::class)->add(new Auth());
+    });
+
+    $app->group('/notes', function () use ($app): void {
+        $app->get('', Note\GetAll::class);
+        $app->post('', Note\Create::class);
+        $app->get('/{id}', Note\GetOne::class);
+        $app->put('/{id}', Note\Update::class);
+        $app->delete('/{id}', Note\Delete::class);
+    });
+});
 // $app->post('/login', \App\Controller\User\Login::class);
 // $app->get('/{tableName}', function (Request $req, Response $res, array $args) {
 

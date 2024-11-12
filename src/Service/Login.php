@@ -24,7 +24,9 @@ final class Login extends Base
         }
         $user = $this->userRepository->loginUser($data->email, $data->password);
         $token = [
-            'sub' => $user->getId(),
+
+            'iD' => $user->getId(),
+
             'email' => $user->getEmail(),
             'name' => $user->getName(),
             'iat' => time(),

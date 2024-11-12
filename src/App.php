@@ -33,7 +33,7 @@ class App
 
         $this->app = $app;
 
-        $this->setUpDatabaseManager();
+        // $this->setUpDatabaseManager();
         // $this->setUpDatabaseSchema();
     }
     /**

@@ -15,6 +15,7 @@ final class Auth extends Base
         Response $response,
         Route $next
     ): ResponseInterface {
+        
         $jwtHeader = $request->getHeaderLine('Authorization');
         if (! $jwtHeader) {
             throw new \Exception('Token required.', 400);
@@ -26,7 +27,7 @@ final class Auth extends Base
         $decoded = $this->checkToken($jwt[1]);
         $object = (array) $request->getParsedBody();
         $object['decoded'] = $decoded;
-            
+
         return $next($request->withParsedBody($object), $response);
     }
 }
