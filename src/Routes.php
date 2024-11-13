@@ -16,6 +16,8 @@ $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionControlle
 
 $app->post('/login', \Etq\Restful\Controller\User\Login::class);
 
+$app->group('/api/v1', \Etq\Restful\RouteFromTable::class);
+
 // $app->group('/api/v1', function () use ($app): void {
 
 

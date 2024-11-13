@@ -7,7 +7,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 
-class Add
+class AddPermssion extends BasePermssion
 {
     public function __invoke(
         Request $request,
