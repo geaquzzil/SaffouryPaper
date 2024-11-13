@@ -15,7 +15,9 @@ class ListPermission extends BasePermssion
         Route $next
     ): ResponseInterface {
 
+       $co= $this->container['user_repository'];
 
-        return $next($request->withParsedBody($object), $response);
+
+        return $next($request, $response);
     }
 }

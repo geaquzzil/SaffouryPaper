@@ -18,6 +18,6 @@ class DeletePermssion extends BasePermssion
     ): ResponseInterface {
 
 
-        return $next($request->withParsedBody($object), $response);
+        return $next($request, $response);
     }
 }

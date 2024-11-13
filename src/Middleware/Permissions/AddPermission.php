@@ -15,7 +15,9 @@ class AddPermssion extends BasePermssion
         Route $next
     ): ResponseInterface {
 
+        // $next->
+        print_r($request->getUri()->getPath());
 
-        return $next($request->withParsedBody($object), $response);
+        return $next($request, $response);
     }
 }
