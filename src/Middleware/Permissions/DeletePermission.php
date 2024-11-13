@@ -7,10 +7,10 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 
-class DeletePermssion extends BasePermssion
+class DeletePermission extends BasePermission
 {
 
-    
+    private string $action = "delete";
     public function __invoke(
         Request $request,
         Response $response,

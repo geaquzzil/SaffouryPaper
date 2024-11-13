@@ -4,17 +4,20 @@ use Etq\Restful\Middleware\Auth;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Etq\Restful\Repository;
+
 use Etq\Restful\Middleware\Permissions\ListPermission;
-use Etq\Restful\Middleware\Permissions\AddPermssion;
-use Etq\Restful\Middleware\Permissions\DeletePermssion;
-use Etq\Restful\Middleware\Permissions\EditPermssion;
-use Etq\Restful\Middleware\Permissions\PrintPermssion;
-use Etq\Restful\Middleware\Permissions\ViewPermssion;
+use Etq\Restful\Middleware\Permissions\AddPermission;
+use Etq\Restful\Middleware\Permissions\DeletePermission;
+use Etq\Restful\Middleware\Permissions\EditPermission;
+use Etq\Restful\Middleware\Permissions\PrintPermission;
+use Etq\Restful\Middleware\Permissions\ViewPermission;
 use Etq\Restful\Controller\Default\Create;
 use Etq\Restful\Controller\Default\Delete;
 use Etq\Restful\Controller\Default\GetAll;
 use Etq\Restful\Controller\Default\GetOne;
 use Etq\Restful\Controller\Default\Update;
+
+use Etq\Restful\RouteFromTable;
 
 $app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus')->add(new Auth());
 $app->get('/ping', 'Etq\Restful\Controller\DefaultController:getPing');
@@ -27,24 +30,25 @@ $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionControlle
 
 $app->post('/login', \Etq\Restful\Controller\User\Login::class);
 
-$app->group('/api/v1', function () use ($app): void {
-    $tables = $app->container['repository']->getAllTables();
+$app->group('/api/v1', RouteFromTable::class);
+// $app->group('/api/v1', function () use ($app): void {
+//     $tables = $app->getContainer()['repository']->getAllTables();
 
-    for ($i = 0; $i < count($tables); $i++) {
-        // $table = "";
+//     for ($i = 0; $i < count($tables); $i++) {
+//         // $table = "";
 
-        $table = "";
+//         $table = "";
 
-        $app->group($table, function () use ($app): void {
-            $app->get('', GetAll::class)->add(new ListPermission());
-            // $app->get('/print/{iD}', Task\GetAll::class)->add(new \PrintPermssion($table));
-            $app->post('', Create::class)->add(new AddPermssion());
-            $app->get('/{iD}', GetOne::class)->add(new ViewPermssion());
-            $app->put('/{iD}', Update::class)->add(new EditPermssion());
-            $app->delete('/{iD}', Delete::class)->add(new DeletePermssion());
-        });
-    }
-});
+//         $app->group("/" . $table, function () use ($app): void {
+//             $app->get('', GetAll::class)->add(new ListPermission());
+//             // $app->get('/print/{iD}', Task\GetAll::class)->add(new \PrintPermssion($table));
+//             $app->post('', Create::class)->add(new AddPermission());
+//             $app->get('/{iD}', GetOne::class)->add(new ViewPermission());
+//             $app->put('/{iD}', Update::class)->add(new EditPermission());
+//             $app->delete('/{iD}', Delete::class)->add(new DeletePermission());
+//         });
+//     }
+// });
 
 // $app->group('/api/v1', function () use ($app): void {
 

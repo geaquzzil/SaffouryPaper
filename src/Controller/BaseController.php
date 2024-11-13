@@ -2,13 +2,39 @@
 
 namespace Etq\Restful\Controller;
 
+use Etq\Restful\Helpers;
+use Exception;
 use Slim\Container;
 use Slim\Http\Response;
+use Slim\Http\Request;
 
 abstract class BaseController
 {
+
+
     public function __construct(protected Container $container) {}
 
+    protected function checkForID(array $args)
+    {
+        if (empty($args)) {
+            throw new Exception("iD not found");
+        }
+        if (!isset($args["iD"])) {
+            throw new Exception("iD not found");
+        }
+
+        if (!ctype_digit($args['iD'])) {
+            throw new Exception("Expect iD to be integer");
+        }
+        return   (int) $args['iD'];
+    }
+    protected function textResponse(
+        Response $response,
+        string $message,
+
+    ) {
+        return $response->withHeader('Content-Type', 'text/plain')->write($message);
+    }
     protected function jsonResponse(
         Response $response,
         string $status,

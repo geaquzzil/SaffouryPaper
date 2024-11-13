@@ -19,8 +19,6 @@ class Auth extends Base
 
         $jwtHeader = $request->getHeaderLine('Authorization');
 
-
-
         if (! $jwtHeader) {
             throw new \Exception('Token required.', 400);
         }

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Etq\Restful\Controller\Default;
 
+use Etq\Restful\Controller\BaseController;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-final class Delete extends Base
+final class Delete extends BaseController
 {
     /**
      * @param array<string> $args
@@ -18,11 +19,12 @@ final class Delete extends Base
         array $args
     ): Response {
         $input = (array) $request->getParsedBody();
-        $userIdLogged = $this->getAndValidateUserId($input);
-        $id = (int) $args['id'];
-        $this->checkUserPermissions($id, $userIdLogged);
-        $this->getDeleteUserService()->delete($id);
+        $iD = $this->checkForID($args);
+        // $userIdLogged = $this->getAndValidateUserId($input);
 
-        return $this->jsonResponse($response, 'success', null, 204);
+        // $this->checkUserPermissions($id, $userIdLogged);
+        // $this->getDeleteUserService()->delete($id);
+
+        return $this->textResponse($response, "Delete $iD");
     }
 }

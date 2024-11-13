@@ -7,8 +7,9 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 
-class PrintPermssion extends BasePermssion
+class PrintPermission extends BasePermission
 {
+    private string $action = "print";
     public function __invoke(
         Request $request,
         Response $response,

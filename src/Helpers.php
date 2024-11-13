@@ -43,6 +43,12 @@ class Helpers
         $boo = $keyValue == null || ($keyValue != null && $keyValue == -1);
         return $boo;
     }
+    public static function explodeURI($url)
+    {
+        $arr = explode('/', $url);
+        //todo this not working if api/v1/product/221 it returns 221
+        return $arr[count($arr) - 1];
+    }
     public static function isSetKeyFromObj($object, $key)
     {
         if (gettype($object) === "object") {

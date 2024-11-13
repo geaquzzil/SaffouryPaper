@@ -3,18 +3,28 @@
 namespace Etq\Restful\Middleware\Permissions;
 
 use Psr\Http\Message\ResponseInterface;
+use Etq\Restful\Repository\PermissionRepository;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 use Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
 
-abstract class BasePermssion
+abstract class BasePermission
 {
-    public function __construct() {}
+    protected PermissionRepository $repo;
+    public function __construct(PermissionRepository $repo)
+    {
+        $this->repo = $repo;
+    }
     private $adminID = -1;
 
     protected function shouldBeSignedIn() {}
+
+    
+
+
+
 
     protected function checkToken(string $token): object
     {

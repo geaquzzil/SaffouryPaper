@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Etq\Restful\Controller\Default;
 
+use Etq\Restful\Controller\BaseController;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-final class Update extends Base
+final class Update extends BaseController
 {
     /**
      * @param array<string> $args
@@ -18,11 +19,12 @@ final class Update extends Base
         array $args
     ): Response {
         $input = (array) $request->getParsedBody();
-        $id = (int) $args['id'];
-        $userIdLogged = $this->getAndValidateUserId($input);
-        $this->checkUserPermissions($id, $userIdLogged);
-        $user = $this->getUpdateUserService()->update($input, $id);
+        $iD = $this->checkForID($request);
+        
+        // $userIdLogged = $this->getAndValidateUserId($input);
+        // $this->checkUserPermissions($id, $userIdLogged);
+        // $user = $this->getUpdateUserService()->update($input, $id);
 
-        return $this->jsonResponse($response, 'success', $user, 200);
+        return $this->textResponse($response, "Update");
     }
 }
