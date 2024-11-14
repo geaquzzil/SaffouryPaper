@@ -17,31 +17,33 @@ class ListPermission extends BasePermission
         Route $next
     ): ResponseInterface {
 
-        // print_r($request->getUri()->getPath());
-        $tableName = Helpers::explodeURI($request->getUri()->getPath());
-        $this->repo->getPermission(0, $tableName);
-        print_r($this->repo->getPermission(0, $tableName));
+        $this->checkForPermission($request, $this->action);
 
-        $jwtHeader = $request->getHeaderLine('Authorization');
+        // // print_r($request->getUri()->getPath());
+        // $tableName = Helpers::explodeURI($request->getUri()->getPath());
+        // $this->repo->getPermission(0, $tableName, true);
+        // print_r($this->repo->getPermission(0, $tableName));
 
-        if (! $jwtHeader) {
-            throw new \Exception('Token required.', code: 400);
-        }
-        $jwt = explode('Bearer ', $jwtHeader);
-        if (! isset($jwt[1])) {
-            throw new \Exception('Token invalid.', 400);
-        }
-        $decoded = $this->checkToken($jwt[1]);
-        //todo path uri
-        // print_r($request->getUri()->getPath()); 
-        $object = (array) $request->getParsedBody();
-        $object['decoded'] = $decoded;
+        // $jwtHeader = $request->getHeaderLine('Authorization');
 
-        return $next($request->withParsedBody($object), $response);
+        // if (! $jwtHeader) {
+        //     throw new \Exception('Token required.', code: 400);
+        // }
+        // $jwt = explode('Bearer ', $jwtHeader);
+        // if (! isset($jwt[1])) {
+        //     throw new \Exception('Token invalid.', 400);
+        // }
+        // $decoded = $this->checkToken($jwt[1]);
+        // //todo path uri
+        // // print_r($request->getUri()->getPath()); 
+        // $object = (array) $request->getParsedBody();
+        // $object['decoded'] = $decoded;
+
+        // return $next($request->withParsedBody($object), $response);
 
 
-        echo "ListPErmission ";
-        echo $this->action;
+        // echo "ListPErmission ";
+        // echo $this->action;
 
 
         return $next($request, $response);

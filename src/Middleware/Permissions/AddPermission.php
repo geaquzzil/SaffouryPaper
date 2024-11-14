@@ -3,6 +3,7 @@
 namespace Etq\Restful\Middleware\Permissions;
 
 use Psr\Http\Message\ResponseInterface;
+use Etq\Restful\Helpers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
@@ -15,9 +16,10 @@ class AddPermission extends BasePermission
         Response $response,
         Route $next
     ): ResponseInterface {
+        $this->checkForPermission($request, $this->action);
 
-        // $next->
-        print_r($request->getUri()->getPath());
+
+
 
         return $next($request, $response);
     }

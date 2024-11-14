@@ -34,7 +34,7 @@ final class Login extends BaseController
             'data' => [ # Data related to the signer user
                 'iD'   => $user['iD'],
                 'phone' => $user['phone'],
-                'permission' => $user['userlevelid']
+                'userlevelid' => $user['userlevelid']
                 # userid from the users table
             ],
 

@@ -3,6 +3,7 @@
 namespace Etq\Restful\Middleware\Permissions;
 
 use Psr\Http\Message\ResponseInterface;
+use Etq\Restful\Helpers;
 use Etq\Restful\Repository\PermissionRepository;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -12,16 +13,72 @@ use \Firebase\JWT\Key;
 
 abstract class BasePermission
 {
+    private  bool $shouldBeSignedInWhenNoLevelFound = false;
+    private $adminID = -1;
     protected PermissionRepository $repo;
+
     public function __construct(PermissionRepository $repo)
     {
         $this->repo = $repo;
     }
-    private $adminID = -1;
 
-    protected function shouldBeSignedIn() {}
+    //$level is array with current user level and default user level
+    //if userlevel =0 and action==action is 1 then return false
+    //if userlevel=1 and action==action is 1 then return 
+    private function checkPermissionTableAccess($levelID, $tableName, $action)
+    {
 
-    
+        $level = $this->repo->getPermission($levelID, $tableName);
+        // $found_key = array_search('blue', array_column($people, 'fav_color'));
+        if (empty($level) || is_null($level)) {
+            return $this->shouldBeSignedInWhenNoLevelFound;
+        }
+        return $level[$action] == 1;
+    }
+    //If there is  a token it should be valid 
+    // if there is no token then guest permssion is applied
+    // if  guest has no access then permission denied
+    //if non guest has no permssion then  permission denied
+    protected function checkForPermission(Request $request, $action)
+    {
+        $tableName = Helpers::explodeURI($request->getUri()->getPath());
+        $token = $this->getToken($request);
+        $isGuest = is_null($token);
+        $levelID = 0;
+        if (!is_null($token)) {
+            echo "\ntoken not null setting levelID\n";
+            $levelID = $token['data']['userlevelid'];
+        }
+        if ($levelID == $this->adminID) {
+            echo "\nIS ADMIN\n";
+            return;
+        }
+        $result = $this->checkPermissionTableAccess($levelID, $tableName, $action);
+        if (!$result) {
+            if ($levelID == 0) {
+                throw new \Exception('Token required.', 400);
+            } else {
+                throw new \Exception('Permission denied.', 400);
+            }
+        }
+    }
+
+    protected function getToken(Request $request)
+    {
+        $jwtHeader = $request->getHeaderLine('Authorization');
+
+        if (! $jwtHeader) {
+            return null;
+        }
+        $jwt = explode('Bearer ', $jwtHeader);
+        if (! isset($jwt[1])) {
+            throw new \Exception('Token invalid.', 400);
+        }
+        $decoded = $this->checkToken($jwt[1]);
+        return $decoded;
+    }
+
+
 
 
 
@@ -77,4 +134,19 @@ abstract class BasePermission
     {
         return $id < 0;
     }
+
+    public function __invoke(
+        Request $request,
+        Response $response,
+        Route $next
+    ): ResponseInterface {
+
+        $this->checkForPermission($request, $this->action);
+        return $next($request, $response);
+    }
+}
+
+
+interface PermissionInterface{
+    
 }

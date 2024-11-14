@@ -15,7 +15,7 @@ class PrintPermission extends BasePermission
         Response $response,
         Route $next
     ): ResponseInterface {
-
+        $this->checkForPermission($request, $this->action);
 
         return $next($request, $response);
     }

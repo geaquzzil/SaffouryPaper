@@ -17,7 +17,7 @@ class ViewPermission extends BasePermission
         Route $next
     ): ResponseInterface {
 
-
+        $this->checkForPermission($request, $this->action);
         return $next($request, $response);
     }
 }
