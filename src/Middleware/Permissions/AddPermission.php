@@ -10,17 +10,17 @@ use Slim\Route;
 
 class AddPermission extends BasePermission
 {
-    private string $action = "add";
+
     public function __invoke(
         Request $request,
         Response $response,
         Route $next
     ): ResponseInterface {
-        $this->checkForPermission($request, $this->action);
+        return parent::__invoke($request, $response, $next);
+    }
 
-
-
-
-        return $next($request, $response);
+    public function getAction()
+    {
+        return "add";
     }
 }

@@ -11,7 +11,7 @@ use Slim\Route;
 use Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
 
-abstract class BasePermission
+abstract class BasePermission implements ServerActionInterface
 {
     private  bool $shouldBeSignedInWhenNoLevelFound = false;
     private $adminID = -1;
@@ -33,6 +33,7 @@ abstract class BasePermission
         if (empty($level) || is_null($level)) {
             return $this->shouldBeSignedInWhenNoLevelFound;
         }
+
         return $level[$action] == 1;
     }
     //If there is  a token it should be valid 
@@ -41,16 +42,16 @@ abstract class BasePermission
     //if non guest has no permssion then  permission denied
     protected function checkForPermission(Request $request, $action)
     {
+
         $tableName = Helpers::explodeURI($request->getUri()->getPath());
         $token = $this->getToken($request);
-        $isGuest = is_null($token);
         $levelID = 0;
         if (!is_null($token)) {
-            echo "\ntoken not null setting levelID\n";
-            $levelID = $token['data']['userlevelid'];
+
+            $levelID = $token->data->userlevelid;
         }
         if ($levelID == $this->adminID) {
-            echo "\nIS ADMIN\n";
+
             return;
         }
         $result = $this->checkPermissionTableAccess($levelID, $tableName, $action);
@@ -141,12 +142,13 @@ abstract class BasePermission
         Route $next
     ): ResponseInterface {
 
-        $this->checkForPermission($request, $this->action);
+        $this->checkForPermission($request, $this->getAction());
         return $next($request, $response);
     }
 }
 
 
-interface PermissionInterface{
-    
+interface ServerActionInterface
+{
+    public function getAction();
 }

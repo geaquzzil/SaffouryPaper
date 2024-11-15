@@ -1,39 +1,44 @@
 <?php
 
-namespace Etq\Restful\Actions;
+namespace Etq\Restful\Repository;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Options
 {
-    private ?SearchOption $searchOption;
-    private  $listObjects;
+    public ?SearchOption $searchOption = null;
+    public ?SortOption $sortOption = null;
 
-    private $forginObjcets;
+    public  $listObjects;
 
-    private ?Date $date;
+    public $forginObjcets;
 
-    private ?SortOption $sortOption;
+    public ?Date $date = null;
 
-    private ?int $page;
-    private ?int  $countPerPage;
 
-    private ?int $limit;
+
+    public ?int $page = null;
+    public ?int  $countPerPage = null;
+
+    public ?int $limit = null;
 
 
     public function __construct(protected Request $request) {}
 
     public function getQuery(): string
     {
+        echo "\nLimitOrPageCountOffset:" . $this->getLimitOrPageCountOffset() ?? "-";
+        echo "\nSort:" . $this->sortOption?->getQuery() ?? " - ";
+        echo "\nDate:" . $this->date?->getQuery() ?? " - ";
         return ""; //TODO 
     }
     public function getLimitOrPageCountOffset(): ?string
     {
 
-        if (!is_null($this->limit)) {
+        if (($this->limit)) {
             return "LIMIT $this->limit";
         }
-        if (!is_null($this->page) && !is_null($this->countPerPage)) {
+        if (($this->page) && ($this->countPerPage)) {
             $next_offset = $this->page * $this->countPerPage;
             return "LIMIT $this->countPerPage OFFSET $next_offset";
         }
@@ -68,7 +73,7 @@ class SortOption
 
 class SearchOption
 {
-    public function __construct(protected string $query, protected SearchType $searchType) {}
+    public function __construct(protected string $query, protected ?SearchType $searchType = null) {}
 }
 enum SearchType
 {

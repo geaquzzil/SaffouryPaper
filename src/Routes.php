@@ -28,7 +28,7 @@ $app->post('/resetPassword', '');
 // $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
 $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
 
-$app->post('/login', \Etq\Restful\Controller\User\Login::class);
+$app->post('/api/v1/login', \Etq\Restful\Controller\User\Login::class);
 
 $app->group('/api/v1', RouteFromTable::class);
 // $app->group('/api/v1', function () use ($app): void {

@@ -37,6 +37,11 @@ class Helpers
     {
         return  self::isSetKeyFromObj($object, $key) ? self::getKeyValueFromObj($object, $key) : null;
     }
+
+    public static function isIntReturnValue($value): ?int
+    {
+        return is_numeric($value) ? intval($value) : null;
+    }
     public static function isNewRecord($object)
     {
         $keyValue = self::isSetKeyFromObjReturnValue($object, 'iD');

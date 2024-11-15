@@ -9,16 +9,16 @@ use Slim\Route;
 
 class DeletePermission extends BasePermission
 {
-
-    private string $action = "delete";
     public function __invoke(
         Request $request,
         Response $response,
         Route $next
     ): ResponseInterface {
+        return parent::__invoke($request, $response, $next);
+    }
 
-        $this->checkForPermission($request, $this->action);
-
-        return $next($request, $response);
+    public function getAction()
+    {
+        return "delete";
     }
 }

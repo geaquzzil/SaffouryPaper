@@ -18,6 +18,7 @@ final class GetOne extends BaseController
         Response $response,
         array $args
     ): Response {
+        parent::init($request);
         // $user = $this->getFindUserService()->getOne((int) $args['id']);
 
         return $this->textResponse($response, "GetOne");

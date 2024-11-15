@@ -18,9 +18,10 @@ final class Update extends BaseController
         Response $response,
         array $args
     ): Response {
+        parent::init($request);
         $input = (array) $request->getParsedBody();
         $iD = $this->checkForID($request);
-        
+
         // $userIdLogged = $this->getAndValidateUserId($input);
         // $this->checkUserPermissions($id, $userIdLogged);
         // $user = $this->getUpdateUserService()->update($input, $id);

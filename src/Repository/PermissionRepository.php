@@ -16,14 +16,13 @@ class PermissionRepository extends BaseRepository
     {
         return "SELECT *
                  FROM `permissions_levels` 
-                 WHERE (userlevelid = :levelID  AND table_name = :tableName";
+                 WHERE userlevelid = :levelID  AND table_name = :tableName";
     }
 
     public function getPermission(int $levelID, string $tableName,)
     {
 
         $query = $this->getQueryLevelPermssion();
-        echo "\n $query \n";
         $statement = $this->database->prepare($query);
         $statement->execute([':tableName' => $tableName, ':levelID' => $levelID]);
         $permission = $statement->fetch();

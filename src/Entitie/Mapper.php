@@ -105,11 +105,3 @@ class Mapper extends  BaseMapper
         return (bool)$stmt->rowCount();
     }
 }
-enum ServerAction
-{
-    case VIEW;
-    case LIST;
-    case EDIT;
-    case DELETE;
-    case ADD;
-}

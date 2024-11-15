@@ -6,10 +6,9 @@ namespace  Etq\Restful\Repository;
 final class Repository extends BaseRepository
 {
 
-    
-    public function loginUser($user){
 
-    }
+
+    public function list() {}
     // public function checkAndGetNote(int $noteId): Note
     // {
     //     $query = 'SELECT * FROM `notes` WHERE `id` = :id';

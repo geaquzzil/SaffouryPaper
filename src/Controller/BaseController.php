@@ -12,6 +12,8 @@ abstract class BaseController
 {
 
 
+    protected string $tableName;
+
     public function __construct(protected Container $container) {}
 
     protected function checkForID(array $args)
@@ -53,5 +55,10 @@ abstract class BaseController
     protected static function isRedisEnabled(): bool
     {
         return filter_var($_SERVER['REDIS_ENABLED'], FILTER_VALIDATE_BOOLEAN);
+    }
+
+    protected function init(Request $request)
+    {
+        $this->tableName  = Helpers::explodeURI($request->getUri()->getPath());
     }
 }

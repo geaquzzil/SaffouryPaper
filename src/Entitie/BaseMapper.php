@@ -29,7 +29,7 @@ abstract class BaseMapper
     }
     private function getOption(?Options $option): string
     {
-        if(!$option)return "";
+        if (!$option) return "";
 
         return $option->getQuery();
     }

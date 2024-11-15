@@ -6,6 +6,42 @@ abstract class BaseRepository
 {
 
     protected $DB_NAME = "";
+
+
+
+
+    private function getQuery(string $tableName, ServerAction $action, ?Options $option = null): string
+    {
+        $query = "";
+        switch ($action) {
+            case ServerAction::ADD:
+                $query = "";
+                break;
+            case ServerAction::EDIT:
+                $query = "";
+                break;
+
+            case ServerAction::LIST:
+                $optionQuery = $this->getOption($option);
+                $query = "SELECT * FROM $tableName $optionQuery";
+                break;
+
+            case ServerAction::DELETE:
+                $query = "";
+                break;
+
+            case ServerAction::VIEW:
+                $query = "";
+                break;
+        }
+        return "";
+    }
+    private function getOption(?Options $option): string
+    {
+        if (!$option) return "";
+
+        return $option->getQuery();
+    }
     public function __construct(protected \PDO $database)
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
@@ -161,4 +197,12 @@ WHERE
             TABLE_NAME
         );
     }
+}
+enum ServerAction: string
+{
+    case VIEW = "view";
+    case LIST = "list";
+    case EDIT = "edit";
+    case DELETE = "delete";
+    case ADD = "add";
 }

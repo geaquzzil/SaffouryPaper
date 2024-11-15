@@ -9,14 +9,16 @@ use Slim\Route;
 
 class PrintPermission extends BasePermission
 {
-    private string $action = "print";
     public function __invoke(
         Request $request,
         Response $response,
         Route $next
     ): ResponseInterface {
-        $this->checkForPermission($request, $this->action);
+        return parent::__invoke($request, $response, $next);
+    }
 
-        return $next($request, $response);
+    public function getAction()
+    {
+        return "print";
     }
 }

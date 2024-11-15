@@ -12,6 +12,7 @@ final class Create  extends BaseController
 {
     public function __invoke(Request $request, Response $response): Response
     {
+        parent::init($request);
         $input = (array) $request->getParsedBody();
         // $user = $this->getCreateUserService()->create($input);
 
