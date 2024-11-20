@@ -8,6 +8,7 @@ use Etq\Restful\Middleware\Permissions\ListPermission;
 use Etq\Restful\Middleware\Permissions\AddPermission;
 use Etq\Restful\Middleware\Permissions\DeletePermission;
 use Etq\Restful\Middleware\Permissions\EditPermission;
+use Etq\Restful\Middleware\Permissions\NotificationPermission;
 use Etq\Restful\Middleware\Permissions\PrintPermission;
 use Etq\Restful\Middleware\Permissions\ViewPermission;
 use Etq\Restful\Controller\Default\Create;
@@ -15,6 +16,7 @@ use Etq\Restful\Controller\Default\Delete;
 use Etq\Restful\Controller\Default\GetAll;
 use Etq\Restful\Controller\Default\GetOne;
 use Etq\Restful\Controller\Default\Update;
+use Etq\Restful\Controller\NotificationController;
 
 class RouteFromTable
 {
@@ -37,14 +39,21 @@ class RouteFromTable
 
             $table = (string)$tables[$i]["table_name"];
 
-            $app->group("/" . $table, function () use ($app): void {
+            $app->group('/' . $table, function () use ($app): void {
                 $app->get('', GetAll::class)->add(new ListPermission($app->getContainer()['permission_repository']));
-                $app->get('/{iD}', GetOne::class)->add(new ViewPermission($app->getContainer()['permission_repository']));
+                $app->get('/{iD:[0-9]+}', GetOne::class)->add(new ViewPermission($app->getContainer()['permission_repository']));
                 // $app->get('/print/{iD}', Task\GetAll::class)->add(new \PrintPermssion($table));
                 $app->post('', Create::class)->add(new AddPermission($app->getContainer()['permission_repository']));
-                $app->put('/{iD}', Update::class)->add(new EditPermission($app->getContainer()['permission_repository']));
-                $app->delete('/{iD}', Delete::class)->add(new DeletePermission($app->getContainer()['permission_repository']));
+                $app->put('/{iD:[0-9]+}', Update::class)->add(new EditPermission($app->getContainer()['permission_repository']));
+                $app->delete('/{iD:[0-9]+}', Delete::class)->add(new DeletePermission($app->getContainer()['permission_repository']));
             });
         }
+
+        $app->group('/notification', function () use ($app): void {
+            $app->get('[/]', NotificationController::class);
+            $app->get('/' . CUST . '[/[{iD:\d+}]]', NotificationController::class);
+
+            $app->get('/' . EMP . '[/[{iD:\d+}]]', NotificationController::class);
+        });
     }
 }

@@ -16,7 +16,7 @@ use Etq\Restful\Controller\Default\Delete;
 use Etq\Restful\Controller\Default\GetAll;
 use Etq\Restful\Controller\Default\GetOne;
 use Etq\Restful\Controller\Default\Update;
-
+use Etq\Restful\Controller\NotificationController;
 use Etq\Restful\RouteFromTable;
 
 $app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus')->add(new Auth());
@@ -29,6 +29,8 @@ $app->post('/resetPassword', '');
 $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
 
 $app->post('/api/v1/login', \Etq\Restful\Controller\User\Login::class);
+
+
 
 $app->group('/api/v1', RouteFromTable::class);
 // $app->group('/api/v1', function () use ($app): void {

@@ -15,7 +15,7 @@ class ViewPermission extends BasePermission
         Response $response,
         Route $next
     ): ResponseInterface {
-        parent::__invoke($request, $response, $next);
+        parent::invoke($request, $response, $next);
         return   $next($request, $response);
     }
 

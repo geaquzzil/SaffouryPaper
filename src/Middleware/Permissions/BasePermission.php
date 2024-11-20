@@ -36,6 +36,10 @@ abstract class BasePermission implements ServerActionInterface
 
         return $level[$action] == 1;
     }
+    protected function getTableName($request)
+    {
+        return Helpers::explodeURI($request->getUri()->getPath());
+    }
     //If there is  a token it should be valid 
     // if there is no token then guest permssion is applied
     // if  guest has no access then permission denied
@@ -43,7 +47,7 @@ abstract class BasePermission implements ServerActionInterface
     protected function checkForPermission(Request $request, $action)
     {
 
-        $tableName = Helpers::explodeURI($request->getUri()->getPath());
+        $tableName = $this->getTableName($request);
         $token = $this->getToken($request);
         $levelID = 0;
         if (!is_null($token)) {
@@ -79,7 +83,13 @@ abstract class BasePermission implements ServerActionInterface
         return $decoded;
     }
 
-
+    protected function checkToSendNotification($request, $response)
+    {
+        $tableName = $this->getTableName($request);
+        $action = $this->getAction();
+        //check for if notification system is enable
+        
+    }
 
 
 
@@ -136,7 +146,7 @@ abstract class BasePermission implements ServerActionInterface
         return $id < 0;
     }
 
-    public function __invoke(
+    public function invoke(
         Request $request,
         Response $response,
         Route $next

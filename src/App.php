@@ -2,6 +2,7 @@
 
 namespace Etq\Restful;
 
+use Etq\Restful\Middleware\Permissions\NotificationPermission;
 
 class App
 {
@@ -33,6 +34,8 @@ class App
         require_once __DIR__ . '/../src/Routes.php';
 
         $this->app = $app;
+
+        // $this->app->add(new NotificationPermission($app->getContainer()['permission_repository']));
 
         // $this->setUpDatabaseManager();
         // $this->setUpDatabaseSchema();

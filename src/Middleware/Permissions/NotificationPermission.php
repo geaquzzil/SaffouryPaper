@@ -16,10 +16,10 @@ class NotificationPermission extends BasePermission
         Request $request,
         Response $response,
         Route $next
-    ): ResponseInterface {
+    ) {
         // parent::__invoke($request, $response, $next);
         $response =  $next($request, $response);
-        echo "AFter Response $response";
+        // echo "AFter Response $response";
         return $response;
     }
 

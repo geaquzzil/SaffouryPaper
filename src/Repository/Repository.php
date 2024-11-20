@@ -8,7 +8,7 @@ final class Repository extends BaseRepository
 
 
 
-    public function list() {}
+    // public function list() {}
     // public function checkAndGetNote(int $noteId): Note
     // {
     //     $query = 'SELECT * FROM `notes` WHERE `id` = :id';
