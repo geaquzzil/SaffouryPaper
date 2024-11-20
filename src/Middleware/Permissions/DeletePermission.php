@@ -14,7 +14,8 @@ class DeletePermission extends BasePermission
         Response $response,
         Route $next
     ): ResponseInterface {
-        return parent::__invoke($request, $response, $next);
+        parent::__invoke($request, $response, $next);
+        return   $next($request, $response);
     }
 
     public function getAction()

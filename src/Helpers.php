@@ -56,11 +56,21 @@ class Helpers
     }
     public static function isSetKeyFromObj($object, $key)
     {
-        if (gettype($object) === "object") {
+        if (self::isObject($object)) {
             return
                 property_exists($object, $key) && isset($object->{$key});
         } else {
             return isset($object[$key]);
+        }
+    }
+    public static function unSetKeyFromObj(&$object, $key)
+    {
+        if (self::isSetKeyFromObj($object, $key)) {
+            if (self::isObject($object)) {
+                unset($object->$key);
+            } else {
+                unset($object[$key]);
+            }
         }
     }
     public static function getKeyValueFromObj($object, $key)
@@ -69,6 +79,23 @@ class Helpers
             return $object->$key;
         } else {
             return $object[$key];
+        }
+    }
+    public static function isSetKeyAndNotNullFromObj($object, $key)
+    {
+        if (gettype($object) === "object") {
+            return
+                property_exists($object, $key) && isset($object->{$key}) && !is_null($object->{$key});
+        } else {
+            return isset($object[$key]) && !is_null($object[$key]);
+        }
+    }
+    public static  function setKeyValueFromObj(&$object, $key, $value)
+    {
+        if (gettype($object) === "object") {
+            $object->{$key} = $value;
+        } else {
+            $object[$key] = $value;
         }
     }
 
@@ -106,6 +133,19 @@ class Helpers
     public static function has_perfix_reg($string, $reg)
     {
         return eregi($reg, $string);
+    }
+    public static function unlinkFile($filename)
+    {
+        if (is_link($filename)) {
+            $sym = @readlink($filename);
+            if ($sym) {
+                return is_writable($filename) && @unlink($filename);
+            }
+        }
+        if (realpath($filename) && realpath($filename) !== $filename) {
+            return is_writable($filename) && @unlink(realpath($filename));
+        }
+        return is_writable($filename) && @unlink($filename);
     }
     public static  function has_prefix($string, $prefix)
     {

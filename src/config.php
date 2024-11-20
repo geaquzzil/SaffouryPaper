@@ -7,8 +7,18 @@ define("ROOT", dirname(__FILE__) . "/");
 define("JSONTOMYSQL_LOCKED", false);
 define("ROOT_LOCAL", dirname(__FILE__) . "\\");
 
-//define("KEY",md5(DB_ANDROID));
-//define("SALT",md5(DB_ANDROID));
+
+define("ADD", "add");
+define("EDIT", "edit");
+define("DELETE", "delete");
+define("LIST", "list");
+define("VIEW", "view");
+define("PRINT", "print");
+
+
+define("BEFORE", "before");
+define("AFTER", "after");
+
 
 define('IMAGES_PATH', "saffoury.com/SaffouryPaper2/Images");
 define('AC_NAME', "account_names");

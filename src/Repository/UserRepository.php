@@ -60,5 +60,4 @@ class UserRepository extends BaseRepository
         return $user;
     }
 
-    public function checkPermission($user) {}
 }

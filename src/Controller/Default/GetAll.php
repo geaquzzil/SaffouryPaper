@@ -50,10 +50,7 @@ final class GetAll extends BaseController
                 $option->sortOption = new SortOption($desc, SortType::DESC);
             }
         }
-
         echo "\n" . $option->getQuery();
-
-
 
 
 

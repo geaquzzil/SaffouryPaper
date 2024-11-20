@@ -11,7 +11,7 @@ class App
     public function __construct($envFilePath = '')
     {
         # settings
-
+        require_once __DIR__ . '/../src/config.php';
 
         $dotenv =  \Dotenv\Dotenv::createImmutable($envFilePath);
         $dotenv->load();
@@ -25,6 +25,7 @@ class App
         require_once __DIR__ . '/../src/Dependencies.php';
 
         require_once __DIR__ . '/../src/Repositories.php';
+
 
         require_once __DIR__ . '/Services.php';
 

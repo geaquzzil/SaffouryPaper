@@ -3,6 +3,7 @@
 namespace Etq\Restful\Controller;
 
 use Etq\Restful\Helpers;
+use Etq\Restful\Repository\Repository;
 use Exception;
 use Slim\Container;
 use Slim\Http\Response;
@@ -26,9 +27,13 @@ abstract class BaseController
         }
 
         if (!ctype_digit($args['iD'])) {
-            throw new Exception("Expect iD to be integer");
+            throw new Exception("Expect iD to be number");
         }
         return   (int) $args['iD'];
+    }
+    protected function getRepository(): Repository
+    {
+        return $this->container['repository'];
     }
     protected function textResponse(
         Response $response,

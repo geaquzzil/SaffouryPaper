@@ -140,10 +140,9 @@ abstract class BasePermission implements ServerActionInterface
         Request $request,
         Response $response,
         Route $next
-    ): ResponseInterface {
+    ): void {
 
         $this->checkForPermission($request, $this->getAction());
-        return $next($request, $response);
     }
 }
 

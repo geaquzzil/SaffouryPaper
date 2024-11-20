@@ -28,4 +28,6 @@ class PermissionRepository extends BaseRepository
         $permission = $statement->fetch();
         return $permission;
     }
+
+    // public function get
 }

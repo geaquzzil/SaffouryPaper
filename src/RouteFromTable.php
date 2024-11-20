@@ -30,6 +30,7 @@ class RouteFromTable
     {
 
         $tables = $app->getContainer()['repository']->getAllTables();
+        $permissionRep = $app->getContainer()['permission_repository'];
 
         for ($i = 0; $i < count($tables); $i++) {
             // $table = "";

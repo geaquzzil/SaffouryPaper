@@ -21,10 +21,37 @@ final class Delete extends BaseController
         parent::init($request);
         $input = (array) $request->getParsedBody();
         $iD = $this->checkForID($args);
+        //TODO BEFORE DELETE 
+        //TODO DELETE
+        //TODO AFTER DELETE
+
+        $this->getRepository();
+        
+	$pdo = setupDatabase();
+	try {
+		$query = "SELECT * FROM  `" . addslashes($tableName) . "` " . getWhereQuery($object);
+		$toDeleteObjects = getFetshALLTableWithQuery($query);
+		if (empty($toDeleteObjects)) {
+			return null;
+		}
+		$responseArray = array();
+		foreach ($toDeleteObjects as $deleteObject) {
+			// echo "F";
+			$deleteObject["serverStatus"] = doDelete($deleteObject, $tableName, $sendNoti);
+			fixDeleteResponseObjectExtenstion($deleteObject, $tableName);
+			$responseArray[] = $deleteObject;
+			//	array_push($responseArray,$deleteObject);
+		}
+		return $responseArray;
+	} catch (PDOException $e) {
+		return null;
+	}
         // $userIdLogged = $this->getAndValidateUserId($input);
 
         // $this->checkUserPermissions($id, $userIdLogged);
         // $this->getDeleteUserService()->delete($id);
+
+
 
         return $this->textResponse($response, "Delete $iD");
     }
