@@ -9,15 +9,22 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 
-class NotificationPermission extends BasePermission
+class StaticPermission extends BasePermission
 {
+
+
+    public function __construct(protected string $permission_action, $repo)
+    {
+        parent::__construct($repo);
+    }
+
 
     public function __invoke(
         Request $request,
         Response $response,
         Route $next
     ) {
-        // parent::__invoke($request, $response, $next);
+        parent::invoke($request, $response, $next);
         $response =  $next($request, $response);
         // echo "AFter Response $response";
         return $response;
@@ -25,6 +32,11 @@ class NotificationPermission extends BasePermission
 
     public function getAction()
     {
-        return "notification";
+        return "view";
+    }
+
+    protected function getTableName($request)
+    {
+        return $this->permission_action;
     }
 }

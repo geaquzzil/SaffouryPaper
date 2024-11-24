@@ -13,6 +13,43 @@ use \Firebase\JWT\Key;
 
 abstract class BasePermission implements ServerActionInterface
 {
+    public static
+        $permissionExtentions = array(
+            "action_exchange_rate",
+            "action_block",
+            "action_transfer_account",
+            "action_notification",
+            "action_change_customers_password",
+            "action_cut_request_scan_by_product",
+            "action_cut_request_change_quantity",
+            "text_products_quantity",
+            // "text_customers_password",
+            "text_customers_balances",
+            "text_transaction_added_by",
+            "text_prices_for_customer",
+            "text_products_notes",
+            "text_purchase_price",
+            "text_balance_due",
+            "text_balance_due_today",
+            "text_balance_due_previous",
+            //"list_customers_terms",
+            "add_from_importer",
+
+            "set_customs_declarations",
+
+            "list_product_movement",
+            "list_customers_balances",
+            "list_block",
+            "list_fund",
+            "list_dashboard",
+            "list_sales",
+            "list_profit_loses",
+            "list_products_movements",
+            "view_customer_statment_by_employee"
+
+
+
+        );
     private  bool $shouldBeSignedInWhenNoLevelFound = false;
     private $adminID = -1;
     protected PermissionRepository $repo;
@@ -40,6 +77,8 @@ abstract class BasePermission implements ServerActionInterface
     {
         return Helpers::explodeURI($request->getUri()->getPath());
     }
+
+
     //If there is  a token it should be valid 
     // if there is no token then guest permssion is applied
     // if  guest has no access then permission denied
@@ -88,7 +127,7 @@ abstract class BasePermission implements ServerActionInterface
         $tableName = $this->getTableName($request);
         $action = $this->getAction();
         //check for if notification system is enable
-        
+
     }
 
 
@@ -133,17 +172,30 @@ abstract class BasePermission implements ServerActionInterface
 
         return true;
     }
-    private function isCustomer(int $id)
+    protected function isCustomer(int $id)
     {
         return $id > 0;
     }
-    private function isGuest(int $id)
+    protected function isGuest(int $id)
     {
         return $id = 0;
     }
-    private function isEmployee(int $id)
+    protected function isEmployee(int $id)
     {
         return $id < 0;
+    }
+    
+    protected  function checkForUserType(int $levelID)
+    {
+        if ($levelID == 0) {
+            return UserType::GUEST;
+        } else if ($levelID > 0) {
+            return UserType::CUSTOMER;
+        } else if ($levelID == -1) {
+            return UserType::ADMIN;
+        } else {
+            return UserType::EMPLOYEE;
+        }
     }
 
     public function invoke(
@@ -160,4 +212,11 @@ abstract class BasePermission implements ServerActionInterface
 interface ServerActionInterface
 {
     public function getAction();
+}
+enum UserType: int
+{
+    case  GUEST = 0;
+    case EMPLOYEE = -4;
+    case CUSTOMER = 1;
+    case ADMIN = -1;
 }

@@ -3,48 +3,60 @@
 
 namespace Etq\Restful\Middleware;
 
+use Etq\Restful\Middleware\Permissions\BasePermission;
+use Etq\Restful\Middleware\Permissions\UserType;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 
-class Auth extends Base
+class Auth extends BasePermission
 {
     private $adminID = -1;
+
+
+    public function __construct(protected UserType $requiredType, protected bool $allowHigherPermission = true) {}
     public function __invoke(
         Request $request,
         Response $response,
         Route $next
     ): ResponseInterface {
 
-        $jwtHeader = $request->getHeaderLine('Authorization');
-
-        if (! $jwtHeader) {
-            throw new \Exception('Token required.', 400);
+        $token = $this->getToken($request);
+        $levelID = 0;
+        if (!is_null($token)) {
+            $levelID = $token->data->userlevelid;
         }
-        $jwt = explode('Bearer ', $jwtHeader);
-        if (! isset($jwt[1])) {
-            throw new \Exception('Token invalid.', 400);
+        if (!$this->hasAccess($levelID)) {
+            throw new \Exception('Permission denied.', 400);
         }
-        $decoded = $this->checkToken($jwt[1]);
-        //todo path uri
-        // print_r($request->getUri()->getPath()); 
-        $object = (array) $request->getParsedBody();
-        $object['decoded'] = $decoded;
 
-        return $next($request->withParsedBody($object), $response);
+
+        return $next($request, $response);
     }
-    private function isCustomer(int $id)
+    //Not required
+    public function getAction()
     {
-        return $id > 0;
+        return "list";
     }
-    private function isGuest(int $id)
+
+    private  function hasAccess(int $levelID)
     {
-        return $id = 0;
+        if ($this->allowHigherPermission) {
+
+            if()
+            if ($this->requiredType == UserType::EMPLOYEE) {
+                return $levelID < -1 ;
+            } else if ($this->requiredType == UserType::ADMIN) {
+                return $levelID == -1;
+            } else if ($this->requiredType == UserType::GUEST) {
+                return $levelID == 0;
+            } else {
+                return
+            }
+        } else {
+            return $this->checkForUserType($levelID) == $this->requiredType;
+        }
     }
-    private function isEmployee(int $id)
-    {
-        return $id < 0;
-    }
-    
+    private function isHigher(UserType $current, UserType $required) {}
 }

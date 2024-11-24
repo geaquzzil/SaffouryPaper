@@ -16,7 +16,7 @@ use Exception;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-final class NotificationController extends BaseController
+final class BlockController extends BaseController
 {
     public function __invoke(Request $request, Response $response, array $args): Response
     {

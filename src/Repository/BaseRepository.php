@@ -11,14 +11,10 @@ abstract class BaseRepository
 
 
     protected function list(string $tableName, ?Options $option = null) {}
-    protected function view(?Options $option = null) {}
+    protected function view(string $tableName, ?int $iD = null, ?Options $option = null) {}
     protected function edit(string $tableName, object $object) {}
-    protected function add(string $tableName, object $object) {
-        
-    }
-    protected function delete(string $tableName, int $iD) {
-
-    }
+    protected function add(string $tableName, object $object) {}
+    protected function delete(string $tableName, int $iD) {}
 
 
     public function __construct(protected \PDO $database)
@@ -112,13 +108,14 @@ abstract class BaseRepository
 
         return (array) $statement->fetchAll();
     }
+
     public function getFetshALLTableWithQuery($query)
     {
         $statement = $this->database->prepare($query);
         $statement->execute();
         return (array) $statement->fetchAll();
     }
-    function getFetshTableWithQuery($query)
+    public function getFetshTableWithQuery($query)
     {
         $statement = $this->database->prepare($query);
         $statement->execute();
