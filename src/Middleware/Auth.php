@@ -39,23 +39,17 @@ class Auth extends BasePermission
     {
         return "list";
     }
-
+    /// if current user type == employe then customer and guest is enable
+    ///if current user type == customer and 
     private  function hasAccess(int $levelID)
     {
+        $currentUserType = $this->checkForUserType($levelID);
+        $requiredPriority = $this->getPermissionProiority($this->requiredType->value);
+        $currentProiority = $this->getPermissionProiority($levelID);
         if ($this->allowHigherPermission) {
-
-            if()
-            if ($this->requiredType == UserType::EMPLOYEE) {
-                return $levelID < -1 ;
-            } else if ($this->requiredType == UserType::ADMIN) {
-                return $levelID == -1;
-            } else if ($this->requiredType == UserType::GUEST) {
-                return $levelID == 0;
-            } else {
-                return
-            }
+            return $currentProiority >= $requiredPriority;
         } else {
-            return $this->checkForUserType($levelID) == $this->requiredType;
+            return $currentUserType == $this->requiredType;
         }
     }
     private function isHigher(UserType $current, UserType $required) {}

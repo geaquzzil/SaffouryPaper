@@ -184,20 +184,31 @@ abstract class BasePermission implements ServerActionInterface
     {
         return $id < 0;
     }
-    
+
     protected  function checkForUserType(int $levelID)
     {
         if ($levelID == 0) {
             return UserType::GUEST;
-        } else if ($levelID > 0) {
-            return UserType::CUSTOMER;
         } else if ($levelID == -1) {
             return UserType::ADMIN;
+        } else if ($levelID > 0) {
+            return UserType::CUSTOMER;
         } else {
             return UserType::EMPLOYEE;
         }
     }
-
+    protected function getPermissionProiority(int $id)
+    {
+        if ($id == -1) {
+            return 3;
+        } else if ($id == 0) {
+            return 0;
+        } else if ($id > 0) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
     public function invoke(
         Request $request,
         Response $response,

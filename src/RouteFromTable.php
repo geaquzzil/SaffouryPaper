@@ -17,6 +17,8 @@ use Etq\Restful\Controller\Default\GetAll;
 use Etq\Restful\Controller\Default\GetOne;
 use Etq\Restful\Controller\Default\Update;
 use Etq\Restful\Controller\NotificationController;
+use Etq\Restful\Middleware\Auth;
+use Etq\Restful\Middleware\Permissions\UserType;
 
 class RouteFromTable
 {
@@ -46,44 +48,44 @@ class RouteFromTable
 
         $app->group('/database', function () use ($app): void {
             $app->get('/backup', NotificationController::class);
-            $app->post('/restore' . CUST . '[/[{iD:\d+}]]', NotificationController::class);
-        })->add(new StaticPermission("action_notification", $app->getContainer()['permission_repository']));
+            $app->post('/restore', NotificationController::class);
+        })->add(new Auth(UserType::ADMIN));
 
-        $app->group('/notification', function () use ($app): void {
-            $app->get('[/]', NotificationController::class);
-            $app->get('/' . CUST . '[/[{iD:\d+}]]', NotificationController::class);
+        // $app->group('/notification', function () use ($app): void {
+        //     $app->get('[/]', NotificationController::class);
+        //     $app->get('/' . CUST . '[/[{iD:\d+}]]', NotificationController::class);
 
-            $app->get('/' . EMP . '[/[{iD:\d+}]]', NotificationController::class);
-        })->add(new StaticPermission("action_notification", $app->getContainer()['permission_repository']));
-
-
-        $app->group('/block', function () use ($app): void {
-            $app->get('[/]', BlockController::class);
-            $app->get('/' . CUST . '[/[{iD:\d+}]]', BlockController::class);
-
-            $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        })->add(new StaticPermission("action_block", $app->getContainer()['permission_repository']));
-
-        $app->group('/transfer', function () use ($app): void {
-            //TODO args from & to
-            $app->get('/' . CUST, TransferController::class);
-
-            // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
+        //     $app->get('/' . EMP . '[/[{iD:\d+}]]', NotificationController::class);
+        // })->add(new StaticPermission("action_notification", $app->getContainer()['permission_repository']));
 
 
+        // $app->group('/block', function () use ($app): void {
+        //     $app->get('[/]', BlockController::class);
+        //     $app->get('/' . CUST . '[/[{iD:\d+}]]', BlockController::class);
 
-        $app->group('/transfer', function () use ($app): void {
-            //TODO args from & to
-            $app->get('/customer_account', TransferController::class);
-            $app->get('/money', TransferController::class);
+        //     $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
+        // })->add(new StaticPermission("action_block", $app->getContainer()['permission_repository']));
 
-            // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
+        // $app->group('/transfer', function () use ($app): void {
+        //     //TODO args from & to
+        //     $app->get('/' . CUST, TransferController::class);
+
+        //     // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
+        // })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
 
 
-        $app->get('/exchange_rate[/]', ExchangeRateController::class)
-            ->add(new StaticPermission("action_exchange_rate", $app->getContainer()['permission_repository']));
+
+        // $app->group('/transfer', function () use ($app): void {
+        //     //TODO args from & to
+        //     $app->get('/customer_account', TransferController::class);
+        //     $app->get('/money', TransferController::class);
+
+        //     // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
+        // })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
+
+
+        // $app->get('/exchange_rate[/]', ExchangeRateController::class)
+        //     ->add(new StaticPermission("action_exchange_rate", $app->getContainer()['permission_repository']));
     }
 
 
