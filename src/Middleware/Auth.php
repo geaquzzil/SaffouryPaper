@@ -27,6 +27,7 @@ class Auth extends BasePermission
         if (!is_null($token)) {
             $levelID = $token->data->userlevelid;
         }
+        // echo $levelID;
         if (!$this->hasAccess($levelID)) {
             throw new \Exception('Permission denied.', 400);
         }

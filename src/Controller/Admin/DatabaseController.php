@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Etq\Restful\Controller;
+namespace Etq\Restful\Controller\Admin;
 
 use Etq\Restful\Controller\BaseController;
 use Etq\Restful\Database\DBBackupAndRestore;
@@ -13,11 +13,12 @@ use Etq\Restful\Repository\SearchOption;
 use Etq\Restful\Repository\SortOption;
 use Etq\Restful\Repository\SearchType;
 use Etq\Restful\Repository\SortType;
+use Etq\Restful\Security\MCrypt;
 use Exception;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-final class DatabaseController extends BaseController
+class DatabaseController extends BaseController
 {
 
     // if ($document[0]->exists) {
@@ -45,20 +46,59 @@ final class DatabaseController extends BaseController
     // } 
     private function backup(Response $response)
     {
-        echo "bacup";
         $db = new DBBackupAndRestore();
         $result = $db->backupTables();
         if ($result) {
-
-            echo "bacup backupTables";
+            $mcrypt = new MCrypt();
             $db->obfPrint('Backup result: ' . $result, 1);
+            // echo $db->content;
+            $txtOfFile = $mcrypt->encrypt($db->content);
+            $compress = gzencode(gzcompress($txtOfFile, 9));
+            file_put_contents($db->getFileName(), $compress, FILE_APPEND | LOCK_EX);
+            $stream = new \Slim\Http\Stream(fopen($db->getFileName(), 'r'));
+            $response->write($compress);
+            // $response->write("$openFile ");
+            return $response
+                // ->withHeader('Content-Type', 'application/force-download')
+                ->withHeader('Content-Type', 'application/x-gzip')
+                // ->withHeader('Content-Type', 'application/octet-stream')
+                // ->withHeader('Content-Type', 'application/download')
+                ->withHeader('Content-Description', 'File Transfer')
+                ->withHeader('Content-Transfer-Encoding', 'binary')
+                ->withHeader('Content-disposition', "attachment; filename=\"" . $db->backupFile . "\"")
+                ->withHeader('Expires', '0')
+                ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+                // ->withHeader('key', $uuid)
+                // ->withBody($stream)
+                // ->withBody($stream)
+            ; // all stream contents will be sent to the response
+            // echo "attachment; filename=" . $db->backupFile;
+            // echo gzencode(gzcompress($txtOfFile, 9));
+            // foreach ($response->getHeaders() as $name => $values) {
+            //     foreach ($values as $index => $value) {
+            //         echo $name . "   " . $value . "\n";
+            //         // header(sprintf('%s: %s', $name, $value), $index === 0);
+            //     }
+            // }
+            $newresponse = $response
 
-            return $response->withStatus(200)
+                // ->withHeader('Content-Type', 'application/force-download')
+                // ->withHeader('Content-Type', 'application/octet-stream')
                 ->withHeader('Content-Type', 'application/x-gzip')
                 ->withHeader('Content-Transfer-Encoding', 'Binary')
-                ->withHeader('Content-disposition', "attachment; filename=\"" . $db->backupFile . "\"");
+                ->withHeader('Content-disposition', "attachment; filename=" . $db->backupFile . ".zip")
+                ->withHeader('Cache-Control', 'must-revalidate')
+                ->write($compress);
+            foreach ($newresponse->getHeaders() as $name => $values) {
+                foreach ($values as $index => $value) {
+                    // echo $name . "   " . $value . "\n";
+                    // header(sprintf('%s: %s', $name, $value), $index === 0);
+                }
+            }
+            return $newresponse;
+            // ->withJson(['message' => 'Success'], 200, JSON_PRETTY_PRINT);
         } else {
-            throw new \Exception("Error while backup");
+            throw new Exception("Error while backup");
         }
     }
     private function restore()
@@ -72,12 +112,12 @@ final class DatabaseController extends BaseController
         //$result = $restoreDatabase->restoreDbText($txtOfFile) ? 'OK' : 'KO';
         //   $restoreDatabase->obfPrint("Restoration result: ".$result, 1);
     }
-    public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response): Response
     {
         parent::init($request);
-        echo "{$this->tableName} is ";
+        // echo "{$this->tableName} is ";
         if ($this->tableName == "backup") {
-            echo "{$this->tableName} is ";
+            // echo "{$this->tableName} is ";
             return  $this->backup($response);
         } else {
             return $this->restore();

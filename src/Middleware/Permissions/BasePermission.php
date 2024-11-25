@@ -51,7 +51,7 @@ abstract class BasePermission implements ServerActionInterface
 
         );
     private  bool $shouldBeSignedInWhenNoLevelFound = false;
-    private $adminID = -1;
+    private $adminID = -2;
     protected PermissionRepository $repo;
 
     public function __construct(PermissionRepository $repo)
@@ -184,12 +184,15 @@ abstract class BasePermission implements ServerActionInterface
     {
         return $id < 0;
     }
-
+    protected function isAdmin(int $id)
+    {
+        return $id == $this->adminID;
+    }
     protected  function checkForUserType(int $levelID)
     {
         if ($levelID == 0) {
             return UserType::GUEST;
-        } else if ($levelID == -1) {
+        } else if ($levelID == $this->adminID) {
             return UserType::ADMIN;
         } else if ($levelID > 0) {
             return UserType::CUSTOMER;
@@ -199,7 +202,7 @@ abstract class BasePermission implements ServerActionInterface
     }
     protected function getPermissionProiority(int $id)
     {
-        if ($id == -1) {
+        if ($id == $this->adminID) {
             return 3;
         } else if ($id == 0) {
             return 0;

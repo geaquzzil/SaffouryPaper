@@ -2,7 +2,7 @@
 
 namespace Etq\Restful;
 
-use Etq\Restful\Controller\DatabaseController;
+use Etq\Restful\Controller\Admin\DatabaseController;
 use Etq\Restful\Repository\Repository;
 // use Etq\Restful\Middleware\Auth;
 use Etq\Restful\Middleware\Permissions\ListPermission;
@@ -48,9 +48,11 @@ class RouteFromTable
         }
 
         $app->group('/database', function () use ($app): void {
-            $app->post('/backup', DatabaseController::class);
-            $app->post('/restore', DatabaseController::class);
-        })->add(new Auth(UserType::ADMIN));
+            $app->get('/backup[/]', DatabaseController::class);
+            $app->post('/restore[/]', DatabaseController::class);
+        })
+            // ->add(new Auth(UserType::ADMIN))
+        ;
 
         // $app->group('/notification', function () use ($app): void {
         //     $app->get('[/]', NotificationController::class);

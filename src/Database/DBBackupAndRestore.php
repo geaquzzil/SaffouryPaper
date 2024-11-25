@@ -273,7 +273,6 @@ class DBBackupAndRestore
             }
         } catch (\Exception $e) {
             throw new  \Exception($e->getMessage());
-            return false;
         }
 
         return true;
@@ -286,23 +285,29 @@ class DBBackupAndRestore
     protected function saveFile(&$sql)
     {
         if (!$sql) return false;
+        // echo "saving file";
 
         try {
 
             if (!file_exists($this->backupDir)) {
                 mkdir($this->backupDir, 0777, true);
+                echo "saving file $this->backupDir";
             }
+            // echo $this->backupDir . '/' . $this->backupFile;
 
-            //    file_put_contents($this->backupDir.'/'.$this->backupFile, $sql, FILE_APPEND | LOCK_EX);
+
             $this->content = $this->content . $sql;
             //     header('Content-Type: application/octet-stream');   header("Content-Transfer-Encoding: Binary"); header("Content-disposition: attachment; filename=\"".$this->backupFile."\"");echo $sql;  exit;
 
         } catch (\Exception $e) {
             throw new  \Exception($e->getMessage());
-            return false;
         }
 
         return true;
+    }
+    public function getFileName()
+    {
+        return $this->backupDir . '/' . $this->backupFile;
     }
 
     /*
