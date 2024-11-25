@@ -111,3 +111,18 @@ define('KSIZE', "SizeID");
 define('KCOUNTRY', "CountryID");
 define('KMANUFACTURE', "ManufactureID");
 define('KLVL', "userlevelid");
+
+
+
+
+/**
+ * Define database parameters here
+ */
+define("BACKUP_DIR", 'myphp-backup-files'); // Comment this line to use same script's directory ('.')
+define("TABLES", '*'); // Full backup
+//define("TABLES", 'table1, table2, table3'); // Partial backup
+define("CHARSET", 'utf8');
+define("GZIP_BACKUP_FILE", false); // Set to false if you want plain SQL backup files (not gzipped)
+define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails
+define("BATCH_SIZE", 1000); // Batch size when selecting rows from database in order to not exhaust system memory
+                            // Also number of rows per INSERT statement in backup file

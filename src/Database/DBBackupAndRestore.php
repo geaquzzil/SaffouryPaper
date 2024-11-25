@@ -1,28 +1,14 @@
 <?php
 
-/**
- * This file contains the Backup_Database class wich performs
- * a partial or complete backup of any given MySQL database
- * @author Daniel López Azaña <daniloaz@gmail.com>
- * @version 1.0
- */
-/**
- * Define database parameters here
- */
-define("BACKUP_DIR", 'myphp-backup-files'); // Comment this line to use same script's directory ('.')
-define("TABLES", '*'); // Full backup
-//define("TABLES", 'table1, table2, table3'); // Partial backup
-define("CHARSET", 'utf8');
-define("GZIP_BACKUP_FILE", false); // Set to false if you want plain SQL backup files (not gzipped)
-define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails
-define("BATCH_SIZE", 1000); // Batch size when selecting rows from database in order to not exhaust system memory
-// Also number of rows per INSERT statement in backup file
+namespace Etq\Restful\Database;
+
 
 /**
  * The Backup_Database class
  */
-class Backup_Database
+class DBBackupAndRestore
 {
+
     /**
      * Host where the database is located
      */
@@ -88,9 +74,8 @@ class Backup_Database
     /**
      * Constructor initializes database
      */
-    public function __construct($host, $username, $passwd, $dbName, $charset = 'utf8')
+    public function __construct($charset = 'utf8')
     {
-
         $this->content                 = "";
         $this->host                    = $_SERVER['DB_HOST'];
         $this->username                = $_SERVER['DB_USER'];
@@ -111,13 +96,13 @@ class Backup_Database
         try {
             $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName);
             if (mysqli_connect_errno()) {
-                throw new Exception('ERROR connecting database: ' . mysqli_connect_error());
+                throw new \Exception('ERROR connecting database: ' . mysqli_connect_error());
                 die();
             }
             if (!mysqli_set_charset($conn, $this->charset)) {
                 mysqli_query($conn, 'SET NAMES ' . $this->charset);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             print_r($e->getMessage());
             die();
         }
@@ -286,7 +271,7 @@ class Backup_Database
             } else {
                 $this->obfPrint('Backup file succesfully saved to ' . $this->backupDir . '/' . $this->backupFile, 1, 1);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new  \Exception($e->getMessage());
             return false;
         }
@@ -312,8 +297,8 @@ class Backup_Database
             $this->content = $this->content . $sql;
             //     header('Content-Type: application/octet-stream');   header("Content-Transfer-Encoding: Binary"); header("Content-disposition: attachment; filename=\"".$this->backupFile."\"");echo $sql;  exit;
 
-        } catch (Exception $e) {
-            print_r($e->getMessage());
+        } catch (\Exception $e) {
+            throw new  \Exception($e->getMessage());
             return false;
         }
 
@@ -463,14 +448,14 @@ class Restore_Database
     /**
      * Constructor initializes database
      */
-    function __construct($host, $username, $passwd, $dbName, $charset = 'utf8')
+    function __construct($charset = 'utf8')
     {
         $this->jsonResponse            = array();
         $this->jsonResponse["tables"] = array();
-        $this->host                    = $host;
-        $this->username                = $username;
-        $this->passwd                  = $passwd;
-        $this->dbName                  = $dbName;
+        $this->host                    = $_SERVER['DB_HOST'];
+        $this->username                = $_SERVER['DB_USER'];
+        $this->passwd                  = $_SERVER['DB_PASS'];
+        $this->dbName                  = $_SERVER['DB_NAME'];
         $this->charset                 = $charset;
         $this->disableForeignKeyChecks = defined('DISABLE_FOREIGN_KEY_CHECKS') ? DISABLE_FOREIGN_KEY_CHECKS : true;
         $this->conn                    = $this->initializeDatabase();
@@ -496,7 +481,7 @@ class Restore_Database
         try {
             $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName);
             if (mysqli_connect_errno()) {
-                throw new Exception('ERROR connecting database: ' . mysqli_connect_error());
+                throw new \Exception('ERROR connecting database: ' . mysqli_connect_error());
                 die();
             }
             if (!mysqli_set_charset($conn, $this->charset)) {
@@ -509,8 +494,8 @@ class Restore_Database
             if ($this->disableForeignKeyChecks === true) {
                 mysqli_query($conn, 'SET foreign_key_checks = 0');
             }
-        } catch (Exception $e) {
-            print_r($e->getMessage());
+        } catch (\Exception $e) {
+            throw new  \Exception($e->getMessage());
             die();
         }
 
@@ -537,7 +522,7 @@ class Restore_Database
             $backupFileIsGzipped = substr($backupFile, -3, 3) == '.gz' ? true : false;
             if ($backupFileIsGzipped) {
                 if (!$backupFile = $this->gunzipBackupFile()) {
-                    throw new Exception("ERROR: couldn't gunzip backup file " . $backupDir . '/' . $backupFile);
+                    throw new \Exception("ERROR: couldn't gunzip backup file " . $backupDir . '/' . $backupFile);
                 }
             }
 
@@ -567,7 +552,7 @@ class Restore_Database
                                     }
                                     $sql = '';
                                 } else {
-                                    throw new Exception("ERROR: SQL execution error: " . mysqli_error($this->conn));
+                                    throw new \Exception("ERROR: SQL execution error: " . mysqli_error($this->conn));
                                 }
                             }
                         } else if (preg_match('/\*\/$/', $line)) {
@@ -577,10 +562,10 @@ class Restore_Database
                 }
                 fclose($handle);
             } else {
-                throw new Exception("ERROR: couldn't open backup file " . $backupDir . '/' . $backupFile);
+                throw new \Exception("ERROR: couldn't open backup file " . $backupDir . '/' . $backupFile);
             }
-        } catch (Exception $e) {
-            print_r($e->getMessage());
+        } catch (\Exception $e) {
+            throw new  \Exception($e->getMessage());
             return false;
         }
 
@@ -641,9 +626,11 @@ class Restore_Database
                 return false;
                 //  throw new Exception("ERROR: couldn't open backup file backup.sql ");
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->jsonResponse["success"] = false;
             $this->jsonResponse["error"] = ($e->getMessage());
+
+            jk;
             return false;
         }
         $this->jsonResponse["success"] = true;
