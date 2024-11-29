@@ -52,10 +52,11 @@ class RouteFromTable
                 $r->addExtensionTableUrl($table, $app);
             });
         }
-        $app->group('/token', function () use ($app): void {
-            $app->post('/{iD:[0-9]+', '');
-            $app->put('/{iD:[0-9]+', '');
-        });
+        // $this->getRouters($app);
+        // $app->group('/token', function () use ($app): void {
+        //     $app->post('/{iD:[0-9]+', '');
+        //     $app->put('/{iD:[0-9]+', '');
+        // });
         $app->group('/database', function () use ($app): void {
 
             $res = array();
@@ -114,8 +115,8 @@ class RouteFromTable
         //     // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
         // })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
 
-        $app->get('/tables', 'Etq\Restful\Controller\DefaultController:getTabels')->add(new Auth(UserType::ADMIN));
-        $app->get('/server_data', '');
+        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTabels')->add(new Auth(UserType::ADMIN));
+        $app->get('/server_data[/]', '');
         $app->get('/exchange_rate[/]', ExchangeRateController::class)
             ->add(new StaticPermission("action_exchange_rate", $permissionRep));
     }
@@ -135,15 +136,28 @@ class RouteFromTable
                 //     return $func($object);
                 // }
                 $app->{$router[2]}($router[0], $router[1]);
-
-                if ($router[3]) {
-                    $app->add(new StaticPermission($router[3], $app->getContainer()['permission_repository']));
+                $hasPermission = $router[3];
+                if ($hasPermission) {
+                    $app->add(new StaticPermission($hasPermission, $app->getContainer()['permission_repository']));
                 }
             }
             // echo $search_array[20120504];
         }
     }
-
+    private function getRouters($app)
+    {
+        $routes = array_reduce($app->getContainer()->get('router')->getRoutes(), function ($target, $route) {
+            $target[$route->getPattern()] = [
+                'methods' => json_encode($route->getMethods()),
+                'callable' => $route->getCallable(),
+                'middlewares' => json_encode($route->getMiddleware()),
+                'pattern' => $route->getPattern(),
+            ];
+            return $target;
+        }, []);
+        header('Content-Type', 'application/json');
+        die(print_r(($routes)));
+    }
     private $getExtessionTableUrl =
     [
         // PR => [
@@ -163,13 +177,13 @@ class RouteFromTable
         CUST => [
             // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:createToken', 'post', null],
             // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:updateToken', 'put', null],
-            ['statement'   . self::ID_REQUIRED, 'Etq\Restful\Controller\CustomerController:getStatement', 'get', null],
-            ['terms'       . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getTearms', 'get', null],
-            ['profits'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getProfits', 'get', null],
-            ['notPaid'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNotPaidCustomers', 'get', null],
-            ['overdue'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getOverDueCustomers', 'get', null],
-            ['balance'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getBalance', 'get', null],
-            ['nextPayment' . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNextPayment', 'get', null],
+            ['/statement'   . self::ID_REQUIRED, 'Etq\Restful\Controller\CustomerController:getStatement', 'get', null],
+            ['/terms'       . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getTearms', 'get', null],
+            ['/profits'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getProfits', 'get', null],
+            ['/notPaid'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNotPaidCustomers', 'get', null],
+            ['/overdue'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getOverDueCustomers', 'get', null],
+            ['/balance'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getBalance', 'get', null],
+            ['/nextPayment' . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNextPayment', 'get', null],
         ],
 
         // CUT => []

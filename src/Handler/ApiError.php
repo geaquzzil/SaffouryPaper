@@ -19,6 +19,7 @@ final class ApiError extends \Slim\Handlers\Error
         $data = [
             'message' => $exception->getMessage(),
             'class' => $className->getName(),
+            'trace' => $exception->getTraceAsString(),
             'status' => 'error',
             'code' => $statusCode,
         ];

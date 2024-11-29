@@ -1,4 +1,3 @@
-
 <?php
 
 declare(strict_types=1);
@@ -59,8 +58,8 @@ final class CustomerController extends BaseController
     public function getStatement(Request $request, Response $response, array $args): Response
     {
         $modelReflector = new \ReflectionClass(__CLASS__);
-        $method = $modelReflector->getMethod(__METHOD__);
-        return $this->textResponse($response, $method->name);
+        // $method = $modelReflector->getMethod(__METHOD__);
+        return $this->textResponse($response, '$method->name');
     }
     public function getBalance(Request $request, Response $response, array $args): Response
     {

@@ -17,6 +17,18 @@ abstract class BaseController
 
     public function __construct(protected Container $container) {}
 
+
+    protected function checkForOptionalID(array $args)
+    {
+        if (!isset($args["iD"])) {
+            return null;
+        }
+
+        if (!ctype_digit($args['iD'])) {
+            return null;
+        }
+        return   (int) $args['iD'];
+    }
     protected function checkForID(array $args)
     {
         if (empty($args)) {
