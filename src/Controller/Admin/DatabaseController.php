@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Etq\Restful\Controller\Admin;
 
 use Etq\Restful\Controller\BaseController;
+use Etq\Restful\Database\DatabaseBackup;
 use Etq\Restful\Database\DBBackupAndRestore;
 use Etq\Restful\Helpers;
 use Etq\Restful\Repository\Repository;
@@ -14,9 +15,11 @@ use Etq\Restful\Repository\SortOption;
 use Etq\Restful\Repository\SearchType;
 use Etq\Restful\Repository\SortType;
 use Etq\Restful\Security\MCrypt;
+use Etq\Restful\Utils\TempStream as UtilsTempStream;
 use Exception;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Http\Stream;
 
 class DatabaseController extends BaseController
 {
@@ -44,18 +47,117 @@ class DatabaseController extends BaseController
     //             'documents' => $payload
     //         ]);
     // } 
-    private function backup(Response $response)
+    private function backup(Response &$response)
     {
         $db = new DBBackupAndRestore();
+        // echo "  das";
         $result = $db->backupTables();
+        // echo "  b";
         if ($result) {
-            $mcrypt = new MCrypt();
+            // echo "  sasaa";
             $db->obfPrint('Backup result: ' . $result, 1);
+            // $db->saveFile();
+            // $output = $db->getOutput();
+            // $mcrypt = new MCrypt();
+            // $db->obfPrint('Backup result: ' . $result, 1);
             // echo $db->content;
-            $txtOfFile = $mcrypt->encrypt($db->content);
-            $compress = gzencode(gzcompress($txtOfFile, 9));
+            // $txtOfFile = $mcrypt->encrypt($db->content);
+            // $compress = gzencode(gzcompress($txtOfFile, 9));
+
+            file_put_contents($db->getFileName(), $db->content, FILE_APPEND | LOCK_EX);
+
+            // $tmpfname = $db->getFileName();
+            // echo mime_content_type($tmpfname);
+            // write data to tmpfname (eg. create a zip)
+            // ...
+
+            // TempStream gets the filename as parameter, not
+            // the resource
+            // $file_stream = new UtilsTempStream($db->getFileName() . ".gz");
+            // echo mime_content_type($db->getFileName() . ".gz");
+            // $response->write($compress);
+
+
+            // header('Content-Type: application/x-gzip');
+            // header("Content-Transfer-Encoding: Binary");
+            // header("Content-disposition: attachment; filename=\"" . $db->backupFile . "\"");
+            // $txtOfFile = $mcrypt->encrypt($db->content);
+            // echo gzencode(gzcompress($txtOfFile, 9));
+
+
+            $fileName = $db->getFileName();
+            if ($fd = fopen($fileName, "r")) {
+
+                $size = filesize($fileName);
+                $path_parts = pathinfo($fileName);
+                $ext = ".gz";
+
+                $outputName = "filename=\"" . basename($db->getFileName()) . "\"";
+
+                switch ($ext) {
+                    case "pdf":
+                        $response = $response->withHeader("Content-type", "application/pdf");
+                        break;
+
+                    case "png":
+                        $response = $response->withHeader("Content-type", "image/png");
+                        break;
+
+                    case "gif":
+                        $response = $response->withHeader("Content-type", "image/gif");
+                        break;
+
+                    case "jpeg":
+                        $response = $response->withHeader("Content-type", "image/jpeg");
+                        break;
+
+                    case "jpg":
+                        $response = $response->withHeader("Content-type", "image/jpg");
+                        break;
+
+                    case "mp3":
+                        $response = $response->withHeader("Content-type", "audio/mpeg");
+                        break;
+
+                    default;
+                        $response = $response->withHeader("Content-type", "application/octet-stream");
+                        break;
+                }
+                // "Content-disposition: attachment; filename=\"" . $db->backupFile . "\";"
+                $response = $response->withHeader('Content-Disposition', $outputName);
+                $response = $response->withHeader('Cache-control', "private");
+                $response = $response->withHeader('Content-Description', 'File Transfer');
+                $response = $response->withHeader('Content-length', $size);
+            }
+
+            $stream = new Stream($fd);
+
+            $response = $response->withBody($stream);
+
+            return $response;
+
+
+            return $response;
+
+
             file_put_contents($db->getFileName(), $compress, FILE_APPEND | LOCK_EX);
             $stream = new \Slim\Http\Stream(fopen($db->getFileName(), 'r'));
+
+
+            //         $path = "working.pdf";
+            // $res = $app->response();
+            // $res['Content-Description'] = 'File Transfer';
+            // $res['Content-Type'] = 'application/json';
+            // $res['Content-Transfer-Encoding'] = 'binary';
+            // $res['Expires'] = '0';
+            // $res['Cache-Control'] = 'must-revalidate';
+            // $res['Pragma'] = 'public';
+            // $fileData = file_get_contents($path);
+            // $base64 = base64_encode($fileData);
+            // $response = array();
+            // $response['pdf'] = $base64;
+            // $response['customKey'] = "My Custom Value";
+            // echo json_encode($response);
             $response->write($compress);
             // $response->write("$openFile ");
             return $response
@@ -101,6 +203,7 @@ class DatabaseController extends BaseController
             throw new Exception("Error while backup");
         }
     }
+
     private function restore()
     {
         // $mcrypt = new MCrypt();

@@ -42,19 +42,22 @@ abstract class BaseController
     ) {
         return $response->withHeader('Content-Type', 'text/plain')->write($message);
     }
+
     protected function jsonResponse(
         Response $response,
         string $status,
         $message,
-        int $code
+        int $code,
+        ?bool  $withHeder = true
     ): Response {
+
         $result = [
             'code' => $code,
             'status' => $status,
             'message' => $message,
         ];
 
-        return $response->withJson($result, $code, JSON_PRETTY_PRINT);
+        return $response->withJson($withHeder ? $result : $message, $code, JSON_PRETTY_PRINT);
     }
 
     protected static function isRedisEnabled(): bool

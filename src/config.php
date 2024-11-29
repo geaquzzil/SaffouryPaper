@@ -118,7 +118,7 @@ define('KLVL', "userlevelid");
 /**
  * Define database parameters here
  */
-define("BACKUP_DIR", 'myphp-backup-files'); // Comment this line to use same script's directory ('.')
+define("BACKUP_DIR", 'backup'); // Comment this line to use same script's directory ('.')
 define("TABLES", '*'); // Full backup
 //define("TABLES", 'table1, table2, table3'); // Partial backup
 define("CHARSET", 'utf8');

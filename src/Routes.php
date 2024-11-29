@@ -24,7 +24,7 @@ use Etq\Restful\RouteFromTable;
 $app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus')->add(new Auth(UserType::ADMIN));
 $app->get('/ping', 'Etq\Restful\Controller\DefaultController:getPing');
 $app->get('/', 'Etq\Restful\Controller\DefaultController:getHelp');
-$app->get('/tables', 'Etq\Restful\Controller\DefaultController:getTabels');
+
 
 $app->post('/resetPassword', '');
 // $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');

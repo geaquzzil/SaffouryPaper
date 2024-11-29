@@ -46,6 +46,7 @@ class UserRepository extends BaseRepository
 
 
         //todo on insert $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        // echo password_hash($password, PASSWORD_BCRYPT);
 
 
 
@@ -59,5 +60,4 @@ class UserRepository extends BaseRepository
 
         return $user;
     }
-
 }
