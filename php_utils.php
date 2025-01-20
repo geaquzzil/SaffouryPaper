@@ -8,7 +8,7 @@ function isNewRecord($object)
     //   echo "isNewRecord ".$keyValue . ($boo ? " TRUE" : " FLAKSE \n");
     return $boo;
 }
-function array_sort($array, $on, $order = SORT_ASC)
+function array_sort_e($array, $on, $order = SORT_ASC)
 {
     $new_array = array();
     $sortable_array = array();

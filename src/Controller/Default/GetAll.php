@@ -6,6 +6,7 @@ namespace Etq\Restful\Controller\Default;
 
 use Etq\Restful\Controller\BaseController;
 use Etq\Restful\Helpers;
+use Etq\Restful\Repository\Date;
 use Etq\Restful\Repository\Repository;
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Repository\SearchOption;
@@ -21,11 +22,11 @@ final class GetAll extends BaseController
     {
         parent::init($request);
 
-        // echo $this->tableName;
         $page = $request->getQueryParam('page', null);
         $countPerPage = $request->getQueryParam('countPerPage', null);
         $limit = $request->getQueryParam('limit', null);
         $searchQuery = $request->getQueryParam('searchQuery', null);
+        $date = $request->getQueryParam('date', null);
 
 
         $asc = $request->getQueryParam('ASC', null);
@@ -36,6 +37,9 @@ final class GetAll extends BaseController
         $option->page = Helpers::isIntReturnValue($page);
         $option->countPerPage = Helpers::isIntReturnValue($countPerPage);
         $option->limit = Helpers::isIntReturnValue($limit);
+        if ($date) {
+            $option->date = Date::fromJson(json_decode($date, true));
+        }
 
         if ($searchQuery) {
             echo " has searchQuery";

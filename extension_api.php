@@ -832,9 +832,9 @@ $API_ACTIONS["list_customers_balances"] = function () {
 		}
 	}
 	if ($requireTerms) {
-		$response["customers"] =	array_values(array_sort($response["customers"], 'balance', SORT_DESC));
+		$response["customers"] =	array_values(array_sort_e($response["customers"], 'balance', SORT_DESC));
 	} else {
-		$response =	array_values(array_sort($response, 'balance', SORT_DESC));
+		$response =	array_values(array_sort_e($response, 'balance', SORT_DESC));
 	}
 	if ($requireTerms) {
 		$response["totalBalance"] = $totalBalance;

@@ -48,10 +48,20 @@ class Options
 
 class Date
 {
-    public function __construct(protected string $from, protected string $to) {}
+
+    public function __construct(public ?string $from, public ?string $to) {}
+
+    public static function fromJson(array $data): self
+    {
+        return new self(
+            $data['from'] ?? null,
+            $data['to'] ?? null
+        );
+    }
 
     public function getQuery(): string
     {
+        
         return  "Date(date)  >= '.$this->from.' AND Date(date)<= '.$this->to.'";
     }
 }

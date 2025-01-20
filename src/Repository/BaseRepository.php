@@ -10,7 +10,10 @@ abstract class BaseRepository
     protected $DB_NAME = "";
 
 
-    protected function list(string $tableName, ?Options $option = null) {}
+    protected function list(string $tableName, ?Options $option = null) {
+        
+        
+    }
     protected function view(string $tableName, ?int $iD = null, ?Options $option = null) {}
     protected function edit(string $tableName, object $object) {}
     protected function add(string $tableName, object $object) {}
