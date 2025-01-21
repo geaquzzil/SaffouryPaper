@@ -18,6 +18,7 @@ define("PRINT", "print");
 
 define("BEFORE", "before");
 define("AFTER", "after");
+define("SEARCH", "search");
 
 
 define('IMAGES_PATH', "saffoury.com/SaffouryPaper2/Images");

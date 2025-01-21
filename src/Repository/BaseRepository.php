@@ -9,23 +9,41 @@ abstract class BaseRepository
 
     protected $DB_NAME = "";
 
-
-    protected function list(string $tableName, ?Options $option = null) {
-        
-        
-    }
-    protected function view(string $tableName, ?int $iD = null, ?Options $option = null) {}
-    protected function edit(string $tableName, object $object) {}
-    protected function add(string $tableName, object $object) {}
-    protected function delete(string $tableName, int $iD) {}
-
-
     public function __construct(protected \PDO $database)
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
 
-    private function changeTableNameToExtended(string $tableName) {}
+
+    public function list(string $tableName, ?Options $option = null)
+    {
+        $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
+        $result = $this->getFetshALLTableWithQuery($query);
+        return $result;
+    }
+    public function view(string $tableName, ?int $iD = null, ?Options $option = null) {}
+    public function edit(string $tableName, object $object) {}
+    public function add(string $tableName, object $object) {}
+    public function delete(string $tableName, int $iD) {}
+
+
+
+    private function changeTableNameToExtended(string $tableName)
+    {
+        switch ($tableName) {
+            default:
+                return $tableName;
+            case RI:
+            case PR_INPUT:
+            case PR_OUTPUT:
+            case TR:
+                return "extended_" . $tableName;
+            case PURCH:
+                return "extended_purchases_refund";
+            case ORDR:
+                return "extended_order_refund";
+        }
+    }
 
 
     private function getQuery(string $tableName, ServerAction $action, ?Options $option = null): string
@@ -33,6 +51,8 @@ abstract class BaseRepository
         $query = "";
         $tableName = $this->changeTableNameToExtended($tableName);
         $optionQuery = $this->getOption($option);
+        echo "\n OPTION QUERY ==> " . $optionQuery . " \n";
+
         switch ($action) {
             case ServerAction::ADD:
                 $query = "";
@@ -42,8 +62,12 @@ abstract class BaseRepository
                 break;
 
             case ServerAction::LIST:
-
-                $query = "SELECT * FROM $tableName $optionQuery";
+                if ($option->searchOption->searchByField != null) {
+                    $fieldName = $option->searchOption->searchByField;
+                    $query = "SELECT DISTINCT(`$tableName`.`$fieldName`) FROM `" . $tableName . "` $optionQuery";
+                } else {
+                    $query = "SELECT * FROM $tableName $optionQuery";
+                }
                 break;
 
             case ServerAction::DELETE:
@@ -158,6 +182,56 @@ abstract class BaseRepository
             $r[] = $res["Field"];
         }
         return $r;
+    }
+
+
+    function getSearchObjectStringValue($object, $tableName)
+    {
+        $whereQuery = array();
+        $tableColumns = $this->getTableColumns($tableName);
+        $forgins = $this->getObjectForginKeys($tableName);
+
+        $forginsKey = array_map(function ($tmp) {
+            return  $tmp["COLUMN_NAME"];
+        }, $forgins);
+
+        $objectToCheck = array();
+        foreach ($tableColumns as $table) {
+            if ($table === "iD" && !is_numeric($object)) {
+                continue;
+            }
+            //do something with your $key and $value;
+            if ((($i = array_search((string)$table, $forginsKey)) === FALSE)) {
+                $objectToCheck[$table] = $object;
+            } else {
+                $forginTableName = $forgins[$i]["REFERENCED_TABLE_NAME"];
+                if ($forginTableName === $tableName) {
+                    //its parent id skip 
+                    continue;
+                }
+                if ($this->canSearchInCustomSearchQuery($object, $tableName, $forginTableName)) {
+                    $res = $this->searchObjectDetailStringValue($object, $forginTableName);
+                    if (!is_null($res)) {
+                        $objectToCheck[$table] = $res;
+                    }
+                }
+            }
+        }
+        return $this->getSearchQueryAttributesOrDontUnSetID($objectToCheck, $tableName);
+    }
+    function getSearchQueryAttributesOrDontUnSetID($object, $tableName)
+    {
+        //unSetKeyFromObj($object,'iD');
+        $whereQuery = array();
+        foreach ($object as $key => $value) {
+            //do something with your $key and $value;
+            if (is_array($value)) {
+                $ids = implode("','", $value);
+                $query = addslashes($tableName) . ".`$key` IN ( '" . $ids . "' )";
+                $whereQuery[] = $query;
+            }
+        }
+        return implode(" OR ", $whereQuery);
     }
     function getObjectForginKeys($tableName)
     {

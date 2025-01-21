@@ -26,6 +26,7 @@ final class GetAll extends BaseController
         $countPerPage = $request->getQueryParam('countPerPage', null);
         $limit = $request->getQueryParam('limit', null);
         $searchQuery = $request->getQueryParam('searchQuery', null);
+        $searchByField = $request->getQueryParam('searchByField', null);
         $date = $request->getQueryParam('date', null);
 
 
@@ -37,13 +38,15 @@ final class GetAll extends BaseController
         $option->page = Helpers::isIntReturnValue($page);
         $option->countPerPage = Helpers::isIntReturnValue($countPerPage);
         $option->limit = Helpers::isIntReturnValue($limit);
+
+
         if ($date) {
             $option->date = Date::fromJson(json_decode($date, true));
         }
 
         if ($searchQuery) {
             echo " has searchQuery";
-            $option->searchOption =  new SearchOption($searchQuery);
+            $option->searchOption =  new SearchOption($searchQuery, $searchByField);
             // $option->searchOption =   $searchQuery;
         }
         if ($asc || $desc) {
@@ -58,11 +61,12 @@ final class GetAll extends BaseController
 
 
 
-        // $this->container['repository']->;
+        $result = $this->container['repository']->list($this->tableName, $option);
 
         // $users = $this->getFindUserService()
         //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);
+        return $this->jsonResponse($response, 'success', $result, 200);
 
-        return $this->textResponse($response, "GetAll");
+        // return $this->textResponse($response, "GetAll");
     }
 }
