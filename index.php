@@ -2,7 +2,7 @@
 // ini_set('display_errors', 0); // todo on publish comment this
 // error_reporting(E_ERROR | E_WARNING | E_PARSE);  // todo on publish comment this
 
-require 'vendor/autoload.php';
+// require 'vendor/autoload.php';
 require("db_config.php");
 require("inc/config.php");
 require("extension_api.php");
