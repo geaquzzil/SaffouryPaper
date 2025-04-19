@@ -1,10 +1,10 @@
 <?php
 function setupDatabase()
 {
-	$username = "saffoury_qussai";
-	$password = "K-O-K-Y1";
-	$host = "localhost";
-	$dbname = "saffoury_paper";
+	$username = $_SERVER['DB_USER'];
+	$password =  $_SERVER['DB_PASS'];
+	$host = $_SERVER['DB_HOST'];
+	$dbname = $_SERVER['DB_NAME'];
 	try {
 		$pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -114,12 +114,20 @@ function getFetshTableWithQuery($query)
 {
 	$pdo = setupDatabase();
 	try {
+		$starttime = microtime(true);
+
+		//Do your query and stuff here
+
+
+
 		$stmt = $pdo->prepare($query);
 		$stmt->execute();
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$endtime = microtime(true);
+		$duration = $endtime - $starttime;
+		// echo $query . "-->-->->-->->->-->->-> $duration \n";
 		return $result;
 	} catch (PDOException $e) {
-		//print_r($e);
 		http_response_code(401);
 		return returnResponseErrorMessage($e->getMessage() . " Query  =>$query ");
 	}
@@ -195,11 +203,22 @@ function getDeleteTableWithQuery($query)
 function getFetshALLTableWithQuery($query)
 {
 	try {
+
+
+		$starttime = microtime(true);
+
+		//Do your query and stuff here
+
+
+
 		$pdo = setupDatabase();
 
 		$stmt = $pdo->prepare($query);
 		$stmt->execute();
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$endtime = microtime(true);
+		$duration = $endtime - $starttime;
+		// echo $query . " -->->->->-->->->->---->-> $duration \n ";
 		return $result;
 	} catch (PDOException $e) {
 		http_response_code(401);

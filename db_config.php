@@ -32,11 +32,12 @@ function returnResponse($response)
 	if (isFlutterRequest()) {
 		// $data=beforeReturnResponseObjectExtenstion((json_encode($response,JSON_NUMERIC_CHECK )),getRequestValue('table')); 
 
+
 		$data = getResponseDataForFlutter($response);
 	} else {
-		$data = beforeReturnResponseObjectExtenstion((json_encode($response)), getRequestValue('table'));
+		$data = beforeReturnResponseObjectExtenstion(json_encode($response), getRequestValue('table'));
 	}
-	echo ($data);
+	echo $data;
 	die;
 }
 function getResponseDataForFlutter($data)
@@ -52,7 +53,9 @@ function getResponseDataForFlutter($data)
 function isFlutterRequest()
 {
 	$headers = apache_request_headers();
-	return isset($headers['Platform']) && $headers['Platform'] == 'Flutter';
+	$result = isset($headers['platform']) && ($headers['platform'] == 'Flutter' || $headers['platform'] === 'Flutter')  ||
+		isset($headers['Platform']) && ($headers['Platform'] == 'Flutter' || $headers['Platform'] === 'Flutter');
+	return $result;
 }
 function getResponseData(&$response)
 {

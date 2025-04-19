@@ -2,7 +2,7 @@
 // ini_set('display_errors', 0); // todo on publish comment this
 // error_reporting(E_ERROR | E_WARNING | E_PARSE);  // todo on publish comment this
 
-// require 'vendor/autoload.php';
+require 'vendor/autoload.php';
 require("db_config.php");
 require("inc/config.php");
 require("extension_api.php");
@@ -21,124 +21,6 @@ require_once("sqlCustomers.php");
 require_once("sqlProducts.php");
 require_once("sqlAnalysis.php");
 require_once("sqlMoneyFunds.php");
-///deprecated mysql producst_prices no use for it we can use products_type
-
-// use Fig\Http\Message\StatusCodeInterface;
-// use Psr\Http\Message\ResponseInterface as Response;
-// use Psr\Http\Message\ServerRequestInterface as Request;
-// use Slim\Factory\AppFactory;
-// use Slim\Factory\ServerRequestCreatorFactory;
-// use Slim\Exception\NotFoundException;
-// use Slim\Http\StatusCode;
-
-// AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
-// ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
-
-// $app = AppFactory::create();
-
-// /**
-//  * The routing middleware should be added earlier than the ErrorMiddleware
-//  * Otherwise exceptions thrown from it will not be handled by the middleware
-//  */
-// $app->addRoutingMiddleware(true, true, true);
-
-// // $app->setBasePath("index.php");
-
-// $app->setBasePath("/SaffouryPaper2/index.php");
-
-// /**
-//  * Add Error Middleware
-//  *
-//  * @param bool                  $displayErrorDetails -> Should be set to false in production
-//  * @param bool                  $logErrors -> Parameter is passed to the default ErrorHandler
-//  * @param bool                  $logErrorDetails -> Display error details in error log
-//  * @param LoggerInterface|null  $logger -> Optional PSR-3 Logger  
-//  *
-//  * Note: This middleware should be added last. It will not handle any exceptions/errors
-//  * for middleware added after it.
-//  */
-// // $errorMiddleware = $app->addErrorMiddleware(true, true, true);
-// // $app->configureMode('production', function () use ($app) {
-// // 	$app->config(array(
-// // 		'log.enable' => true,
-// // 		'debug' => false
-// // 	));
-// // });
-
-// // // Only invoked if mode is "development"
-// // $app->configureMode('development', function () use ($app) {
-// // 	$app->config(array(
-// // 		'log.enable' => false,
-// // 		'debug' => true
-// // 	));
-// // });
-
-// $app->get('/{tableName}', function (Request $req, Response $res, array $args) {
-
-// 	$queryParams = $req->getQueryParams();
-// 	$tableName = $args["tableName"];
-
-// 	// $objcets = null;
-// 	// $details = null;
-
-// 	// $objects = $queryParams['objectTables'];
-// 	// $details = $queryParams['detailTables'];
-
-// 	// return $res;
-// 	// echo " ds" . ($req);
-
-// 	// print_r($queryParams);
-
-// 	// $options = getOptions();
-// 	// $res->getBody()->write($args["tableName"]);
-// 	// return $res;
-
-// 	// $data = depthSearch(null, $tableName, 1, [], [], $options);
-// 	// print_r($data);
-
-
-// 	$data = array('name' => 'Bob', 'age' => 40);
-// 	$payload = json_encode($data);
-
-// 	$res->getBody()->write(returnResponseSlim($payload));
-// 	return $res->withHeader('Content-Type', 'application/json')->withStatus(200);
-// });
-// // $app->post('/', function (Request $req, Response $res, $args) {
-
-// // 	// setUser();
-// // 	$res->getBody()->write("dsadas");
-// // 	return $res;
-// // 	// return $res;
-// // 	// echo " ds" . ($req);
-// // 	// print_r($req);
-
-
-// // 	$options = getOptions();
-// // 	$data = depthSearch(null, getRequestValue('table'), getRecursiveLevel(), getRequireArrayTables(), getRequireObjectTable(), $options);
-// // 	if (!is_null($options) &&  isset($options["COMPRESS"])) {
-// // 		$res->getBody()->write(returnResponseSlim($data));
-// // 	} else {
-// // 		$res->getBody()->write(returnResponseSlim($data));
-// // 	}
-// // 	return $res;
-// // });
-// // $app->get('/', function (Request $request, Response $response, $args) {
-// // 	$response->getBody()->write("Helgglo!");
-// // 	return $response;
-// // });
-
-// // $c = $app->getContainer();
-// // $c['phpErrorHandler'] = function ($c) {
-// // 	return function ($request, $response, $error) use ($c) {
-// // 		return $response->withStatus(500)
-// // 			->withHeader('Content-Type', 'text/html')
-// // 			->write($error);
-// // 	};
-// // };
-// $app->run();
-// die;
-
-
 header("Access-Control-Allow-Origin: *");
 header('Access-Control-Allow-Headers: *');
 header("Access-Control-Allow-Origin: Access-Control-Allow-Origin, Accept");
@@ -147,6 +29,11 @@ header("Access-Control-Allow-Methods: GET,POST,HEAD,PUT");
 header("Access-Control-Allow-Headers: Access-Control-Allow-Origin, Accept");
 header("Access-Control-Allow-Headers: Access-Control-Allow-Origin, X-Requested-With, Content-Type, Accept, Origin, Authorization, X-Authorization,Platform");
 ini_set('zlib.output_compression_level', 6);
+// set_time_limit(10);
+
+$baseDir = __DIR__;
+$dotenv =  \Dotenv\Dotenv::createImmutable($baseDir);
+$dotenv->load();
 
 $User;
 $RequestTableColumns = array();
@@ -154,11 +41,13 @@ $RequestTableColumns = array();
 $acceptedRequest = array("action", "table");
 $acceptedAction = array("list", "view", "add", "edit", "delete");
 //	echo "AIT";
-if (!authfunction(getAuthHeader())) returnAuthErrorMessage("Authorization serror");
+// if (!authfunction(getAuthHeader())) returnAuthErrorMessage("Authorization serror");
 //	echo "END AIT";
 setUser();
+
 //Checking request
 checkRequest();
+
 //Checking action
 checkAction();
 //$acceptedAction["exhange_rate"]=function 	
@@ -450,6 +339,7 @@ function checkAction()
 		case 'list':
 			$options = getOptions();
 			$data = depthSearch(null, getRequestValue('table'), getRecursiveLevel(), getRequireArrayTables(), getRequireObjectTable(), $options);
+
 			if (!is_null($options) &&  isset($options["COMPRESS"])) {
 				returnResponseCompress($data);
 			} else {

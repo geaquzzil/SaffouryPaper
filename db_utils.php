@@ -1,6 +1,6 @@
 <?php
 
-define("TABLE_NAME", "TABLE_NAME"); // todo on publish TABLE_NAME
+define("TABLE_NAME", "table_name"); // todo on publish TABLE_NAME
 function getQueryMaxID($tableName)
 {
 	return "SELECT iD FROM $tableName ORDER BY iD DESC LIMIT 1";
@@ -21,7 +21,7 @@ function getArrayForginKeys($tableName)
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
-  REFERENCED_TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . DB_DATABASE . "'");
+  REFERENCED_TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . $_SERVER['DB_NAME'] . "'");
 }
 //Field Type Key
 function getTableColumns($tableName)
@@ -32,6 +32,7 @@ function getTableColumns($tableName)
 	foreach ($result as $res) {
 		$r[] = $res["Field"];
 	}
+	
 	return $r;
 }
 function getObjectForginKeys($tableName)
@@ -43,7 +44,7 @@ function getObjectForginKeys($tableName)
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
-  TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . DB_DATABASE . "'");
+  TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . $_SERVER['DB_NAME'] . "'");
 }
 function getShowTablesWithOrderByForginKey()
 {
@@ -54,7 +55,7 @@ function getShowTablesWithOrderByForginKey()
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
- TABLE_SCHEMA = '" . DB_DATABASE . "'
+ TABLE_SCHEMA = '" . $_SERVER['DB_NAME'] . "'
     GROUP BY TABLE_NAME
    Order by Count(REFERENCED_TABLE_NAME) ASC");
 }
@@ -67,7 +68,7 @@ function QueryOfTablesWithOrderByForginKey()
   REFERENCED_COLUMN_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
- TABLE_SCHEMA = '" . DB_DATABASE . "'
+ TABLE_SCHEMA = '" . $_SERVER['DB_NAME'] . "'
     GROUP BY TABLE_NAME
    Order by Count(REFERENCED_TABLE_NAME) ASC";
 }
@@ -75,24 +76,24 @@ WHERE
 function getAllTables()
 {
 	global $tablesNames;
-	$tablesNames = getFetshAllTableWithQuery("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "'");
+	$tablesNames = getFetshAllTableWithQuery("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . $_SERVER['DB_NAME'] . "'");
 	return $tablesNames;
 }
 function getAllTablesString()
 {
-	return getStrings("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "'", TABLE_NAME);
+	return getStrings("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . $_SERVER['DB_NAME'] . "'", TABLE_NAME);
 }
 function getAllTablesWithoutViewString()
 {
 	return getStrings(
-		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "' AND TABLE_TYPE <> 'VIEW' ",
+		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . $_SERVER['DB_NAME'] . "' AND TABLE_TYPE <> 'VIEW' ",
 		TABLE_NAME
 	);
 }
 function getAllTablesViewString()
 {
 	return getStrings(
-		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . DB_DATABASE . "' AND TABLE_TYPE = 'VIEW' ",
+		"SELECT table_name FROM information_schema.tables WHERE table_schema ='" . $_SERVER['DB_NAME'] . "' AND TABLE_TYPE = 'VIEW' ",
 		TABLE_NAME
 	);
 }

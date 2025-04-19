@@ -400,6 +400,7 @@ function addEditObjectWithoutNoti($object, $tableName, $options)
 }
 function searchByID($ParentTableName, $forginsDetails, $forgins, $obj, $tableName, $recursiveLevel, $detailArrayTable, $detailObjectTable, $options)
 {
+	$starttime = microtime(true);
 	$result = $obj;
 	$RequireParent = isRequireParent($options);
 	if (is_null($result) || empty($result)) return null;
@@ -464,6 +465,9 @@ function searchByID($ParentTableName, $forginsDetails, $forgins, $obj, $tableNam
 		}
 	}
 	$result = addObjectExtenstion($result, $tableName);
+	$endtime = microtime(true);
+	$duration = $endtime - $starttime;
+	echo  " searchByID -->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration \n ";
 	return $result;
 }
 function changeToExtended($tableName)
@@ -534,6 +538,9 @@ function isPrintOptions($options)
 function depthSearch($iD, $tableName, $recursiveLevel, $detailArrayTable, $detailObjectTable, $options)
 {
 	if (is_null($iD)) {
+		$starttime = microtime(true);
+
+
 		$results = getFetshALLTableWithQueryOptions(changeToExtended($tableName), $options);
 		if (is_null($results) || empty($results)) {
 			return array();
@@ -547,6 +554,7 @@ function depthSearch($iD, $tableName, $recursiveLevel, $detailArrayTable, $detai
 			$forgins = getObjectForginKeys($tableName);
 		}
 		$response = array();
+		$starttime2 = microtime(true);
 		foreach ($results as $item) {
 
 			array_push(
@@ -554,6 +562,13 @@ function depthSearch($iD, $tableName, $recursiveLevel, $detailArrayTable, $detai
 				searchByID($tableName, $forginsDetails, $forgins, $item, (($tableName)), $recursiveLevel, $detailArrayTable, $detailObjectTable, $options)
 			);
 		}
+		$endtime2 = microtime(true);
+		$duration2 = $endtime2 - $starttime2;
+		echo  "forloop-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration2 \n ";
+
+		$endtime = microtime(true);
+		$duration = $endtime - $starttime;
+		echo  "\ndepthSearch-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration \n ";
 		return $response;
 	}
 	//one row
@@ -583,6 +598,7 @@ function depthSearch($iD, $tableName, $recursiveLevel, $detailArrayTable, $detai
 
 		return depthSearch(null, $tableName, $recursiveLevel, $detailArrayTable, $detailObjectTable, $options);
 	} else {
+
 		$result = getFetshTableWithQueryOptions($iD, changeToExtended($tableName), $options);
 		$forginsDetails = array();
 		$forgins = array();

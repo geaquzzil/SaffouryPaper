@@ -50,7 +50,7 @@ class UserRepository extends BaseRepository
 
 
 
-        if (! password_verify($password, $user["password"],)) {
+        if (! password_verify($password, $user["password"])) {
             throw new \Exception(
                 'Login failed: phone or password incorrect.',
                 400

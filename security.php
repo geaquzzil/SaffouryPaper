@@ -11,6 +11,8 @@ define("PASSWORD_FIELD", "password");
 define("ADMIN_ID", -2);
 define("LOGIN", "login");
 
+
+
 function setUser()
 {
 	global $User;
@@ -18,7 +20,7 @@ function setUser()
 		if (!is_null(getUserHeader()) || checkRequestValue("user")) {
 
 			$Data = !is_null(getUserHeader()) ? decryptData(getUserHeader(), false) : decrypt('user', false);
-			// 		echo " x ($Data)";
+			// echo " x ($Data)";
 			if (!isJson($Data)) {
 				setGuestUser();
 				return;
@@ -430,7 +432,7 @@ function authFunction($authcode)
 	$mcrypt = new MCrypt();
 	$decrypted = $mcrypt->decrypt($authcode);
 	//	echo ($decrypted);
-	if ($decrypted === DB_ANDROID) {
+	if ($decrypted === $_SERVER['M_KEY']) {
 		return true;
 	} else {
 		return false;

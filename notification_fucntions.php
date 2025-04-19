@@ -186,7 +186,7 @@ function get_regestrations_id($object, $tableName)
 function getRegestrationsIDTable($object, $tableName)
 {
 	$id = is_numeric($object) ? $object : $object["iD"];
-	$conn = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
+	$conn = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, $_SERVER['DB_NAME']);
 	$sql = " Select token From " . $tableName . " WHERE iD='$id'";
 	$result = mysqli_query($conn, $sql);
 	$tokens = array();
@@ -284,7 +284,7 @@ function doNotification($object, $tableName, $action)
 			case "delete":
 				sendDelete($object, $tableName);
 				break;
-				//new -  edit
+			//new -  edit
 			default:
 				sendNotificationProcess($object, $tableName);
 				break;

@@ -14,14 +14,44 @@ abstract class BaseRepository
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
 
+    private function addforginKeys(string $tableName, &$obj, ?Options $option = null)
+    {
+        echo "im in addforginKeys \n";
+        // $obj = [];
+    }
 
+    private function addforginKeysList(string $tableName, &$obj, ?Options $option = null)
+    {
+        echo "im in addforginKeysList \n";
+        $obj['sa'] = "sda";
+    }
     public function list(string $tableName, ?Options $option = null)
     {
         $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
         $result = $this->getFetshALLTableWithQuery($query);
+        $modyResult = array();
+        if ($option?->addForgins || $option?->addForginsList) {
+
+            foreach ($result as &$res) {
+                if ($option?->addForgins) {
+                    $this->addforginKeys($tableName, $res, $option);
+                }
+                if ($option?->addForginsList) {
+
+                    $this->addforginKeysList($tableName, $res, $option);
+                }
+            }
+        }
+
         return $result;
     }
-    public function view(string $tableName, ?int $iD = null, ?Options $option = null) {}
+
+    public function view(string $tableName, ?int $iD = null, ?Options $option = null)
+    {
+        $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
+        $result = $this->getFetshTableWithQuery($query);
+        return $result;
+    }
     public function edit(string $tableName, object $object) {}
     public function add(string $tableName, object $object) {}
     public function delete(string $tableName, int $iD) {}
@@ -62,7 +92,7 @@ abstract class BaseRepository
                 break;
 
             case ServerAction::LIST:
-                if ($option->searchOption->searchByField != null) {
+                if ($option?->searchOption?->searchByField != null) {
                     $fieldName = $option->searchOption->searchByField;
                     $query = "SELECT DISTINCT(`$tableName`.`$fieldName`) FROM `" . $tableName . "` $optionQuery";
                 } else {

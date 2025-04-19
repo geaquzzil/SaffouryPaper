@@ -6,6 +6,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Options
 {
+    public bool $addForgins;
+    public bool $addForginsList;
     public ?SearchOption $searchOption = null;
     public ?SortOption $sortOption = null;
 
@@ -23,7 +25,11 @@ class Options
     public ?int $limit = null;
 
 
-    public function __construct(protected Request $request) {}
+    public function __construct(protected Request $request)
+    {
+        $this->addForgins = true;
+        $this->addForginsList = true;
+    }
 
     public function getQuery(): string
     {
@@ -177,7 +183,7 @@ class SearchOption
         }
 
 
-        
+
         if ($this->searchByField) {
         } else {
         }
