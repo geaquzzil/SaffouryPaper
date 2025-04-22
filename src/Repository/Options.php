@@ -2,12 +2,20 @@
 
 namespace Etq\Restful\Repository;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Request;
+use Etq\Restful\Helpers;
 
 class Options
 {
-    public bool $addForgins;
-    public bool $addForginsList;
+
+
+    public  $addForginsObject;
+    public  $addForginsList;
+
+    private $recursiveLevel = 1;
+
+
+
     public ?SearchOption $searchOption = null;
     public ?SortOption $sortOption = null;
 
@@ -27,23 +35,83 @@ class Options
 
     public function __construct(protected Request $request)
     {
-        $this->addForgins = true;
-        $this->addForginsList = true;
-    }
+        $requestPage = $request->getQueryParam('page', null);
+        $requestCountPerPage = $request->getQueryParam('countPerPage', null);
+        $requestLimit = $request->getQueryParam('limit', null);
+        $searchQuery = $request->getQueryParam('searchQuery', null);
+        $searchByField = $request->getQueryParam('searchByField', null);
+        $date = $request->getQueryParam('date', null);
 
+
+        $asc = $request->getQueryParam('ASC', null);
+        $desc = $request->getQueryParam('DESC', null);
+
+        $this->page = Helpers::isIntReturnValue($requestPage);
+        $this->countPerPage = Helpers::isIntReturnValue($requestCountPerPage);
+        $this->limit = Helpers::isIntReturnValue($requestLimit);
+
+        if ($date) {
+            $this->date = Date::fromJson(json_decode($date, true));
+        }
+
+        if ($searchQuery) {
+            echo " has searchQuery";
+            $this->searchOption =  new SearchOption($searchQuery, $searchByField);
+            // $option->searchOption =   $searchQuery;
+        }
+        if ($asc || $desc) {
+            echo " has asc || desc";
+            if ($asc) {
+                $this->sortOption = new SortOption($asc, SortType::ASC);
+            } else {
+                $this->sortOption = new SortOption($desc, SortType::DESC);
+            }
+        }
+
+        $this->addForginsObject = $this->checkRequestForginValue($request->getQueryParam("forginObject", null));
+        $this->addForginsList =  $this->checkRequestForginValue($request->getQueryParam("forginList", null));
+        echo "\nlist -->------>-> " . $this->addForginsList . "  " . $this->isRequestedForginList() . "\n";
+        echo "objects -->--->->-> " . $this->addForginsObject . "  " .   $this->isRequestedForginObjects()  . "\n";
+    }
+    public function isRequestedForginObjects()
+    {
+        return is_array($this->addForginsObject) || $this->addForginsObject === true;
+    }
+    public function isRequestedForginList()
+    {
+        return is_array($this->addForginsList) || $this->addForginsList === true;
+    }
+    private function checkRequestForginValue($requestAttribute)
+    {
+        if (is_null($requestAttribute)) return false;
+        $isBoolean = Helpers::isBoolean($requestAttribute);
+ 
+        if (Helpers::toBoolean($requestAttribute)) {
+            return (bool)$requestAttribute;
+        } else if (Helpers::isJson($requestAttribute)) {
+            return Helpers::jsonDecode($requestAttribute);
+        } else {
+            return false;
+        }
+    }
     public function getQuery(): string
     {
-        if ($this->getLimitOrPageCountOffset() == null && $this->sortOption == null && $this->date == null) {
+        $limitQuery = $this->getLimitOrPageCountOffset();
+        $sortQuery = $this->sortOption?->getQuery();
+        $dateQuery = $this->date?->getQuery();
+        if (!$limitQuery && !$sortQuery && !$dateQuery) {
             return "";
         }
 
+        $whereQuery =      ($dateQuery) ?  " WHERE $dateQuery" : "";
+        //$query = Search//
+        $query = $whereQuery . $sortQuery . $limitQuery;
 
         //TODO 
         //     if(isset($option["CUSTOM_JOIN"])){
         //         $newQuery=$newQuery." ".$option["CUSTOM_JOIN"];
         //     }
 
-        $query = "";
 
         //     if(isset($option["WHERE_EXTENSION"])){
         //         $newQuery=has_word($newQuery,"WHERE")?
@@ -74,13 +142,7 @@ class Options
 
 
 
-
-
-
-        echo "\nLimitOrPageCountOffset:" . $this->getLimitOrPageCountOffset() ?? "-";
-        echo "\nSort:" . $this->sortOption?->getQuery() ?? " - ";
-        echo "\nDate:" . $this->date?->getQuery() ?? " - ";
-        return ""; //TODO 
+        return $query;
     }
     public function getLimitOrPageCountOffset(): ?string
     {
@@ -88,7 +150,7 @@ class Options
         if (($this->limit)) {
             return "LIMIT $this->limit";
         }
-        if (($this->page) && ($this->countPerPage)) {
+        if (($this->page) >= 0 && ($this->countPerPage) >= 0) {
             $next_offset = $this->page * $this->countPerPage;
             return "LIMIT $this->countPerPage OFFSET $next_offset";
         }

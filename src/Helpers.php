@@ -33,11 +33,25 @@ class Helpers
     {
         return isset($searchData[$key]) && !empty($searchData[$key]) && is_string($searchData[$key]) && trim($searchData[$key]);
     }
+    public static function isJson($str)
+    {
+        if (self::IsNullOrEmptyString($str)) return false;
+        $json = json_decode($str);
+        return $json && $str != $json;
+    }
     public static function isSetKeyFromObjReturnValue($object, $key)
     {
         return  self::isSetKeyFromObj($object, $key) ? self::getKeyValueFromObj($object, $key) : null;
     }
-
+    public static function toBoolean($string)
+    {
+        //echo $string;
+        $string = strtolower($string);
+        if (is_bool(self::jsonDecode($string))) {
+            return true;
+        }
+        return false;
+    }
     public static function isIntReturnValue($value): ?int
     {
         return is_numeric($value) ? intval($value) : null;
@@ -171,5 +185,13 @@ class Helpers
     public static  function cloneByJson($object)
     {
         return jsonDecode(jsonEncode($object));
+    }
+    public static function isBoolean($value)
+    {
+        if ($value === '') {
+            return false;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
     }
 }

@@ -16,24 +16,28 @@ abstract class BaseRepository
 
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null)
     {
-        echo "im in addforginKeys \n";
+        $obj['addforginKeys'] = "sa";
         // $obj = [];
     }
 
     private function addforginKeysList(string $tableName, &$obj, ?Options $option = null)
     {
-        echo "im in addforginKeysList \n";
-        $obj['sa'] = "sda";
+        $obj['addforginKeysList'] = "sa";
     }
-    public function list(string $tableName, ?Options $option = null)
+    private function checkToSetForgins(string $tableName, &$queryResult, ?Options $option = null)
     {
-        $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
-        $result = $this->getFetshALLTableWithQuery($query);
-        $modyResult = array();
-        if ($option?->addForgins || $option?->addForginsList) {
+        if (!$option?->addForginsObject && !$option?->addForginsList) return;
+        if (!is_array($queryResult)) {
+            if ($option?->addForginsObject) {
+                $this->addforginKeys($tableName, $queryResult, $option);
+            }
+            if ($option?->addForginsList) {
 
-            foreach ($result as &$res) {
-                if ($option?->addForgins) {
+                $this->addforginKeysList($tableName, $queryResult, $option);
+            }
+        } else {
+            foreach ($queryResult as &$res) {
+                if ($option?->addForginsObject) {
                     $this->addforginKeys($tableName, $res, $option);
                 }
                 if ($option?->addForginsList) {
@@ -42,6 +46,12 @@ abstract class BaseRepository
                 }
             }
         }
+    }
+    public function list(string $tableName, ?Options $option = null)
+    {
+        $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
+        $result = $this->getFetshALLTableWithQuery($query);
+        $this->checkToSetForgins($tableName, $result, $option);
 
         return $result;
     }
