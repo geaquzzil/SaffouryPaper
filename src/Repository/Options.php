@@ -12,6 +12,8 @@ class Options
     public  $addForginsObject;
     public  $addForginsList;
 
+    private bool $requireParent;
+
     private $recursiveLevel = 1;
 
 
@@ -32,9 +34,18 @@ class Options
 
     public ?int $limit = null;
 
+    public static function withSearchQuery($query){
 
-    public function __construct(protected Request $request)
+    }
+    public static function withWhereQuery($query)
     {
+        $instance = new self();
+        $instance->fill($row);
+        return $instance;
+    }
+    public function __construct(protected ?Request $request=null)
+    {
+        if(!$request)return;
         $requestPage = $request->getQueryParam('page', null);
         $requestCountPerPage = $request->getQueryParam('countPerPage', null);
         $requestLimit = $request->getQueryParam('limit', null);
@@ -55,39 +66,46 @@ class Options
         }
 
         if ($searchQuery) {
-            echo " has searchQuery";
+            // echo " has searchQuery";
             $this->searchOption =  new SearchOption($searchQuery, $searchByField);
             // $option->searchOption =   $searchQuery;
         }
         if ($asc || $desc) {
-            echo " has asc || desc";
+            // echo " has asc || desc";
             if ($asc) {
                 $this->sortOption = new SortOption($asc, SortType::ASC);
             } else {
                 $this->sortOption = new SortOption($desc, SortType::DESC);
             }
         }
-
+        $this->requireParent = true;
         $this->addForginsObject = $this->checkRequestForginValue($request->getQueryParam("forginObject", null));
         $this->addForginsList =  $this->checkRequestForginValue($request->getQueryParam("forginList", null));
-        echo "\nlist -->------>-> " . $this->addForginsList . "  " . $this->isRequestedForginList() . "\n";
-        echo "objects -->--->->-> " . $this->addForginsObject . "  " .   $this->isRequestedForginObjects()  . "\n";
+        // echo "\nlist -->------>-> " . $this->addForginsList . "  " . $this->isRequestedForginList() . "\n";
+        // echo "objects -->--->->-> " . $this->addForginsObject . "  " .   $this->isRequestedForginObjects()  . "\n";
+    }
+
+
+
+    public function isRequireParent()
+    {
+        return $this->requireParent;
     }
     public function isRequestedForginObjects()
     {
-        return is_array($this->addForginsObject) || $this->addForginsObject === true;
+        return is_array($this->addForginsObject) || $this->addForginsObject == true;
     }
     public function isRequestedForginList()
     {
-        return is_array($this->addForginsList) || $this->addForginsList === true;
+        return is_array($this->addForginsList) || $this->addForginsList == true;
     }
     private function checkRequestForginValue($requestAttribute)
     {
         if (is_null($requestAttribute)) return false;
         $isBoolean = Helpers::isBoolean($requestAttribute);
- 
-        if (Helpers::toBoolean($requestAttribute)) {
-            return (bool)$requestAttribute;
+
+        if (!is_null($isBoolean)) {
+            return (bool)$isBoolean;
         } else if (Helpers::isJson($requestAttribute)) {
             return Helpers::jsonDecode($requestAttribute);
         } else {

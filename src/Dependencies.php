@@ -66,7 +66,7 @@ $container['capsule'] = function ($container) {
 $container['redis_service'] = static function ($container): RedisService {
     $redis = $container->get('settings')['redis'];
 
-    return new RedisService(new \Predis\Client($redis['url']));
+    return new RedisService(new \Predis\Client($redis));
 };
 
 # custom errorHandler

@@ -12,7 +12,9 @@ return [
 
         'redis' => [
             'enabled' => $_SERVER['REDIS_ENABLED'],
-            'url' => $_SERVER['REDIS_URL'],
+            'host' => $_SERVER['REDIS_URL'],
+            'port'   => 6379,
+            'scheme' => 'tcp',
         ],
 
         // Monolog settings

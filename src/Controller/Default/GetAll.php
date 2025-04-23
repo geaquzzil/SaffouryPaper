@@ -26,7 +26,7 @@ final class GetAll extends BaseController
 
         $option = new Options($request);
 
-        echo "\nquery--->->-->" . $option->getQuery();
+        // echo "\nquery--->->-->" . $option->getQuery();
 
 
 

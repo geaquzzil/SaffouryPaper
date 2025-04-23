@@ -186,12 +186,24 @@ class Helpers
     {
         return jsonDecode(jsonEncode($object));
     }
+    public static function removeFromArray(&$array, $key)
+    {
+        if (is_bool($array)) {
+            return $array;
+        }
+        $index = array_search($key, $array);
+        if ($index !== FALSE) {
+            unset($array[$index]);
+        }
+        return $array;
+    }
+    ///
     public static function isBoolean($value)
     {
         if ($value === '') {
             return false;
         }
 
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }

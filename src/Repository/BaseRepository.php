@@ -3,44 +3,104 @@
 namespace Etq\Restful\Repository;
 
 use Etq\Restful\Repository\Options;
+use Etq\Restful\Helpers;
 
 abstract class BaseRepository
 {
 
     protected $DB_NAME = "";
 
+    private $cacheForginObjects = [];
+    private $cacheForginList = [];
+
+
+
     public function __construct(protected \PDO $database)
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
-
+    private function getCachedForginList($tableName)
+    {
+        if (key_exists($tableName, $this->cacheForginList)) {
+            return $this->cacheForginList[$tableName];
+        } else {
+            $this->cacheForginList[$tableName] = $this->getArrayForginKeys($tableName);
+            return $this->cacheForginList[$tableName];
+        }
+    }
+    private function getCachedForginObject($tableName)
+    {
+        if (key_exists($tableName, $this->cacheForginObjects)) {
+            return $this->cacheForginObjects[$tableName];
+        } else {
+            $this->cacheForginObjects[$tableName] = $this->getObjectForginKeys($tableName);
+            return  $this->cacheForginObjects[$tableName];
+        }
+    }
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null)
     {
         $obj['addforginKeys'] = "sa";
         // $obj = [];
+        $forgins = $this->getCachedForginObject($tableName);
+        if (!empty($forgins)) {
+            foreach ($forgins as $forgin) {
+                $pp = getJsonKeyFromForginObject($forgin);
+                // if (!is_null($skipedObject)) {
+                //     if ($pp == $skipedObject) {
+                //         continue;
+                //     }
+                // }
+                if (isParent($forgin)) {
+                    if ($option?->isRequireParent()) {
+                        $iD = Helpers::getKeyValueFromObj($obj, "ParentID");
+                        $options["WHERE_EXTENSION"] = $tableName . ".`iD` = '$iD'";
+                        // Helpers::removeFromArray($detailArrayTable, $tableName);
+                        // Helpers:: removeFromArray($detailObjectTable, $tableName);
+                      
+                        $result["parents"] = 
+                        
+                        depthSearch(null, getJsonKeyFromForginArray($forgin), $recursiveLevel, $detailArrayTable, $detailObjectTable, $options);
+                    }
+                } else if (
+                    !isCurrentObjectIDEmpty($result, $forgin) && isDetailObjectRequire($ParentTableName, $forgin, $detailObjectTable)
+                    && !isActionTableIs($pp)
+                ) {
+                    $theResult =    getFetshTableWithQuery(
+                        getQueryFromForginCurrent($result, $forgin)
+                    );
+
+                    $theResult = addObjectExtenstion($theResult, $pp);
+                    $result[$pp] = $theResult;
+                    $result[$pp] = recursiveSerachObject(null, $pp, $result[$pp], $pp, $recursiveLevel);
+                } else {
+                    $result[$pp] = null;
+                }
+            }
+        }
     }
 
     private function addforginKeysList(string $tableName, &$obj, ?Options $option = null)
     {
         $obj['addforginKeysList'] = "sa";
+        $forgins = $this->getCachedForginList($tableName);
     }
     private function checkToSetForgins(string $tableName, &$queryResult, ?Options $option = null)
     {
         if (!$option?->addForginsObject && !$option?->addForginsList) return;
         if (!is_array($queryResult)) {
-            if ($option?->addForginsObject) {
+            if ($option?->isRequestedForginObjects()) {
                 $this->addforginKeys($tableName, $queryResult, $option);
             }
-            if ($option?->addForginsList) {
+            if ($option?->isRequestedForginList()) {
 
                 $this->addforginKeysList($tableName, $queryResult, $option);
             }
         } else {
             foreach ($queryResult as &$res) {
-                if ($option?->addForginsObject) {
+                if ($option?->isRequestedForginObjects()) {
                     $this->addforginKeys($tableName, $res, $option);
                 }
-                if ($option?->addForginsList) {
+                if ($option?->isRequestedForginList()) {
 
                     $this->addforginKeysList($tableName, $res, $option);
                 }
@@ -273,6 +333,19 @@ abstract class BaseRepository
         }
         return implode(" OR ", $whereQuery);
     }
+    function isParent($forgin)
+    {
+        return $forgin["COLUMN_NAME"] === PARENTID;
+    }
+    function getKeyValue($object, $key)
+    {
+        return $object[$key["COLUMN_NAME"]];
+    }
+    function getJsonKeyFromForginObject($key)
+    {
+        return $key["REFERENCED_TABLE_NAME"];
+    }
+
     function getObjectForginKeys($tableName)
     {
         return $this->getFetshALLTableWithQuery("
