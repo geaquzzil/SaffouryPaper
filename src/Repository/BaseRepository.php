@@ -4,6 +4,8 @@ namespace Etq\Restful\Repository;
 
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Helpers;
+use Etq\Restful\QueryHelpers;
+use Mpdf\Tag\Option;
 
 abstract class BaseRepository
 {
@@ -37,36 +39,38 @@ abstract class BaseRepository
             return  $this->cacheForginObjects[$tableName];
         }
     }
-    private function addforginKeys(string $tableName, &$obj, ?Options $option = null)
+    private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
         $obj['addforginKeys'] = "sa";
         // $obj = [];
         $forgins = $this->getCachedForginObject($tableName);
         if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
-                $pp = getJsonKeyFromForginObject($forgin);
+                $pp = QueryHelpers::getJsonKeyFromForginObject($forgin);
                 // if (!is_null($skipedObject)) {
                 //     if ($pp == $skipedObject) {
                 //         continue;
                 //     }
                 // }
-                if (isParent($forgin)) {
+                if (QueryHelpers::isParent($forgin)) {
                     if ($option?->isRequireParent()) {
                         $iD = Helpers::getKeyValueFromObj($obj, "ParentID");
-                        $options["WHERE_EXTENSION"] = $tableName . ".`iD` = '$iD'";
+                        $op = Options::withStaticWhereQuery($tableName . ".`iD` = '$iD'");
                         // Helpers::removeFromArray($detailArrayTable, $tableName);
                         // Helpers:: removeFromArray($detailObjectTable, $tableName);
-                      
-                        $result["parents"] = 
-                        
-                        depthSearch(null, getJsonKeyFromForginArray($forgin), $recursiveLevel, $detailArrayTable, $detailObjectTable, $options);
+
+                        $obj["parents"] =
+                            $this->list(QueryHelpers::getJsonKeyFromForginArray($forgin), $op);
+
+                        // depthSearch(null, getJsonKeyFromForginArray($forgin), $recursiveLevel, $detailArrayTable, $detailObjectTable, $options);
                     }
                 } else if (
-                    !isCurrentObjectIDEmpty($result, $forgin) && isDetailObjectRequire($ParentTableName, $forgin, $detailObjectTable)
-                    && !isActionTableIs($pp)
+                    !QueryHelpers::isCurrentObjectIDEmpty($obj, $forgin) &&
+                    QueryHelpers::isDetailObjectRequire($ParentTableName, $forgin, $detailObjectTable)
+                    // && !Helpers::isActionTableIs($pp)TODO
                 ) {
-                    $theResult =    getFetshTableWithQuery(
-                        getQueryFromForginCurrent($result, $forgin)
+                    $theResult =    $this->getFetshTableWithQuery(
+                        QueryHelpers::getQueryFromForginCurrent($obj, $forgin)
                     );
 
                     $theResult = addObjectExtenstion($theResult, $pp);
@@ -107,7 +111,7 @@ abstract class BaseRepository
             }
         }
     }
-    public function list(string $tableName, ?Options $option = null)
+    public function list(string $tableName, ?string $parentTableName = null, ?Options $option = null)
     {
         $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
         $result = $this->getFetshALLTableWithQuery($query);
@@ -116,10 +120,16 @@ abstract class BaseRepository
         return $result;
     }
 
-    public function view(string $tableName, ?int $iD = null, ?Options $option = null)
+    public function view(string $tableName, int $iD, ?string $parentTableName = null, ?Options $option = null)
     {
-        $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
+        if(!$option){
+            $option=Options::withStaticWhereQuery("WHERE iD = '$iD'");
+        }else{
+            $option->
+        }
+        $query = $this->getQuery($tableName, ServerAction::VIEW,  $option);
         $result = $this->getFetshTableWithQuery($query);
+        $this->checkToSetForgins($tableName, $result, $option);
         return $result;
     }
     public function edit(string $tableName, object $object) {}
@@ -151,7 +161,7 @@ abstract class BaseRepository
         $query = "";
         $tableName = $this->changeTableNameToExtended($tableName);
         $optionQuery = $this->getOption($option);
-        echo "\n OPTION QUERY ==> " . $optionQuery . " \n";
+        echo "\n from-->->-getQuery-->->OPTION QUERY ==> " . $optionQuery . " \n";
 
         switch ($action) {
             case ServerAction::ADD:
@@ -248,10 +258,7 @@ abstract class BaseRepository
         $statement->execute();
         return (array) $statement->fetch();
     }
-    function getQueryMaxID($tableName)
-    {
-        return "SELECT iD FROM $tableName ORDER BY iD DESC LIMIT 1";
-    }
+
     function getLastIncrementID($tableName)
     {
         return getFetshTableWithQuery("
@@ -333,19 +340,6 @@ abstract class BaseRepository
         }
         return implode(" OR ", $whereQuery);
     }
-    function isParent($forgin)
-    {
-        return $forgin["COLUMN_NAME"] === PARENTID;
-    }
-    function getKeyValue($object, $key)
-    {
-        return $object[$key["COLUMN_NAME"]];
-    }
-    function getJsonKeyFromForginObject($key)
-    {
-        return $key["REFERENCED_TABLE_NAME"];
-    }
-
     function getObjectForginKeys($tableName)
     {
         return $this->getFetshALLTableWithQuery("

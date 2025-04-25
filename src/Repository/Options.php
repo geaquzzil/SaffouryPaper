@@ -34,18 +34,26 @@ class Options
 
     public ?int $limit = null;
 
-    public static function withSearchQuery($query){
 
+
+    public  function withArray($data)
+    {
+        foreach ($data as $key => $val) {
+            if (property_exists(__CLASS__, $key)) {
+                $this->$key = $val;
+            }
+        }
     }
-    public static function withWhereQuery($query)
+    public static function withStaticWhereQuery($query)
     {
         $instance = new self();
-        $instance->fill($row);
+        $instance->searchOption = new SearchOption($query);
         return $instance;
     }
-    public function __construct(protected ?Request $request=null)
+
+    public function __construct(protected ?Request $request = null)
     {
-        if(!$request)return;
+        if (!$request) return;
         $requestPage = $request->getQueryParam('page', null);
         $requestCountPerPage = $request->getQueryParam('countPerPage', null);
         $requestLimit = $request->getQueryParam('limit', null);
@@ -117,50 +125,30 @@ class Options
         $limitQuery = $this->getLimitOrPageCountOffset();
         $sortQuery = $this->sortOption?->getQuery();
         $dateQuery = $this->date?->getQuery();
-        if (!$limitQuery && !$sortQuery && !$dateQuery) {
+        $searchQuery = $this->searchOption?->getQuery();
+        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery) {
             return "";
         }
-
-        $whereQuery =      ($dateQuery) ?  " WHERE $dateQuery" : "";
-        //$query = Search//
-        $query = $whereQuery . $sortQuery . $limitQuery;
-
+        $whereQuery = "";
+        if ($dateQuery) {
+            $whereQuery = "WHERE $dateQuery";
+        }
+        if ($searchQuery) {
+            $whereQuery = has_word($whereQuery, "WHERE") ?
+                ($whereQuery . " AND ( $searchQuery )") : ($whereQuery . " WHERE $searchQuery");
+        }
+        if ($sortQuery) {
+            $whereQuery = $whereQuery . "  $sortQuery";
+        }
+        if ($limitQuery) {
+            $whereQuery = $whereQuery . " $limitQuery";
+        }
         //TODO 
         //     if(isset($option["CUSTOM_JOIN"])){
         //         $newQuery=$newQuery." ".$option["CUSTOM_JOIN"];
         //     }
 
-
-        //     if(isset($option["WHERE_EXTENSION"])){
-        //         $newQuery=has_word($newQuery,"WHERE")?
-        //             ($newQuery." AND ( ".$option["WHERE_EXTENSION"]." )"):
-        //             ($newQuery." WHERE ".$option["WHERE_EXTENSION"]);
-        //     }
-        //     if(isset($option["SEARCH_QUERY"])){
-
-        //     $newQuery=has_word($newQuery,"WHERE")?
-        //             ($newQuery." AND ( ".$option["SEARCH_QUERY"]." )"):
-        //             ($newQuery." WHERE ".$option["SEARCH_QUERY"]);
-        // // 	if(getRequestValue('table')==$tableName){
-        // // 	     	if(isset($option["WHERE_EXTENSION"])){
-        // // 		$newQuery=$newQuery." ".has_word($newQuery,"WHERE")?
-        // // 			($newQuery." AND ( ".$option["WHERE_EXTENSION"]." )"):
-        // // 			($newQuery." WHERE ".$option["WHERE_EXTENSION"]);
-        // // 	}   
-        // // 	    }
-        //     }
-        //     if(isset($option["ORDER_BY_EXTENSTION"])){
-        //         $newQuery=$newQuery.$option["ORDER_BY_EXTENSTION"];
-        //     }
-        //     if(isset($option["LIMIT"])){
-        //         $newQuery=$newQuery." ".$option["LIMIT"];
-        //     }
-
-
-
-
-
-        return $query;
+        return $whereQuery;
     }
     public function getLimitOrPageCountOffset(): ?string
     {
@@ -213,9 +201,12 @@ class SortOption
 
 class SearchOption
 {
-    public function __construct(public string $query, public ?string $searchByField = null) {}
+    public function __construct(public ?string $staticQuery = null, public ?string $searchQuery = null, public ?string $searchByField = null) {}
     public function getQuery(): string
     {
+        if ($this->staticQuery) {
+            return $this->staticQuery;
+        }
 
         if ($SEARCH_QUERY) {
 

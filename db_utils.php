@@ -277,7 +277,6 @@ function getJsonKeyFromForginObject($key)
 function getQueryFromForginCurrent($object, $key)
 {
 	$tableName = getJsonKeyFromForginObject($key);
-	$primaryKey = $key["COLUMN_NAME"];
 	$iD = getKeyValue($object, $key);
 	return "SELECT * FROM  " . addslashes($tableName) . "  Where iD='$iD'";
 }
