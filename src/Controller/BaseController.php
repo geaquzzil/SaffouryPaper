@@ -79,6 +79,6 @@ abstract class BaseController
 
     protected function init(Request $request)
     {
-        $this->tableName  = Helpers::explodeURI($request->getUri()->getPath());
+        $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
     }
 }

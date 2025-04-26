@@ -66,8 +66,9 @@ class QueryHelpers
     }
     public static function getKeyValue($object, $key)
     {
-        return $object[$key["COLUMN_NAME"]];
+        return  Helpers::getKeyValueFromObj($object, $key["COLUMN_NAME"]);
     }
+    ///returns 
     public static function getJsonKeyFromForginObject($key)
     {
         return $key["REFERENCED_TABLE_NAME"];

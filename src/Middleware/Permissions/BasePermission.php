@@ -75,7 +75,11 @@ abstract class BasePermission implements ServerActionInterface
     }
     protected function getTableName($request)
     {
-        return Helpers::explodeURI($request->getUri()->getPath());
+        return Helpers::explodeURIGetTableName($request->getUri()->getPath());
+    }
+    protected function getID($request)
+    {
+        return Helpers::explodeURIGetID($request->getUri()->getPath());
     }
 
 

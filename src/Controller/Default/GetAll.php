@@ -30,7 +30,7 @@ final class GetAll extends BaseController
 
 
 
-        $result = $this->container['repository']->list($this->tableName, $option);
+        $result = $this->container['repository']->list($this->tableName, null, $option);
 
         // $users = $this->getFindUserService()
         //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);

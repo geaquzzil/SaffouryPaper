@@ -12,7 +12,7 @@ class Options
     public  $addForginsObject;
     public  $addForginsList;
 
-    private bool $requireParent;
+    private bool $requireParent = true;
 
     private $recursiveLevel = 1;
 
@@ -35,7 +35,12 @@ class Options
     public ?int $limit = null;
 
 
-
+    private array $staticQuery = [];
+    public function addStaticQuery($query)
+    {
+        $this->staticQuery[] = $query;
+        return $this;
+    }
     public  function withArray($data)
     {
         foreach ($data as $key => $val) {
@@ -44,10 +49,24 @@ class Options
             }
         }
     }
+    public function requireDetails()
+    {
+        $this->addForginsList = true;
+        return $this;
+    }
+    public function requireObjects()
+    {
+        $this->addForginsObject = true;
+        return $this;
+    }
+    public static function getInstance()
+    {
+        return new self();
+    }
     public static function withStaticWhereQuery($query)
     {
         $instance = new self();
-        $instance->searchOption = new SearchOption($query);
+        $instance->addStaticQuery($query);
         return $instance;
     }
 
@@ -126,12 +145,20 @@ class Options
         $sortQuery = $this->sortOption?->getQuery();
         $dateQuery = $this->date?->getQuery();
         $searchQuery = $this->searchOption?->getQuery();
-        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery) {
+        $statics = null;
+        if (!empty($this->staticQuery)) {
+            $statics = "WHERE " . implode(" ", $this->staticQuery);
+        }
+        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics) {
             return "";
         }
         $whereQuery = "";
+        if ($statics) {
+            $whereQuery = $whereQuery . $statics;
+        }
         if ($dateQuery) {
-            $whereQuery = "WHERE $dateQuery";
+            $whereQuery = has_word($whereQuery, "WHERE") ?
+                ($whereQuery . " AND ( $dateQuery )") : ($whereQuery . " WHERE $dateQuery");
         }
         if ($searchQuery) {
             $whereQuery = has_word($whereQuery, "WHERE") ?
@@ -153,10 +180,12 @@ class Options
     public function getLimitOrPageCountOffset(): ?string
     {
 
-        if (($this->limit)) {
+        if (!is_null(($this->limit))) {
+
             return "LIMIT $this->limit";
         }
-        if (($this->page) >= 0 && ($this->countPerPage) >= 0) {
+
+        if (!is_null($this->page)  && !is_null($this->countPerPage)) {
             $next_offset = $this->page * $this->countPerPage;
             return "LIMIT $this->countPerPage OFFSET $next_offset";
         }
@@ -201,12 +230,11 @@ class SortOption
 
 class SearchOption
 {
-    public function __construct(public ?string $staticQuery = null, public ?string $searchQuery = null, public ?string $searchByField = null) {}
+
+    public function __construct(public ?string $searchQuery = null, public ?string $searchByField = null) {}
     public function getQuery(): string
     {
-        if ($this->staticQuery) {
-            return $this->staticQuery;
-        }
+        return "";
 
         if ($SEARCH_QUERY) {
 

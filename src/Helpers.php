@@ -62,11 +62,21 @@ class Helpers
         $boo = $keyValue == null || ($keyValue != null && $keyValue == -1);
         return $boo;
     }
-    public static function explodeURI($url)
+    public static function explodeURIGetTableName($url)
     {
         $arr = explode('/', $url);
+        echo count($arr) . "\n";
+
         //todo this not working if api/v1/product/221 it returns 221
-        return $arr[count($arr) - 1];
+        return $arr[2];
+    }
+    public static function explodeURIGetID($url)
+    {
+        $arr = explode('/', $url);
+        echo count($arr) . "\n";
+
+        //todo this not working if api/v1/product/221 it returns 221
+        return $arr[3];
     }
     public static function isSetKeyFromObj($object, $key)
     {
