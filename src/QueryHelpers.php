@@ -123,4 +123,17 @@ class QueryHelpers
 
         return false;
     }
+    public static function isDetailArrayRequire($ParentKey, $key, $detailArrayTable)
+    {
+        if ($ParentKey === $key || $ParentKey == $key) {
+            return false;
+        }
+        if (is_bool($detailArrayTable)) {
+            return ((bool)$detailArrayTable);
+        }
+        if (($i = array_search(self::getJsonKeyFromForginArray($key), $detailArrayTable)) !== FALSE) {
+            return true;
+        }
+        return false;
+    }
 }

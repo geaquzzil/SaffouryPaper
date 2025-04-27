@@ -10,7 +10,6 @@ $container['repository'] = static fn(
     ContainerInterface $container
 ): Repository => new Repository($container->get('db'));
 
-
 $container['user_repository'] = static fn(
     ContainerInterface $container
 ): UserRepository => new UserRepository($container->get('db'));
@@ -23,3 +22,5 @@ $container['permission_repository'] = static fn(
 $container['notification_repository'] = static fn(
     ContainerInterface $container
 ): NotificationRepository => new NotificationRepository($container->get('db'));
+
+

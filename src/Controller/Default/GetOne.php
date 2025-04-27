@@ -21,18 +21,9 @@ final class GetOne extends BaseController
         array $args
     ): Response {
         parent::init($request);
-
-        // $user = $this->getFindUserService()->getOne((int) $args['id']);
         $option = new Options($request);
-
-        // echo "\nquery--->->-->" . $option->getQuery();
-
-        $iD  = (int)Helpers::explodeURIGetID($request->getUri()->getPath());
-
+        $iD = (int)$args['iD'];
         $result = $this->container['repository']->view($this->tableName, $iD, null, $option);
-
-        // $users = $this->getFindUserService()
-        //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

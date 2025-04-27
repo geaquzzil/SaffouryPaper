@@ -14,6 +14,7 @@ abstract class BaseRepository
 
     private $cacheForginObjects = [];
     private $cacheForginList = [];
+    protected $cacheTableColumns = [];
 
 
 
@@ -21,7 +22,7 @@ abstract class BaseRepository
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
-    private function getCachedForginList($tableName)
+    protected function getCachedForginList($tableName)
     {
         if (key_exists($tableName, $this->cacheForginList)) {
             return $this->cacheForginList[$tableName];
@@ -30,7 +31,7 @@ abstract class BaseRepository
             return $this->cacheForginList[$tableName];
         }
     }
-    private function getCachedForginObject($tableName)
+    protected function getCachedForginObject($tableName)
     {
         if (key_exists($tableName, $this->cacheForginObjects)) {
             return $this->cacheForginObjects[$tableName];
@@ -42,34 +43,27 @@ abstract class BaseRepository
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
         $forgins = $this->getCachedForginObject($tableName);
+        // echo $tableName . "\n";
+        // print_r($forgins);
         if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
                 $forginTableName = QueryHelpers::getJsonKeyFromForginObject($forgin);
-                // if (!is_null($skipedObject)) {
-                //     if ($pp == $skipedObject) {
-                //         continue;
-                //     }
-                // }
+                if ($forginTableName == $parentTableName) {
+                    continue;
+                }
+                //TODO skip parent tableName on child
                 if (QueryHelpers::isParent($forgin)) {
                     $iD = Helpers::getKeyValueFromObj($obj, "ParentID");
                     if ($option?->isRequireParent() && $iD) {
-
-                        $op =  Options::withStaticWhereQuery($tableName . ".`iD` = '$iD'");
-                        $oooo = $op->requireObjects();
-                        // Helpers::removeFromArray($detailArrayTable, $tableName);
-                        // Helpers:: removeFromArray($detailObjectTable, $tableName);
                         Helpers::setKeyValueFromObj(
                             $obj,
                             "parents",
                             $this->list(
                                 QueryHelpers::getJsonKeyFromForginArray($forgin),
                                 $parentTableName,
-                                $oooo
+                                $this->getOptionWithRequired($tableName . ".`iD` = '$iD'", true)
                             )
                         );
-
-
-                        // depthSearch(null, getJsonKeyFromForginArray($forgin), $recursiveLevel, $detailArrayTable, $detailObjectTable, $options);
                     }
                 } else if (
                     !QueryHelpers::isCurrentObjectIDEmpty($obj, $forgin) &&
@@ -86,7 +80,7 @@ abstract class BaseRepository
                     Helpers::setKeyValueFromObj(
                         $obj,
                         $forginTableName,
-                        $this->view($forginTableName, QueryHelpers::getKeyValue($obj, $forgin), $tableName, Options::getInstance()->requireObjects())
+                        $this->view($forginTableName, QueryHelpers::getKeyValue($obj, $forgin), $tableName, $this->getOptionWithRequired(null, true))
                     );
 
                     // $theResult;
@@ -102,32 +96,57 @@ abstract class BaseRepository
 
     private function addforginKeysList(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
-        $obj['addforginKeysList'] = "sa";
+
         $forgins = $this->getCachedForginList($tableName);
-
-        if (!empty($forginsDetails)) {
+        // echo $tableName . "\n";
+        // print_r($forgins);
+        if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
-                $t = Helpers::getJsonKeyFromForginArray($forgin);
-                $Where = $forgin["COLUMN_NAME"];
-                $iD = getKeyValueFromObj($result, "iD");
-                $options = array();
-                $options["WHERE_EXTENSION"] = "`$Where` = '$iD'";
-                if (QueryHelpers::isParent($forgin)) {
-                    if ($RequireParent) {
-                        removeFromArray($detailArrayTable, $tableName);
-                        removeFromArray($detailObjectTable, $tableName);
+                $isParent = QueryHelpers::isParent($forgin);
+                $forginTableName = QueryHelpers::getJsonKeyFromForginArray($forgin);
+                if ($forginTableName == $parentTableName) {
 
-                        $options["REQ_P"] = false;
-                        $result["childs"] = depthSearch(null, $t, $recursiveLevel, $detailArrayTable, $detailObjectTable, $options);
-                    }
-                } else if (!isDetailedIDEmpty($result, $forgin) && isDetailArrayRequire($ParentTableName, $forgin, $detailArrayTable)) {
-                    $options["REM_P_T"] = $ParentTableName;
-                    $result[$t] = depthSearch(null, $t, $recursiveLevel, true, true, $options);
-                } else {
-                    $result[isParent($forgin) ? "childs" : $t] = array();
+                    continue;
                 }
-                $result[isParent($forgin) ? "childs_count" :  $t . "_count"] = isDetailedIDEmpty($result, $forgin) ? 0 :
-                    getFetshTableWithQuery(getCountQuery($result, $forgin))["result"];
+                $iD = Helpers::getKeyValueFromObj($obj, "iD");
+                $where = $forgin["COLUMN_NAME"];
+                if ($isParent && $iD) {
+                    if ($option?->isRequireParent()) {
+                        Helpers::setKeyValueFromObj(
+                            $obj,
+                            "childs",
+                            $this->list(
+                                QueryHelpers::getJsonKeyFromForginArray($forgin),
+                                $parentTableName,
+                                $this->getOptionWithRequired("`$where` = '$iD'", true)
+                            )
+                        );
+                    }
+                } else if (
+                    !QueryHelpers::isDetailedIDEmpty($obj, $forgin) &&
+                    QueryHelpers::isDetailArrayRequire($parentTableName, $forgin, $option?->addForginsList)
+                ) {
+
+                    Helpers::setKeyValueFromObj(
+                        $obj,
+                        $forginTableName,
+                        $this->list($forginTableName, $tableName, $this->getOptionWithRequired("`$where` = '$iD'", true))
+                    );
+
+                    // $result[$t] = depthSearch(null, $t, $recursiveLevel, true, true, $options);
+                } else {
+                    Helpers::setKeyValueFromObj(
+                        $obj,
+                        $isParent ? "childs" : $forginTableName,
+                        array()
+                    );
+                }
+                Helpers::setKeyValueFromObj(
+                    $obj,
+                    $isParent ? "childs_count" :  $forginTableName . "_count",
+                    QueryHelpers::isDetailedIDEmpty($obj, $forgin) ? 0 :
+                        Helpers::getKeyValueFromObj($this->getFetshTableWithQuery(QueryHelpers::getCountQuery($obj, $forgin)), "result")
+                );
             }
         }
     }
@@ -207,8 +226,9 @@ abstract class BaseRepository
     {
         $query = "";
         $tableName = $this->changeTableNameToExtended($tableName);
-        $optionQuery = $this->getOption($option);
-        echo "\n from-->->-getQuery-->->OPTION QUERY ==> " . $optionQuery . " \n";
+        $optionQuery = $this->getOption($tableName, $option);
+
+        echo "\n $tableName from-->->-getQuery-->->OPTION QUERY ==> " . $optionQuery . " \n";
 
         switch ($action) {
             case ServerAction::ADD:
@@ -240,11 +260,11 @@ abstract class BaseRepository
         }
         return $query;
     }
-    private function getOption(?Options $option): string
+    private function getOption(string $tableName, ?Options $option): string
     {
         if (!$option) return "";
 
-        return $option->getQuery();
+        return $option->getQuery($tableName, new SearchRepository($this->database));
     }
 
 
@@ -305,7 +325,20 @@ abstract class BaseRepository
         $statement->execute();
         return  $statement->fetchObject();
     }
-
+    private function getOptionWithRequired(?string $staticWhere = null, ?bool $requireObjects = null, ?bool $requireLists = null)
+    {
+        $obj = new Options();
+        if (!is_null($staticWhere)) {
+            $obj = $obj->addStaticQuery($staticWhere);
+        }
+        if (!is_null($requireObjects)) {
+            $obj = $obj->requireObjects();
+        }
+        if (!is_null($requireLists)) {
+            $obj = $obj->requireDetails();
+        }
+        return $obj;
+    }
     function getLastIncrementID($tableName)
     {
         return getFetshTableWithQuery("
@@ -326,6 +359,7 @@ abstract class BaseRepository
         WHERE
             REFERENCED_TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . $this->DB_NAME . "'");
     }
+
     //Field Type Key
     function getTableColumns($tableName)
     {
@@ -337,7 +371,15 @@ abstract class BaseRepository
         }
         return $r;
     }
-
+    public function getCachedTableColumns($tableName)
+    {
+        if (key_exists($tableName, $this->cacheForginList)) {
+            return $this->cacheTableColumns[$tableName];
+        } else {
+            $this->cacheTableColumns[$tableName] = $this->getTableColumns($tableName);
+            return $this->cacheTableColumns[$tableName];
+        }
+    }
 
     function getSearchObjectStringValue($object, $tableName)
     {

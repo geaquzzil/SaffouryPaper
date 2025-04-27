@@ -33,47 +33,6 @@ final class BlockController extends BaseController
             echo "IS not set";
         }
 
-        //action_notification
-
-
-        // // echo $this->tableName;
-        // $page = $request->getQueryParam('page', null);
-        // $countPerPage = $request->getQueryParam('countPerPage', null);
-        // $limit = $request->getQueryParam('limit', null);
-        // $searchQuery = $request->getQueryParam('searchQuery', null);
-
-
-        // $asc = $request->getQueryParam('ASC', null);
-        // $desc = $request->getQueryParam('DESC', null);
-
-
-        // $option = new Options($request);
-        // $option->page = Helpers::isIntReturnValue($page);
-        // $option->countPerPage = Helpers::isIntReturnValue($countPerPage);
-        // $option->limit = Helpers::isIntReturnValue($limit);
-
-        // if ($searchQuery) {
-        //     echo " has searchQuery";
-        //     $option->searchOption =  new SearchOption($searchQuery);
-        //     // $option->searchOption =   $searchQuery;
-        // }
-        // if ($asc || $desc) {
-        //     echo " has asc || desc";
-        //     if ($asc) {
-        //         $option->sortOption = new SortOption($asc, SortType::ASC);
-        //     } else {
-        //         $option->sortOption = new SortOption($desc, SortType::DESC);
-        //     }
-        // }
-        // echo "\n" . $option->getQuery();
-
-
-
-        // // $this->container['repository']->;
-
-        // // $users = $this->getFindUserService()
-        // //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);
-
         return $this->textResponse($response, "Notification");
     }
 }

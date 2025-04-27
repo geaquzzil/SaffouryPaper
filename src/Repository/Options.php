@@ -36,6 +36,11 @@ class Options
 
 
     private array $staticQuery = [];
+
+    /// this is for the request if <SizesID>
+
+
+
     public function addStaticQuery($query)
     {
         $this->staticQuery[] = $query;
@@ -79,6 +84,14 @@ class Options
         $searchQuery = $request->getQueryParam('searchQuery', null);
         $searchByField = $request->getQueryParam('searchByField', null);
         $date = $request->getQueryParam('date', null);
+        $searchByColumn = array();
+        foreach (array_keys($request->getQueryParams()) as $ke) {
+            $val = $request->getQueryParam($ke, null);
+            if (str_starts_with($ke, "<") && str_ends_with($ke, ">") && $val) {
+                $searchByColumn[substr($ke, 1, -1)] = $val;
+            }
+        }
+        // print_r($searchByColumn);
 
 
         $asc = $request->getQueryParam('ASC', null);
@@ -92,9 +105,9 @@ class Options
             $this->date = Date::fromJson(json_decode($date, true));
         }
 
-        if ($searchQuery) {
+        if ($searchQuery || $searchByColumn || $searchByField) {
             // echo " has searchQuery";
-            $this->searchOption =  new SearchOption($searchQuery, $searchByField);
+            $this->searchOption =  new SearchOption($searchQuery, $searchByField, $searchByColumn);
             // $option->searchOption =   $searchQuery;
         }
         if ($asc || $desc) {
@@ -139,12 +152,12 @@ class Options
             return false;
         }
     }
-    public function getQuery(): string
+    public function getQuery(string $tableName, ?SearchRepository $repo = null): string
     {
         $limitQuery = $this->getLimitOrPageCountOffset();
         $sortQuery = $this->sortOption?->getQuery();
         $dateQuery = $this->date?->getQuery();
-        $searchQuery = $this->searchOption?->getQuery();
+        $searchQuery = $this->searchOption?->getQuery($tableName, $repo, $this->request);
         $statics = null;
         if (!empty($this->staticQuery)) {
             $statics = "WHERE " . implode(" ", $this->staticQuery);
@@ -157,18 +170,18 @@ class Options
             $whereQuery = $whereQuery . $statics;
         }
         if ($dateQuery) {
-            $whereQuery = has_word($whereQuery, "WHERE") ?
-                ($whereQuery . " AND ( $dateQuery )") : ($whereQuery . " WHERE $dateQuery");
+            $whereQuery = (Helpers::has_word($whereQuery, "WHERE") ?
+                ($whereQuery . " AND ( $dateQuery )") : ($whereQuery . " WHERE $dateQuery")) . "\n";
         }
         if ($searchQuery) {
-            $whereQuery = has_word($whereQuery, "WHERE") ?
-                ($whereQuery . " AND ( $searchQuery )") : ($whereQuery . " WHERE $searchQuery");
+            $whereQuery =  (Helpers::has_word($whereQuery, "WHERE") ?
+                ($whereQuery . " AND ( $searchQuery )") : ($whereQuery . " WHERE $searchQuery")) . "\n";
         }
         if ($sortQuery) {
-            $whereQuery = $whereQuery . "  $sortQuery";
+            $whereQuery = $whereQuery . "  $sortQuery\n";
         }
         if ($limitQuery) {
-            $whereQuery = $whereQuery . " $limitQuery";
+            $whereQuery = $whereQuery . " $limitQuery\n";
         }
         //TODO 
         //     if(isset($option["CUSTOM_JOIN"])){
@@ -208,8 +221,9 @@ class Date
 
     public function getQuery(): string
     {
-
-        return  "Date(date)  >= '.$this->from.' AND Date(date)<= '.$this->to.'";
+        $from = date("Y-m-d", strtotime($this->from));
+        $to = date("Y-m-d", strtotime($this->to));
+        return  "(Date(date)  >= '$from' AND Date(date)<= '$to')";
     }
 }
 class SortOption
@@ -231,10 +245,28 @@ class SortOption
 class SearchOption
 {
 
-    public function __construct(public ?string $searchQuery = null, public ?string $searchByField = null) {}
-    public function getQuery(): string
+    public function __construct(
+        public ?string $searchQuery = null,
+        public ?string $searchByField = null,
+        public array $searchByColumn = []
+    ) {}
+    public function getQuery(string $tableName, ?SearchRepository $repo = null, ?Request $request): string
     {
-        return "";
+        $searchWhere = array();
+
+        if (!is_null($repo) && $this->searchQuery) {
+            $starttime = microtime(true);
+            $generatedSearchQuery = $repo->getSearchQueryMasterStringValue($this->searchQuery, $tableName);
+            $endtime = microtime(true);
+            $duration = $endtime - $starttime;
+            echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";
+            $searchWhere[] = $generatedSearchQuery;
+        }
+        if ($this->searchByColumn) {
+            $searchWhere[] = $repo->getSearchByColumnQuery($this->searchByColumn, $tableName);
+        }
+
+        return implode(" AND ", $searchWhere);
 
         if ($SEARCH_QUERY) {
 
@@ -280,20 +312,6 @@ class SearchOption
                 $option["WHERE_EXTENSION"] =  $joinedQuery;
             }
         }
-
-
-
-        if ($this->searchByField) {
-        } else {
-        }
-        switch ($this->sortType) {
-            case SortType::ASC;
-                return  " ORDER BY `" . $this->field . "` ASC ";
-
-            case SortType::DESC;
-                return  " ORDER BY `" . $this->field . "` DESC ";
-        }
-        return "";
     }
 }
 enum SortType
