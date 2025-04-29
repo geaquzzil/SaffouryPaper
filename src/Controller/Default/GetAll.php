@@ -22,15 +22,7 @@ final class GetAll extends BaseController
     {
         parent::init($request);
 
-
-
-        $option = new Options($request);
-
-        // echo "\nquery--->->-->" . $option->getQuery();
-
-
-
-        $result = $this->container['repository']->list($this->tableName, null, $option);
+        $result = $this->container['repository']->list($this->tableName, null, $this->options);
 
         // $users = $this->getFindUserService()
         //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);

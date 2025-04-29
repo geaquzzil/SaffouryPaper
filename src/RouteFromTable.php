@@ -28,11 +28,12 @@ use Slim\Http\Response;
 class RouteFromTable
 {
     const ID_OPTIONAL = '[/[{iD:\d+}]]';
+
     const ID_REQUIRED = '/{iD:\d+}';
     public function __invoke($app): void
     {
 
-        $tables = $app->getContainer()['repository']->getAllTables();
+        $tables = $app->getContainer()['repository']->getAllTablesWithoutView();
         $permissionRep = $app->getContainer()['permission_repository'];
         $r = $this;
 
@@ -128,7 +129,8 @@ class RouteFromTable
             foreach ($route as $router) {
 
 
-                // echo "\n this is $tableName $router[0] $router[1] $router[2] \n";
+                // echo "\n this is  $router[0] $router[1] $router[2] $router[3] \n";
+
                 // print_r($route);
                 // $func = $GLOBALS["CUSTOM_SEARCH_QUERY"][$objectName];
                 // if (is_callable($func)) {
@@ -138,26 +140,14 @@ class RouteFromTable
                 $app->{$router[2]}($router[0], $router[1]);
                 $hasPermission = $router[3];
                 if ($hasPermission) {
+                    // echo "hasPermssion:$hasPermission \n";
                     $app->add(new StaticPermission($hasPermission, $app->getContainer()['permission_repository']));
                 }
             }
             // echo $search_array[20120504];
         }
     }
-    private function getRouters($app)
-    {
-        $routes = array_reduce($app->getContainer()->get('router')->getRoutes(), function ($target, $route) {
-            $target[$route->getPattern()] = [
-                'methods' => json_encode($route->getMethods()),
-                'callable' => $route->getCallable(),
-                'middlewares' => json_encode($route->getMiddleware()),
-                'pattern' => $route->getPattern(),
-            ];
-            return $target;
-        }, []);
-        header('Content-Type', 'application/json');
-        die(print_r(($routes)));
-    }
+
     private $getExtessionTableUrl =
     [
         // PR => [
@@ -178,12 +168,13 @@ class RouteFromTable
             // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:createToken', 'post', null],
             // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:updateToken', 'put', null],
             ['/statement'   . self::ID_REQUIRED, 'Etq\Restful\Controller\CustomerController:getStatement', 'get', null],
-            ['/terms'       . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getTearms', 'get', null],
+            ['/terms'       . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getTerms', 'get', null],
             ['/profits'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getProfits', 'get', null],
             ['/notPaid'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNotPaidCustomers', 'get', null],
             ['/overdue'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getOverDueCustomers', 'get', null],
             ['/balance'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getBalance', 'get', null],
             ['/nextPayment' . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNextPayment', 'get', null],
+            ['/currentDayPayment' . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getCurrentDayPayment', 'get', null],
         ],
 
         // CUT => []

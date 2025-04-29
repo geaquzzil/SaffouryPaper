@@ -209,6 +209,18 @@ class Options
 class Date
 {
 
+    public function unsetFrom()
+    {
+        $this->from = null;
+        return $this;
+    }
+    public static function currentDate()
+    {
+        return  Date::fromJson([
+            "from" => date('Y-m-d'),
+            "to" => date('Y-m-d')
+        ]);
+    }
     public function __construct(public ?string $from, public ?string $to) {}
 
     public static function fromJson(array $data): self
@@ -218,12 +230,39 @@ class Date
             $data['to'] ?? null
         );
     }
-
-    public function getQuery(): string
+    public function getPreviousDateFrom()
     {
-        $from = date("Y-m-d", strtotime($this->from));
-        $to = date("Y-m-d", strtotime($this->to));
-        return  "(Date(date)  >= '$from' AND Date(date)<= '$to')";
+        return date('Y-m-d', (strtotime('-1 day', strtotime($this->from))));
+    }
+    public function getPreviousDateTo()
+    {
+        return date('Y-m-d', (strtotime('-1 day', strtotime($this->to))));
+    }
+
+    public function getQuery(?string $addOptionalTableName = null, string $customDateName = 'date', bool $requireOnlyEquals = false): string
+    {
+        $dateTableName = "Date($customDateName)";
+        if ($addOptionalTableName) {
+            $dateTableName
+                = "Date($addOptionalTableName.$customDateName)";
+        }
+        if (!$this->from && !$this->to) {
+            return "";
+        } else if ($this->from && !$this->to) {
+            $from = date("Y-m-d", strtotime($this->from));
+            $sign = $requireOnlyEquals ? "=" : ">=";
+            return  "( $dateTableName  $sign '$from' )";
+        } else if (!$this->from && $this->to) {
+            $to = date("Y-m-d", strtotime($this->to));
+            $sign = $requireOnlyEquals ? "=" : "<=";
+            return  "( $dateTableName  $sign '$to' )";
+        } else {
+            $from = date("Y-m-d", strtotime($this->from));
+            $to = date("Y-m-d", strtotime($this->to));
+            $fromSign = $requireOnlyEquals ? "=" : ">=";
+            $toSign = $requireOnlyEquals ? "=" : "<=";
+            return  "( $dateTableName  $fromSign '$from' AND $dateTableName $toSign '$to') )";
+        }
     }
 }
 class SortOption

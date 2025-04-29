@@ -79,6 +79,7 @@ function getAllTables()
 	$tablesNames = getFetshAllTableWithQuery("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . $_SERVER['DB_NAME'] . "'");
 	return $tablesNames;
 }
+
 function getAllTablesString()
 {
 	return getStrings("SELECT table_name FROM information_schema.tables WHERE table_schema ='" . $_SERVER['DB_NAME'] . "'", TABLE_NAME);

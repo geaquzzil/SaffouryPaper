@@ -27,6 +27,9 @@ class App
 
         require_once __DIR__ . '/../src/Repositories.php';
 
+        require_once __DIR__ . '/../src/Extension/SensetiveDataPermission.php';
+
+
 
         require_once __DIR__ . '/Services.php';
 

@@ -3,6 +3,7 @@
 namespace Etq\Restful\Controller;
 
 use Etq\Restful\Helpers;
+use Etq\Restful\Repository\Options;
 use Etq\Restful\Repository\Repository;
 use Exception;
 use Slim\Container;
@@ -14,6 +15,7 @@ abstract class BaseController
 
 
     protected string $tableName;
+    protected Options $options;
 
     public function __construct(protected Container $container) {}
 
@@ -80,5 +82,6 @@ abstract class BaseController
     protected function init(Request $request)
     {
         $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
+        $this->options = new Options($request);
     }
 }

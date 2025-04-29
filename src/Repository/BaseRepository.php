@@ -5,7 +5,7 @@ namespace Etq\Restful\Repository;
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Helpers;
 use Etq\Restful\QueryHelpers;
-use Mpdf\Tag\Option;
+use Slim\Container;
 
 abstract class BaseRepository
 {
@@ -18,7 +18,7 @@ abstract class BaseRepository
 
 
 
-    public function __construct(protected \PDO $database)
+    public function __construct(protected \PDO $database, protected Container $container)
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
@@ -154,12 +154,10 @@ abstract class BaseRepository
     {
         if (!$option?->addForginsObject && !$option?->addForginsList) return;
         if (!is_array($queryResult)) {
-
             if ($option?->isRequestedForginObjects()) {
                 $this->addforginKeys($tableName, $queryResult, $option, $parentTableName);
             }
             if ($option?->isRequestedForginList()) {
-
                 $this->addforginKeysList($tableName, $queryResult, $option, $parentTableName);
             }
         } else {
@@ -168,7 +166,6 @@ abstract class BaseRepository
                     $this->addforginKeys($tableName, $res, $option, $parentTableName);
                 }
                 if ($option?->isRequestedForginList()) {
-
                     $this->addforginKeysList($tableName, $res, $option, $parentTableName);
                 }
             }
@@ -176,10 +173,9 @@ abstract class BaseRepository
     }
     public function list(string $tableName, ?string $parentTableName = null, ?Options $option = null)
     {
-        $query = $this->getQuery($tableName, ServerAction::LIST,  $option);
+        $query = $this->getQuery($tableName, ServerAction::LIST,  $option, $parentTableName);
         $result = $this->getFetshALLTableWithQuery($query);
         $this->checkToSetForgins($tableName, $result, $option, $parentTableName);
-
         return $result;
     }
 
@@ -190,7 +186,7 @@ abstract class BaseRepository
         } else {
             $option->addStaticQuery("iD = '$iD'");
         }
-        $query = $this->getQuery($tableName, ServerAction::VIEW,  $option);
+        $query = $this->getQuery($tableName, ServerAction::VIEW,  $option, $parentTableName);
         $result = $this->getFetshTableWithQuery($query);
         // print_r($result);
         if ($result) {
@@ -222,11 +218,12 @@ abstract class BaseRepository
     }
 
 
-    private function getQuery(string $tableName, ServerAction $action, ?Options $option = null): string
+    private function getQuery(string $tableName, ServerAction $action, ?Options $option = null, ?string $parentTableName = null): string
     {
         $query = "";
         $tableName = $this->changeTableNameToExtended($tableName);
         $optionQuery = $this->getOption($tableName, $option);
+        $selectColumn = $this->getSelectColumn($tableName, $parentTableName);
 
         echo "\n $tableName from-->->-getQuery-->->OPTION QUERY ==> " . $optionQuery . " \n";
 
@@ -243,7 +240,7 @@ abstract class BaseRepository
                     $fieldName = $option->searchOption->searchByField;
                     $query = "SELECT DISTINCT(`$tableName`.`$fieldName`) FROM `" . $tableName . "` $optionQuery";
                 } else {
-                    $query = "SELECT * FROM $tableName $optionQuery";
+                    $query = "SELECT $selectColumn FROM $tableName $optionQuery";
                 }
                 break;
 
@@ -252,7 +249,7 @@ abstract class BaseRepository
                 break;
 
             case ServerAction::VIEW:
-                $query = "SELECT * FROM $tableName $optionQuery";
+                $query = "SELECT $selectColumn FROM $tableName $optionQuery";
                 break;
 
             default:
@@ -260,11 +257,28 @@ abstract class BaseRepository
         }
         return $query;
     }
+    private function getSelectColumn(string $tableName, ?string $parentTableName)
+    {
+        if ($parentTableName) {
+            // if (isset($this->container[SENS][$tableName])) {
+            //     $func = $this->container[SENS][$tableName];
+
+            //     return implode(",", $func($tableName));
+            // }
+            return "*";
+            // if (in_array($objectName, array_keys($GLOBALS["OBJECT_ACTIONS"]))) {
+            //     $func = $GLOBALS["OBJECT_ACTIONS"][$objectName];
+            //     if (is_callable($func))
+            //         $func($object);
+            // }
+        }
+        return "*";
+    }
     private function getOption(string $tableName, ?Options $option): string
     {
         if (!$option) return "";
 
-        return $option->getQuery($tableName, new SearchRepository($this->database));
+        return $option->getQuery($tableName, new SearchRepository($this->database, $this->container));
     }
 
 
@@ -473,6 +487,17 @@ abstract class BaseRepository
             information_schema.tables
         WHERE
             table_schema ='" . $this->DB_NAME . "'");
+        return $tablesNames;
+    }
+    public function getAllTablesWithoutView()
+    {
+        $tablesNames = $this->getFetshAllTableWithQuery("
+        SELECT
+            table_name
+        FROM
+            information_schema.tables
+        WHERE
+            table_schema ='" . $this->DB_NAME . "'" . " AND TABLE_TYPE <> 'VIEW' ");
         return $tablesNames;
     }
     function getAllTablesString()

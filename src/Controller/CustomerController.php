@@ -18,6 +18,7 @@ use Slim\Http\Response;
 
 final class CustomerController extends BaseController
 {
+    private ?int $iD = null;
 
     // <!-- ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:createToken', 'post', null],
     //         ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:updateToken', 'put', null],
@@ -29,13 +30,18 @@ final class CustomerController extends BaseController
     //         ['balance[/[{iD:\d+}]]', 'Etq\Restful\Controller\CustomerController:getBalance', 'get', null],
     //         ['nextPayment[/[{iD:\d+}]]', 'Etq\Restful\Controller\CustomerController:getNextPayment', 'get', null], -->
 
-
-
-    public function getTearms(Request $request, Response $response, array $args): Response
+    private function initi(Request $request, array $args)
     {
-        $modelReflector = new \ReflectionClass(__CLASS__);
-        $method = $modelReflector->getMethod(__METHOD__);
-        return $this->textResponse($response, $method->name);
+        parent::init($request);
+        $val = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
+        $this->iD = $val ? (int)$val : null;
+    }
+
+    public function getTerms(Request $request, Response $response, array $args): Response
+    {
+        // $modelReflector = new \ReflectionClass(__CLASS__);
+        // $method = $modelReflector->getMethod(__METHOD__);
+        return $this->textResponse($response, "sdds");
     }
     public function getProfits(Request $request, Response $response, array $args): Response
     {
@@ -63,16 +69,26 @@ final class CustomerController extends BaseController
     }
     public function getBalance(Request $request, Response $response, array $args): Response
     {
-        $modelReflector = new \ReflectionClass(__CLASS__);
-        $method = $modelReflector->getMethod(__METHOD__);
-        return $this->textResponse($response, $method->name);
+        $this->initi($request, $args);
+        $result = $this->container['customer_repository']->getBalance($this->iD, $this->options->date);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
     public function getNextPayment(Request $request, Response $response, array $args): Response
     {
-        $modelReflector = new \ReflectionClass(__CLASS__);
-        $method = $modelReflector->getMethod(__METHOD__);
-        return $this->textResponse($response, $method->name);
+        $this->initi($request, $args);
+        $result = $this->container['customer_repository']->getNextPayment($this->iD, $this->options->date);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
+    public function getCurrentDayPayment(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+
+        $date = $this->options?->date?->unsetFrom();
+
+        $result = $this->container['customer_repository']->getNextPayment($this->iD, $date, true);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+
     // public function getTearms(Request $request, Response $response, array $args): Response
     // {
     //     $modelReflector = new \ReflectionClass(__CLASS__);

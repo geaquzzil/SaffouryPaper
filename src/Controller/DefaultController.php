@@ -34,8 +34,23 @@ final class DefaultController extends BaseController
 
         return $this->jsonResponse($response, 'success', $message, 200);
     }
+    private function getRouters(Request $request, Response $response)
+    {
+        global $app;
+        $routes = array_reduce($app->getContainer()->get('router')->getRoutes(), function ($target, $route) {
+            $target[$route->getPattern()] = [
+                'methods' => json_encode($route->getMethods()),
+                'callable' => $route->getCallable(),
+                'middlewares' => json_encode($route->getMiddleware()),
+                'pattern' => $route->getPattern(),
+            ];
+            return $target;
+        }, []);
+        return $this->jsonResponse($response, 'success', $routes, 200);
+    }
     public function getHelp(Request $request, Response $response): Response
     {
+        return $this->getRouters($request, $response);
         $url = $this->container->get('settings')['app']['domain'];
         $db = $this->container->get('db');
 
@@ -46,6 +61,7 @@ final class DefaultController extends BaseController
             'notes' => $url . '/api/v1/notes',
             'docs' => $url . '/docs/index.html',
             'status' => $url . '/status',
+
             'this help' => $url . '',
         ];
         $message = [
