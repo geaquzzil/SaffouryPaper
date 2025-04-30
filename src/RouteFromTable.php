@@ -30,6 +30,7 @@ class RouteFromTable
     const ID_OPTIONAL = '[/[{iD:\d+}]]';
 
     const ID_REQUIRED = '/{iD:\d+}';
+
     public function __invoke($app): void
     {
 
@@ -50,6 +51,7 @@ class RouteFromTable
                 $app->put('/{iD:[0-9]+}', Update::class)->add(new EditPermission($permissionRep));
                 $app->delete('/{iD:[0-9]+}', Delete::class)->add(new DeletePermission($permissionRep));
                 // echo " sad";
+
                 $r->addExtensionTableUrl($table, $app);
             });
         }
@@ -102,10 +104,11 @@ class RouteFromTable
         $app->group('/dashboard', function () use ($app): void {
             //TODO args from & to
 
-            $app->get('/' . CUST, TransferController::class);
+            $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
+            // $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
 
             // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        })->add(new StaticPermission("action_transfer_account", $permissionRep));
+        })->add(new Auth(UserType::CUSTOMER));
 
 
         // $app->group('/transfer', function () use ($app): void {
@@ -127,38 +130,32 @@ class RouteFromTable
         if (array_key_exists($tableName, $this->getExtessionTableUrl)) {
             $route = $this->getExtessionTableUrl[$tableName];
             foreach ($route as $router) {
-
-
-                // echo "\n this is  $router[0] $router[1] $router[2] $router[3] \n";
-
-                // print_r($route);
-                // $func = $GLOBALS["CUSTOM_SEARCH_QUERY"][$objectName];
-                // if (is_callable($func)) {
-                //     $hasCustomFunctionFounded = true;
-                //     return $func($object);
-                // }
-                $app->{$router[2]}($router[0], $router[1]);
                 $hasPermission = $router[3];
                 if ($hasPermission) {
-                    // echo "hasPermssion:$hasPermission \n";
-                    $app->add(new StaticPermission($hasPermission, $app->getContainer()['permission_repository']));
+                    $app->{$router[2]}($router[0], $router[1])->add(
+                        new StaticPermission($hasPermission, $app->getContainer()['permission_repository'])
+                    );
+                } else {
+                    $app->{$router[2]}($router[0], $router[1]);
                 }
             }
-            // echo $search_array[20120504];
         }
     }
 
     private $getExtessionTableUrl =
+
     [
         // PR => [
+        // ['most_popular', 'Etq\Restful\Controller\ProductController:getMostPopularProduct', 'get', null],
         //     ['movement[[/]{iD:\d+}]', 'Etq\Restful\Controller\ProductController:getMovement', 'get', null],
-        //     ['most_popular', 'Etq\Restful\Controller\ProductController:getMostPopular', 'get', null],
+
         //     //TODO should i deprecated
         //     ['search', 'Etq\Restful\Controller\ProductController:searchForProduct', 'get', null],
         //     ['similar/{iD:\d+}', 'Etq\Restful\Controller\ProductController:getSimilar', 'get', null],
         // ],
         // TYPE => [
-        //     ['availability', 'Etq\Restful\Controller\ProductTypeController:getAvailability', 'get', null]
+        //     // ['availability', 'Etq\Restful\Controller\ProductController:getProductTypeAvailability', 'get', null],
+
         // ],
         // EMP => [
         //     // ['token/{iD:\d+}', 'Etq\Restful\Controller\EmployeeController:createToken', 'post', null],
@@ -167,14 +164,46 @@ class RouteFromTable
         CUST => [
             // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:createToken', 'post', null],
             // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:updateToken', 'put', null],
-            ['/statement'   . self::ID_REQUIRED, 'Etq\Restful\Controller\CustomerController:getStatement', 'get', null],
-            ['/terms'       . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getTerms', 'get', null],
-            ['/profits'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getProfits', 'get', null],
-            ['/notPaid'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNotPaidCustomers', 'get', null],
-            ['/overdue'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getOverDueCustomers', 'get', null],
-            ['/balance'     . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getBalance', 'get', null],
-            ['/nextPayment' . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getNextPayment', 'get', null],
-            ['/currentDayPayment' . self::ID_OPTIONAL, 'Etq\Restful\Controller\CustomerController:getCurrentDayPayment', 'get', null],
+            [
+                '/overdue'     . self::ID_OPTIONAL,
+                'Etq\Restful\Controller\CustomerController:getOverDueCustomers',
+                'get',
+                CUST // new ViewPermission($app->getContainer()['permission_repository'])
+
+            ],
+            [
+                '/nextPayment' . self::ID_OPTIONAL,
+                'Etq\Restful\Controller\CustomerController:getNextPayment',
+                'get',
+                CUST
+            ],
+            [
+                '/currentDayPayment' . self::ID_OPTIONAL,
+                'Etq\Restful\Controller\CustomerController:getCurrentDayPayment',
+                'get',
+                CUST
+            ],
+
+
+            [
+                '/profits'     . self::ID_OPTIONAL,
+                'Etq\Restful\Controller\CustomerController:getProfits',
+                'get',
+                CUST
+            ],
+
+            [
+                '/balance'     . self::ID_OPTIONAL,
+                'Etq\Restful\Controller\CustomerController:getBalance',
+                'get',
+                CUST
+            ],
+            [
+                '/statement'   . self::ID_REQUIRED,
+                'Etq\Restful\Controller\CustomerController:getStatement',
+                'get',
+                CUST
+            ],
         ],
 
         // CUT => []

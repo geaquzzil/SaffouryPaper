@@ -52,13 +52,21 @@ abstract class BasePermission implements ServerActionInterface
         );
     private  bool $shouldBeSignedInWhenNoLevelFound = false;
     private $adminID = -2;
+    protected $currentID = 0;
+    protected $currentUserID = -1;
     protected PermissionRepository $repo;
 
     public function __construct(PermissionRepository $repo)
     {
         $this->repo = $repo;
     }
-
+    public function  getUserID()
+    {
+        if ($this->currentUserID == -1) {
+            return null;
+        }
+        return $this->currentUserID;
+    }
     //$level is array with current user level and default user level
     //if userlevel =0 and action==action is 1 then return false
     //if userlevel=1 and action==action is 1 then return 
@@ -92,18 +100,18 @@ abstract class BasePermission implements ServerActionInterface
 
         $tableName = $this->getTableName($request);
         $token = $this->getToken($request);
-        $levelID = 0;
         if (!is_null($token)) {
 
-            $levelID = $token->data->userlevelid;
+            $this->currentUserID =   $token->data->iD;
+            $this->currentID  = $token->data->userlevelid;
         }
-        if ($levelID == $this->adminID) {
+        if ($this->currentID  == $this->adminID) {
 
             return;
         }
-        $result = $this->checkPermissionTableAccess($levelID, $tableName, $action);
+        $result = $this->checkPermissionTableAccess($this->currentID, $tableName, $action);
         if (!$result) {
-            if ($levelID == 0) {
+            if ($this->currentID == 0) {
                 throw new \Exception('Token required.', 400);
             } else {
                 throw new \Exception('Permission denied.', 400);
@@ -176,24 +184,29 @@ abstract class BasePermission implements ServerActionInterface
 
         return true;
     }
-    protected function isCustomer(int $id)
+    public function isCustomer(?int $id = null)
     {
+        $id = $id ?? $this->currentID;
         return $id > 0;
     }
-    protected function isGuest(int $id)
+    public function isGuest(?int $id = null)
     {
+        $id = $id ?? $this->currentID;
         return $id = 0;
     }
-    protected function isEmployee(int $id)
+    public function isEmployee(?int $id = null)
     {
+        $id = $id ?? $this->currentID;
         return $id < 0;
     }
-    protected function isAdmin(int $id)
+    public function isAdmin(?int $id = null)
     {
+        $id = $id ?? $this->currentID;
         return $id == $this->adminID;
     }
-    protected  function checkForUserType(int $levelID)
+    protected  function checkForUserType()
     {
+        $levelID = $this->currentID;
         if ($levelID == 0) {
             return UserType::GUEST;
         } else if ($levelID == $this->adminID) {

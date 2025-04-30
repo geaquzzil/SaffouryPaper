@@ -2580,45 +2580,7 @@ FROM customer
 			
 		}
 	}
-	function balanceDue($tableName,$date)
-	{
-	  
-		switch($tableName)
-		{
-		   
-			default:
-			if(!is_numeric($date)){
-			return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (Date($tableName.date) <= '$date') GROUP BY currency.name  ");}
-			return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (month($tableName.date) <= '$date') GROUP BY currency.name  ");
-			case DB_TABLE_DEBTS:case DB_TABLE_PAYMENTS:case DB_TABLE_SPENDING:case DB_TABLE_INCOMES:
-				if(!is_numeric($date)){
-			return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (Date($tableName.date) <= '$date') AND (isDirect is NULL OR isDirect=0) AND (FromBox is NULL OR FromBox=0) GROUP BY currency.name  ");
-				}
-			return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (month($tableName.date) <= '$date') AND (isDirect is NULL OR isDirect=0) AND (FromBox is NULL OR FromBox=0) GROUP BY currency.name  ");
-			
-		}
 	
-	}
 	
 	//TODO it's an error result
 	function OrderReminder(){

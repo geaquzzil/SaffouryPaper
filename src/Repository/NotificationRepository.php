@@ -11,12 +11,12 @@ use Etq\Restful\Repository\BaseRepository;
 
 class NotificationRepository extends BaseRepository
 {
-    
+
     public function isNotificationDisabled()
     {
         $sql = " SELECT DISABLE_NOTIFICATIONS FROM " . SETTING;
         $result = $this->getFetshTableWithQuery($sql);
-        $result = $result["DISABLE_NOTIFICATIONS"];
+        $result = Helpers::getKeyValueFromObj($result, "DISABLE_NOTIFICATIONS");
         return $result === 1 || $result == 1;
     }
     /**
@@ -43,7 +43,6 @@ class NotificationRepository extends BaseRepository
         $isToSpecificUser = $tableName && $iD;
         echo "notification is send to user name only ?  $isToSpecificUser ";
         if ($isToSpecificUser) {
-
         }
     }
 }

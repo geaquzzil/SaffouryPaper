@@ -23,14 +23,17 @@ class Auth extends BasePermission
     ): ResponseInterface {
 
         $token = $this->getToken($request);
-        $levelID = 0;
+
         if (!is_null($token)) {
-            $levelID = $token->data->userlevelid;
+            $this->currentUserID =   $token->data->iD;
+            $this->currentID = $token->data->userlevelid;
         }
         // echo $levelID;
-        if (!$this->hasAccess($levelID)) {
+        if (!$this->hasAccess($this->currentID)) {
             throw new \Exception('Permission denied.', 400);
         }
+
+        $request = $request->withAttribute('Auth', $this);
 
 
         return $next($request, $response);
@@ -42,8 +45,9 @@ class Auth extends BasePermission
     }
     /// if current user type == employe then customer and guest is enable
     ///if current user type == customer and 
-    private  function hasAccess(int $levelID)
+    private  function hasAccess()
     {
+        $levelID = $this->currentID;
         $currentUserType = $this->checkForUserType($levelID);
         $requiredPriority = $this->getPermissionProiority($this->requiredType->value);
         $currentProiority = $this->getPermissionProiority($levelID);

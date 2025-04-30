@@ -22,8 +22,9 @@ class StaticPermission extends BasePermission
     public function __invoke(
         Request $request,
         Response $response,
-        Route $next
+        $next
     ) {
+        // echo gettype($next);
         parent::invoke($request, $response, $next);
         $response =  $next($request, $response);
         // echo "AFter Response $response";

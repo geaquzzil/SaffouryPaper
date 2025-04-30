@@ -37,13 +37,37 @@ class Options
 
     private array $staticQuery = [];
 
+    private array $groupBy = [];
+    private array $orderBy = [];
+
     /// this is for the request if <SizesID>
 
-
-
-    public function addStaticQuery($query)
+    public function withGroupByArray($groupBy)
     {
-        $this->staticQuery[] = $query;
+        $this->groupBy = $groupBy;
+        return $this;
+    }
+    public function withOrderByArray($orderBy)
+    {
+        $this->orderBy = $orderBy;
+        return $this;
+    }
+    public function addOrderBy($orderBy)
+    {
+        $this->orderBy[] = $orderBy;
+        return $this;
+    }
+    public function addGroupBy($groupBy)
+    {
+        $this->groupBy[] = $groupBy;
+        return $this;
+    }
+
+    public function addStaticQuery(?string $query = null)
+    {
+        if ($query) {
+            $this->staticQuery[] = $query;
+        }
         return $this;
     }
     public  function withArray($data)
@@ -54,14 +78,14 @@ class Options
             }
         }
     }
-    public function requireDetails()
+    public function requireDetails(?array $arr = null)
     {
-        $this->addForginsList = true;
+        $this->addForginsList = $arr ?? true;
         return $this;
     }
-    public function requireObjects()
+    public function requireObjects(?array $arr = null)
     {
-        $this->addForginsObject = true;
+        $this->addForginsObject = $arr ?? true;
         return $this;
     }
     public static function getInstance()
@@ -73,6 +97,23 @@ class Options
         $instance = new self();
         $instance->addStaticQuery($query);
         return $instance;
+    }
+    public  function withDate(?Date $date = null)
+    {
+        if ($date) {
+            $this->date = $date;
+        }
+        return $this;
+    }
+    public function withASC($field)
+    {
+        $this->sortOption = new SortOption($field, SortType::ASC);
+        return $this;
+    }
+    public function withDESC($field)
+    {
+        $this->sortOption = new SortOption($field, SortType::DESC);
+        return $this;
     }
 
     public function __construct(protected ?Request $request = null)
@@ -159,10 +200,19 @@ class Options
         $dateQuery = $this->date?->getQuery();
         $searchQuery = $this->searchOption?->getQuery($tableName, $repo, $this->request);
         $statics = null;
+        $groupBy = null;
+        $customOrderBy = null;
         if (!empty($this->staticQuery)) {
+            //TODO STATIC QUERY IMPOLDE SHOULD BE AND
             $statics = "WHERE " . implode(" ", $this->staticQuery);
         }
-        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics) {
+        if (!empty($this->groupBy)) {
+            $groupBy = "GROUP BY " . implode(",", $this->groupBy);
+        }
+        if (!empty($this->orderBy)) {
+            $customOrderBy = "ORDER BY " . implode(",", $this->orderBy);
+        }
+        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics && !$groupBy && !$customOrderBy) {
             return "";
         }
         $whereQuery = "";
@@ -177,11 +227,20 @@ class Options
             $whereQuery =  (Helpers::has_word($whereQuery, "WHERE") ?
                 ($whereQuery . " AND ( $searchQuery )") : ($whereQuery . " WHERE $searchQuery")) . "\n";
         }
-        if ($sortQuery) {
-            $whereQuery = $whereQuery . "  $sortQuery\n";
+        if ($groupBy) {
+            $whereQuery = $whereQuery . "  $groupBy\n";
         }
-        if ($limitQuery) {
-            $whereQuery = $whereQuery . " $limitQuery\n";
+        if ($customOrderBy) {
+            $whereQuery = $whereQuery . "$customOrderBy\n";
+        } else {
+            if ($sortQuery) {
+                $whereQuery = $whereQuery . "  $sortQuery\n";
+            }
+
+
+            if ($limitQuery) {
+                $whereQuery = $whereQuery . " $limitQuery\n";
+            }
         }
         //TODO 
         //     if(isset($option["CUSTOM_JOIN"])){
@@ -209,10 +268,38 @@ class Options
 class Date
 {
 
+    public static function getInstance()
+    {
+        return new self(null, null);
+    }
+    public function getPreviousTo(?string $to = null)
+    {
+        if ($to) {
+
+            $this->to = $to;
+        } else {
+            $this->to = date("Y-m-d");
+        }
+        $this->to = $this->getPreviousDateTo();
+        return $this;
+    }
+
     public function unsetFrom()
     {
         $this->from = null;
         return $this;
+    }
+    public static function to($to)
+    {
+        return  Date::fromJson([
+            "to" => $to
+        ]);
+    }
+    public static function from($from)
+    {
+        return  Date::fromJson([
+            "from" => $from
+        ]);
     }
     public static function currentDate()
     {
@@ -261,7 +348,7 @@ class Date
             $to = date("Y-m-d", strtotime($this->to));
             $fromSign = $requireOnlyEquals ? "=" : ">=";
             $toSign = $requireOnlyEquals ? "=" : "<=";
-            return  "( $dateTableName  $fromSign '$from' AND $dateTableName $toSign '$to') )";
+            return  "( $dateTableName  $fromSign '$from' AND $dateTableName $toSign '$to') ";
         }
     }
 }

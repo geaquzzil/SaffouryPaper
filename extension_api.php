@@ -1012,103 +1012,6 @@ function checkToAdd($analsisObj, &$response, $key)
 		$response[$key][] = $analsisObj;
 	}
 }
-$API_ACTIONS["view_customer_statement"] = function () {
-	checkPermissionAction("list_customers_balances");
-	$DateOrMonth;
-	$IsDate;
-	$withAnalysis =	checkRequestValue('withAnalysis');
-	$currentYear = date("Y");
-	$currentYear = $currentYear . "-01-01";
-
-	$FROM_STARTED = date("Y-m-d", strtotime("2020-01-01"));
-
-	checkDateRequest($DateOrMonth, $IsDate);
-	if (!checkRequestValueInt('<iD>')) {
-		returnBadRequest('<id> is null or not int');
-	}
-	//	if(checkDat)
-
-	$iD = getRequestValue('<iD>');
-	$customer = getFetshTableWithQuery("SELECT * FROM customers WHERE iD='$iD'");
-	if (is_null($customer) || empty($customer)) {
-		return null;
-	} // no content}
-	$FROM = date("Y-m-d", strtotime($DateOrMonth['from']));
-	$TO = date("Y-m-d", strtotime($DateOrMonth['to']));
-	$E_FROM = date('Y-m-d', (strtotime('-1 day', strtotime($FROM))));
-
-	$option = array();
-	$option["WHERE_EXTENSION"] = "`CustomerID`='$iD' AND Date(`date`) >= '$FROM' AND Date(`date`) <= '$TO' ORDER BY `date` DESC ";
-
-
-
-	$customer[CUST] = depthSearch($iD, CUST, 1, [], true, null);
-	$customer[CRED] = depthSearch(null, CRED, 1, null, [EQ, CUST, EMP, WARE], $option);
-	if ($withAnalysis) {
-		$customer[CRED . "Analysis"] = getGrowthRateWithCustomerIDAfterAndBefore("equality_" . CRED, "value", $iD, $FROM_STARTED, $TO);
-	}
-
-	$customer[DEBT] = depthSearch(null, DEBT, 1, null, [EQ, CUST, EMP, WARE], $option);
-	if ($withAnalysis) {
-		$customer[DEBT . "Analysis"] = getGrowthRateWithCustomerIDAfterAndBefore("equality_" . DEBT, "value", $iD, $FROM_STARTED, $TO);
-	}
-
-
-	//order
-	$customer[ORDR] = depthSearch(null, ORDR, 1, [], [CUST, EMP], $option);
-	if ($withAnalysis) {
-		$customer[ORDR . "Analysis"] = getGrowthRateWithCustomerIDAfterAndBefore("extended_order_refund", "quantity", $iD, $FROM_STARTED, $TO);
-	}
-	if ((!empty($customer[ORDR]) || !is_null($customer[ORDR]))) {
-		$results = array_map(function ($tmp) {
-			return $tmp['iD'];
-		}, $customer[ORDR]);
-		$op["KEY"] = "OrderID";
-		$customer[ORDR_R] = depthSearch($results, ORDR_R, 1, [], true, $op);
-	} else {
-		$customer[ORDR_R] = array();
-	}
-
-
-	//purchases
-	$customer[PURCH] = depthSearch(null, PURCH, 1, [], [CUST, EMP], $option);
-	if ($withAnalysis) {
-		$customer[PURCH . "Analysis"] = getGrowthRateWithCustomerIDAfterAndBefore("extended_purchases_refund", "quantity", $iD, $FROM_STARTED, $TO);
-	}
-	if ((!empty($customer[PURCH]) || !is_null($customer[PURCH]))) {
-		$results = array_map(function ($tmp) {
-			return $tmp['iD'];
-		}, $customer[PURCH]);
-		$op["KEY"] = "PurchaseID";
-		$customer[PURCH_R] = depthSearch($results, PURCH_R, 1, [], true, $op);
-	} else {
-		$customer[PURCH_R] = array();
-	}
-
-	$customer[RI] = depthSearch(null, RI, 1, [], true, $option);
-	if ($withAnalysis) {
-		$customer[RI . "Analysis"] = getGrowthRateWithCustomerIDAfterAndBefore("extended_reservation_invoice", "quantity", $iD, $FROM_STARTED, $TO);
-	}
-
-	$customer[CRS] = depthSearch(null, CRS, 1, [], true, $option);
-
-	$customer[CUT] = depthSearch(null, CUT, 1, [], true, $option);
-	if ($withAnalysis) {
-		$customer[CUT . "Analysis"] = getGrowthRateWithCustomerIDAfterAndBefore(CUT, "quantity", $iD, $FROM_STARTED, $TO);
-	}
-
-	//it was	$customer["previousBalance"]=getBalanceDueTo($iD,$E_FROM)["balance"];
-	$customer["previousBalance"] = getBalanceDueTo($iD, $E_FROM)["balance"];
-	$balanceResult = getBalanceDueFromTo($iD, $FROM, $TO);
-
-	$customer["balance"] = $balanceResult["balance"];
-	$customer["totalCredits"] = $balanceResult["sumPay"];
-	$customer["totalDebits"] = $balanceResult["Sum_eq"];
-	$customer["totalOrders"] = $balanceResult["Sum_ExtendedPrice"];
-	$customer["totalPurchases"] = $balanceResult["Sum_sumPurchuses"];
-	$customer["dateObject"] = $DateOrMonth;
-	returnResponse($customer);
-};
 $API_ACTIONS["list_home"] = function () {
 
 	$response = array();
@@ -1846,10 +1749,6 @@ $API_ACTIONS["tables"] = function () {
 		returnPermissionResponse("tables", 0);
 	}
 	//   executeMultiQuery("SET FOREIGN_KEY_CHECKS=0;REPLACE INTO purchases VALUES(11,900,1,'2020-01-21 12:57:08',null,null);");
-};
-$API_ACTIONS["test"] = function () {
-	echo "TEST";
-	//  executeMultiQuery("SET FOREIGN_KEY_CHECKS=0;REPLACE INTO purchases VALUES(11,900,1,'2020-01-21 12:57:08',null,null);");
 };
 $API_ACTIONS["restore_database"] = function () {
 	if (isAdmin()) {
