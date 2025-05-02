@@ -5,13 +5,13 @@ namespace Etq\Restful\Repository;
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Helpers;
 use Etq\Restful\QueryHelpers;
+use Exception;
 use Mpdf\Tag\Option;
 use Slim\Container;
 
-abstract class BaseRepository
+abstract class BaseRepository extends BaseDataBaseFunction
 {
 
-    protected $DB_NAME = "";
 
     private $cacheForginObjects = [];
     private $cacheForginList = [];
@@ -22,10 +22,7 @@ abstract class BaseRepository
 
 
 
-    public function __construct(protected \PDO $database, protected Container $container)
-    {
-        $this->DB_NAME = $_SERVER['DB_NAME'];
-    }
+
     protected function getCachedForginList($tableName)
     {
         if (key_exists($tableName, $this->cacheForginList)) {
@@ -183,12 +180,58 @@ abstract class BaseRepository
         return $result;
     }
 
+    public function listByDetailListColumn(string $masterTableName, string $detailTableName, Options $option)
+    {
+        $detailsResult = $this->list(
+            $detailTableName,
+            $masterTableName,
+            $option->getClone()
+                ->removeDate()->requireObjects()
+        );
+        if (empty($detailsResult)) return (array());
+        $forginsDetails = $this->getCachedForginList($masterTableName);
+
+        $columnNameInMaster = null;
+        foreach ($forginsDetails as $f) {
+            if ($f["TABLE_NAME"] === $detailTableName) {
+                $columnNameInMaster = $f["COLUMN_NAME"];
+            }
+        }
+        if (is_null($columnNameInMaster)) {
+            throw new Exception("$detailTableName not found in $masterTableName");
+        }
+
+        $results = array_unique(array_map(function ($tmp) use ($columnNameInMaster) {
+            return $tmp[$columnNameInMaster];
+        }, $detailsResult));
+        $response = array();
+        foreach ($results as $iD) {
+            $res = $this->view(
+                $masterTableName,
+                $iD,
+                null,
+                Options::getInstance()->withDate($option?->date)->requireObjects()
+            );
+            if (!$res) {
+                continue;
+            }
+            $keys = array_keys(array_column($detailsResult, $columnNameInMaster), $iD);
+
+            $res->$detailTableName = (array_intersect_key(
+                $detailsResult,
+                array_flip($keys)
+            ));
+            array_push($response, $res);
+        }
+        return $response;
+    }
+
     public function view(string $tableName, int $iD, ?string $parentTableName = null, ?Options $option = null)
     {
         if (!$option) {
             $option = Options::withStaticWhereQuery("iD = '$iD'");
         } else {
-            $option->addStaticQuery("iD = '$iD'");
+            $option = $option->getClone()->addStaticQuery("iD = '$iD'");
         }
         $query = $this->getQuery($tableName, ServerAction::VIEW,  $option, $parentTableName);
         $result = $this->getFetshTableWithQuery($query);
@@ -199,8 +242,44 @@ abstract class BaseRepository
         return $result;
     }
     public function edit(string $tableName, object $object) {}
-    public function add(string $tableName, object $object) {}
-    public function delete(string $tableName, int $iD) {}
+    public function add(string $tableName, $object, ?Options $option = null)
+    {
+
+
+        return $object;
+    }
+    public function search(string $tableName, $object)
+    {
+        $option = Options::getInstance();
+        $option->searchOption = new SearchOption(null, null, $object);
+        return $this->view($tableName, Helpers::getKeyValueFromObj($object, "iD"), null, $option);
+    }
+    public function delete(string $tableName, ?int $iD, ?Options $option = null)
+    {
+        if ((!$iD && !$option?->isSetRequestColumnsKey("iD")) || ($iD && $option?->isSetRequestColumnsKey("iD"))) {
+            throw new Exception("cant determine id");
+        }
+        if ($iD) {
+            if (!$option) {
+                $option = Options::withStaticWhereQuery("iD = '$iD'");
+            } else {
+                $option = $option->getClone()->addStaticQuery("iD = '$iD'");
+            }
+        }
+        $query = $this->getQuery($tableName, ServerAction::DELETE,  $option);
+        $rowCount = $this->getDeleteTableWithQuery($query);
+        $requestArrayCount = count($option?->getRequestColumnValue("iD"));
+        $requestCount = $iD ? 1 : $requestArrayCount;
+        $requestIDS = $iD ? [$iD] : ($option?->getRequestColumnValue("iD") ?? []);
+        $response = array();
+        $response["requestCount"] = $requestCount;
+        $response["requestIDS"] = $requestIDS;
+        $response["serverCount"] = $rowCount;
+        $response["serverStatus"] = $rowCount == $requestCount;
+        return $response;
+        // return $this->getDeleteTableWithQuery($query);
+    }
+
 
 
 
@@ -221,11 +300,14 @@ abstract class BaseRepository
         }
     }
 
-
+    private function canChangeToExtended(ServerAction $action)
+    {
+        return $action == ServerAction::LIST || $action == ServerAction::VIEW;
+    }
     private function getQuery(string $tableName, ServerAction $action, ?Options $option = null, ?string $parentTableName = null): string
     {
         $query = "";
-        $tableName = $this->changeTableNameToExtended($tableName);
+        $tableName = $this->canChangeToExtended($action) ? $this->changeTableNameToExtended($tableName) : $tableName;
         $optionQuery = $this->getOption($tableName, $option);
         $selectColumn = $this->getSelectColumn($tableName, $parentTableName);
 
@@ -249,7 +331,7 @@ abstract class BaseRepository
                 break;
 
             case ServerAction::DELETE:
-                $query = "";
+                $query = "DELETE FROM $tableName $optionQuery";
                 break;
 
             case ServerAction::VIEW:
@@ -282,14 +364,11 @@ abstract class BaseRepository
     {
         if (!$option) return "";
 
-        return $option->getQuery($tableName, new SearchRepository($this->database, $this->container));
+        return $option->getQuery($tableName);
     }
 
 
-    protected function getDb(): \PDO
-    {
-        return $this->database;
-    }
+
 
     /**
      * @param array<string, int|string> $params
@@ -331,18 +410,7 @@ abstract class BaseRepository
         return (array) $statement->fetchAll();
     }
 
-    public function getFetshALLTableWithQuery($query)
-    {
-        $statement = $this->database->prepare($query);
-        $statement->execute();
-        return (array) $statement->fetchAll();
-    }
-    public function getFetshTableWithQuery($query)
-    {
-        $statement = $this->database->prepare($query);
-        $statement->execute();
-        return  $statement->fetchObject();
-    }
+
     private function getOptionWithRequired(?string $staticWhere = null, ?bool $requireObjects = null, ?bool $requireLists = null)
     {
         $obj = new Options();
@@ -357,38 +425,7 @@ abstract class BaseRepository
         }
         return $obj;
     }
-    function getLastIncrementID($tableName)
-    {
-        return getFetshTableWithQuery("
-        SELECT
-            AUTO_INCREMENT
-        FROM
-            INFORMATION_SCHEMA.TABLES
-        WHERE
-            TABLE_SCHEMA = 'saffoury_paper' AND TABLE_NAME = '$tableName';")["AUTO_INCREMENT"];
-    }
-    function getArrayForginKeys($tableName)
-    {
-        return $this->getFetshALLTableWithQuery("
-        SELECT 
-            TABLE_NAME,COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
-        FROM
-            INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-        WHERE
-            REFERENCED_TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . $this->DB_NAME . "'");
-    }
 
-    //Field Type Key
-    function getTableColumns($tableName)
-    {
-        $result = $this->getFetshALLTableWithQuery("SHOW COLUMNS FROM `" . $tableName . "`");
-        $r = array();
-        if (empty($result)) return array();
-        foreach ($result as $res) {
-            $r[] = $res["Field"];
-        }
-        return $r;
-    }
     public function getCachedTableColumns($tableName)
     {
         if (key_exists($tableName, $this->cacheForginList)) {
@@ -447,100 +484,6 @@ abstract class BaseRepository
         }
         return implode(" OR ", $whereQuery);
     }
-    function getObjectForginKeys($tableName)
-    {
-        return $this->getFetshALLTableWithQuery("
-        SELECT
-            TABLE_NAME,COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
-        FROM
-            INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-        WHERE
-            TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . $this->DB_NAME . "'");
-    }
-    function getShowTablesWithOrderByForginKey()
-    {
-        return $this->getFetshALLTableWithQuery("
-        SELECT
-            TABLE_NAME, COLUMN_NAME, Count(REFERENCED_TABLE_NAME), REFERENCED_COLUMN_NAME
-        FROM
-            INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-        WHERE
-            TABLE_SCHEMA = '" . $this->DB_NAME . "'
-        GROUP BY TABLE_NAME
-        ORDER BY Count(REFERENCED_TABLE_NAME) ASC");
-    }
-    function QueryOfTablesWithOrderByForginKey()
-    {
-        return "
-        SELECT
-            TABLE_NAME,COLUMN_NAME,Count(REFERENCED_TABLE_NAME),REFERENCED_COLUMN_NAME
-        FROM
-            INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-        WHERE
-            TABLE_SCHEMA = '" . $this->DB_NAME . "'
-        GROUP BY TABLE_NAME
-        ORDER BY Count(REFERENCED_TABLE_NAME) ASC";
-    }
-    //TABLE_COMMENT not VIEW if you want to show only tables
-    public function getAllTables()
-    {
-        $tablesNames = $this->getFetshAllTableWithQuery("
-        SELECT
-            table_name
-        FROM
-            information_schema.tables
-        WHERE
-            table_schema ='" . $this->DB_NAME . "'");
-        return $tablesNames;
-    }
-    public function getAllTablesWithoutView()
-    {
-        $tablesNames = $this->getFetshAllTableWithQuery("
-        SELECT
-            table_name
-        FROM
-            information_schema.tables
-        WHERE
-            table_schema ='" . $this->DB_NAME . "'" . " AND TABLE_TYPE <> 'VIEW' ");
-        return $tablesNames;
-    }
-    function getAllTablesString()
-    {
-        return getStrings("
-        SELECT
-            table_name
-        FROM
-            information_schema.tables
-        WHERE
-            table_schema ='" . $this->DB_NAME . "'", TABLE_NAME);
-    }
-    function getAllTablesWithoutViewString()
-    {
-        return getStrings(
-            "
-        SELECT
-            table_name
-        FROM
-            information_schema.tables
-        WHERE
-            table_schema ='" . $this->DB_NAME . "' AND TABLE_TYPE <> 'VIEW' ",
-            TABLE_NAME
-        );
-    }
-    function getAllTablesViewString()
-    {
-        return getStrings(
-            "
-        SELECT
-            table_name
-        FROM
-            information_schema.tables
-        WHERE
-            table_schema ='" . $this->DB_NAME . "' AND TABLE_TYPE = 'VIEW' ",
-            TABLE_NAME
-        );
-    }
-
 
 
 
@@ -689,43 +632,110 @@ abstract class BaseRepository
     public function getGrowthRate(
         $tableName,
         $toFind = null,
-        ?string $staticWhere = null,
-        ?Date $date = null,
+        Options $option,
         bool $requireTotalAsCount = false,
         bool $requireDayInterval = false
     ) {
-        $selectColumn = $requireTotalAsCount ? "Count(*)" : "COALESCE( round(Sum($tableName.`$toFind`),3) ,0)";
-        $selectColumnDay = $requireDayInterval ? "Day(`$tableName`.date) As day," : "";
+        echo "\n";
         $toFind = $toFind ?? $this->getGrowthRateFindKey($tableName);
         $tableName = $this->changeTableNameToExtendedForGrowthRate($tableName);
-        $option = Options::getInstance()
-            ->withStaticWhereQuery($staticWhere)
-            ->withDate($date)->withGroupByArray(
-                [
-                    "Year($tableName.`date`)",
-                    "Month($tableName.`date`)",
+        $selectColumn = $requireTotalAsCount ? "Count(*)" : "COALESCE( round(Sum($tableName.`$toFind`),3) ,0)";
+        $selectColumnDay = $requireDayInterval ? "Day(`$tableName`.date) As day," : "";
 
-                ]
-            )->withOrderByArray([
-                "`year`",
-                "`month`"
 
-            ]);
+        $option = $option->getClone()->withGroupByArray(
+            [
+                "Year($tableName.`date`)",
+                "Month($tableName.`date`)",
+
+            ]
+        )->withASCArray([
+            "`year`",
+            "`month`"
+
+        ]);
         if ($requireDayInterval) {
             $option = $option
                 ->addGroupBy("Day(`$tableName`.date)")
                 ->addOrderBy("`day`");
         }
         $query = $option->getQuery($tableName);
-        // echo "\nsoso :" . $query;
+        $query = "
+            SELECT
+                Year(`$tableName`.`date`) AS `year`,
+                Month(`$tableName`.`date`) AS month,
+                $selectColumnDay
+                $selectColumn AS `total`
+            FROM
+                $tableName   
+            $query";
+        echo "\nsoso :" . $query . "\n";
+        // die;
         // die;
         return $this->getFetshAllTableWithQuery(
-            "SELECT Year($tableName.`date`) AS `year`,
+            $query
+
+        );
+    }
+    public function getGrowthRateByListByDetail(
+        $tableName,
+        $detailsTable,
+        $toFind = null,
+        Options $option,
+        bool $requireTotalAsCount = false,
+        bool $requireDayInterval = false
+    ) {
+
+        $iD = getUserID();
+        $qurey = "SELECT Year($tableName.`date`) AS `year`,
             Month(`$tableName`.date) AS month,
-            $selectColumnDay
-            $selectColumn AS `total`
-            FROM $tableName   
-            $query"
+            COALESCE( round(Sum(`$detailsTable`.`$toFind`),3) ,0) AS `total`
+            FROM `$detailsTable`   
+            INNER JOIN `$tableName` ON `$tableName`.`iD` = `$detailsTable`.`$joinID`
+            " . (isCustomer() ? " WHERE CustomerID= '$iD' AND $whereQuery" : "WHERE  $whereQuery") . "
+            GROUP BY Year(`$tableName`.`date`),Month(`$tableName`.`date`)
+            ORDER BY `year`,
+            month ";
+
+        echo "\n";
+        $toFind = $toFind ?? $this->getGrowthRateFindKey($tableName);
+        $tableName = $this->changeTableNameToExtendedForGrowthRate($tableName);
+        $selectColumn = $requireTotalAsCount ? "Count(*)" : "COALESCE( round(Sum($tableName.`$toFind`),3) ,0)";
+        $selectColumnDay = $requireDayInterval ? "Day(`$tableName`.date) As day," : "";
+
+
+        $option = $option->getClone()->withASCArray(
+            [
+                "Year($tableName.`date`)",
+                "Month($tableName.`date`)",
+
+            ]
+        )->withASCArray([
+            "`year`",
+            "`month`"
+
+        ]);
+        if ($requireDayInterval) {
+            $option = $option
+                ->addGroupBy("Day(`$tableName`.date)")
+                ->addOrderBy("`day`");
+        }
+        $query = $option->getQuery($tableName);
+        $query = "
+            SELECT
+                Year(`$tableName`.`date`) AS `year`,
+                Month(`$tableName`.`date`) AS month,
+                $selectColumnDay
+                $selectColumn AS `total`
+            FROM
+                $tableName   
+            $query";
+        echo "\nsoso :" . $query . "\n";
+        // die;
+        // die;
+        return $this->getFetshAllTableWithQuery(
+            $query
+
         );
     }
     //view should be 
@@ -768,6 +778,8 @@ abstract class BaseRepository
                 return $tableName;
             case CRED:
             case DEBT:
+            case SP:
+            case INC:
                 return "equality_" . $tableName;
             case RI:
             case PR_INPUT:
@@ -787,6 +799,8 @@ abstract class BaseRepository
             default:
                 return $tableName;
             case CRED:
+            case INC:
+            case SP:
             case DEBT:
                 return "value";
             case CUT:

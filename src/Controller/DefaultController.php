@@ -14,6 +14,8 @@ use Etq\Restful\Repository;
 final class DefaultController extends BaseController
 {
     private const API_VERSION = '2.23.0';
+
+
     public function getTabels(Request $request, Response $response): Response
     {
         $url = $this->container->get('settings')['app']['domain'];

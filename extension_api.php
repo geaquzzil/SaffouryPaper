@@ -724,28 +724,6 @@ $API_ACTIONS["list_products_movements"] = function () {
 	$response[PURCH_R] = depthSearchByDetailTable(PURCH_R, PURCH_R_D, "ProductID", $iD, true);
 	$response[PURCH_R . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(PURCH_R, PURCH_R_D, "PurchaseRefundID", "quantity", " ProductID='$iD' ");
 
-	$response[ORDR] = depthSearchByDetailTable(ORDR, ORDR_D, "ProductID", $iD, true);
-	$response[ORDR . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(ORDR, ORDR_D, "OrderID", "quantity", " ProductID='$iD' ");
-
-	$response[RI] = depthSearchByDetailTable(RI, RI_D, "ProductID", $iD, true);
-	$response[RI . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(RI, RI_D, "ReservationID", "quantity", " ProductID='$iD' ");
-
-
-	$response[ORDR . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(ORDR, ORDR_D, "OrderID", "quantity", " ProductID='$iD' ");
-
-	$response[ORDR_R] = depthSearchByDetailTable(ORDR_R, ORDR_R_D, "ProductID", $iD, true);
-	$response[ORDR_R . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(ORDR_R, ORDR_R_D, "OrderRefundID", "quantity", " ProductID='$iD' ");
-
-
-	$response[PR_INPUT] = depthSearchByDetailTable(PR_INPUT, PR_INPUT_D, "ProductID", $iD, true);
-	$response[PR_INPUT . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(PR_INPUT, PR_INPUT_D, "ProductInputID", "quantity", " ProductID='$iD' ");
-
-
-	$response[PR_OUTPUT] = depthSearchByDetailTable(PR_OUTPUT, PR_OUTPUT_D, "ProductID", $iD, true);
-	$response[PR_OUTPUT . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(PR_OUTPUT, PR_OUTPUT_D, "ProductOutputID", "quantity", " ProductID='$iD' ");
-
-	$response[TR] = depthSearchByDetailTable(TR, TR_D, "ProductID", $iD, true);
-	$response[TR . "Analysis"] = getGrowthRateByInvoiceDetailsQuery(TR, TR_D, "TransferID", "quantity", " ProductID='$iD' ");
 
 
 	$option["WHERE_EXTENSION"] = " `ProductID`='$iD'";
@@ -753,34 +731,7 @@ $API_ACTIONS["list_products_movements"] = function () {
 	$response[CUT . "Analysis"] = getGrowthRateByQuery(CUT, "quantity", " ProductID='$iD' ");
 	returnResponse($response);
 };
-$API_ACTIONS["list_customers_profit"] = function () {
-	checkPermissionAction("list_customers");
-	$DateOrMonth;
-	$IsDate;
-	checkDateRequest($DateOrMonth, $IsDate);
 
-	$FROM = date("Y-m-d", strtotime($DateOrMonth['from']));
-	$TO = date("Y-m-d", strtotime($DateOrMonth['to']));
-	$E_FROM = date('Y-m-d', (strtotime('-1 day', strtotime($FROM))));
-
-	$iD = null;
-	if (checkRequestValueInt('iD')) {
-		$iD = getRequestValue('iD');
-	} else {
-		returnBadRequest('NO ID ');
-	}
-
-	returnResponse(getGrowthRateAfterAndBeforeWithWhereQuery(changeToExtendedTableDashboard("profits_orders"), "total", $FROM, $TO, " CustomerID='$iD'"));
-	// 	returnResponse(getProfitsByMonthsAndCustomers($iD));
-};
-$API_ACTIONS["list_customers_pay_next"] = function () {
-	checkPermissionAction("list_customers");
-	returnResponse(customerToPayNext());
-};
-$API_ACTIONS["list_customers_not_payed"] = function () {
-	checkPermissionAction("list_customers");
-	returnResponse(notPayedCustomers());
-};
 $API_ACTIONS["list_customers_terms"] = function () {
 	checkPermissionAction("list_customers");
 	$iD = null;
@@ -1300,149 +1251,22 @@ $API_ACTIONS["list_dashboard_orders_overdues"] = function () {
 	returnResponse(invoicesOverduesAndDesposited($FROM, $TO));
 };
 $API_ACTIONS["list_dashboard"] = function () {
-	$DateOrMonth;
-	$IsDate;
-	checkDateRequest($DateOrMonth, $IsDate);
-	$FROM_STARTED = date("Y-m-d", strtotime("2020-01-01"));
-	$FROM = date("Y-m-d", strtotime($DateOrMonth['from']));
-	$TO = date("Y-m-d", strtotime($DateOrMonth['to']));
-	$E_FROM = date('Y-m-d', (strtotime('-1 day', strtotime($FROM))));
-	$permission = getUserPermissionTable();
-	$interval = null;
 	if (checkRequestValue('interval')) {
 		$interval = getRequestValue('interval');
 	}
 
 	//	print_r($permission);
 	if (isEmployee() || isCustomer()) {
-		$currentYear = $FROM;
-
-		$option = array();
-		if (isCustomer()) {
-			$option["WHERE_EXTENSION"] = " `CustomerID`='" . getUserID() . "' ORDER BY `date` DESC ";
-		} else {
-			//old 16-12-2023
-			$option["WHERE_EXTENSION"] = $IsDate ?
-				("Date(`date`) = '$TO' ORDER BY `date` DESC ") : ("Month(`date`) = '$TO' ORDER BY `date` DESC ");
-
-			$option["WHERE_EXTENSION"] = " Date(`date`) >= '$FROM' AND Date(`date`) <= '$TO' ORDER BY `date` DESC ";
-		}
-
 		if (isEmployee()) {
 
-			if (checkPermissionForActionTableResultAndAction($permission, PR_INPUT, "list")) {
-				$response[PR_INPUT] = depthSearch(null, PR_INPUT, 1, [], [CUST, EMP], $option);
-			}
-			if (checkPermissionForActionTableResultAndAction($permission, PR_OUTPUT, "list")) {
-				$response[PR_OUTPUT] = depthSearch(null, PR_OUTPUT, 1, [], [CUST, EMP], $option);
-			}
-			if (checkPermissionForActionTableResultAndAction($permission, TR, "list")) {
-				$response[TR] = depthSearch(null, TR, 1, [], true, $option);
-			}
+
 			if (checkPermissionForActionTableResultAndAction($permission, ORDR, "list")) {
 				$response["notPayedCustomers"] = notPayedCustomers();
 				$response["customerToPayNext"] = customerToPayNext();
 			}
-			if (checkPermissionForActionTableResultAndAction($permission, SP, "list")) {
-				$response[SP] = depthSearch(null, SP, 1, [], true, $option);
-				$response[SP . "Analysis"] = getGrowthRateAfterAndBefore("equality_" . SP, "value", $FROM_STARTED, $TO);
-			}
-			if (checkPermissionForActionTableResultAndAction($permission, INC, "list")) {
-				$response[INC] = depthSearch(null, INC, 1, [], true, $option);
-				$response[INC . "Analysis"] = getGrowthRateAfterAndBefore("equality_" . INC, "value", $FROM_STARTED, $TO);
-			}
-
-			$response[DEBT . "Due"] = balanceDue(DEBT, $TO);
-			$response[CRED . "Due"] = balanceDue(CRED, $TO);
-			$response[INC . "Due"] = balanceDue(INC, $TO);
-			$response[SP . "Due"] = balanceDue(SP, $TO);
-
-
-			$response[DEBT . "BalanceToday"] = balanceDueFromTo(DEBT, $FROM, $TO);
-			$response[CRED . "BalanceToday"] = balanceDueFromTo(CRED, $FROM, $TO);
-			$response[INC . "BalanceToday"] = balanceDueFromTo(INC, $FROM, $TO);
-			$response[SP . "BalanceToday"] = balanceDueFromTo(SP, $FROM, $TO);
-
-
-			if ($IsDate) {
-				$response["previous" . DEBT . "Due"] = balanceDuePrevious(DEBT, $FROM);
-				$response["previous" . CRED . "Due"] = balanceDuePrevious(CRED, $FROM);
-				$response["previous" . INC . "Due"] = balanceDuePrevious(INC, $FROM);
-				$response["previous" . SP . "Due"] = balanceDuePrevious(SP, $FROM);
-			}
-		}
-		if (hasPermissionForDashboardIf($permission, CRED, "list")) {
-			$response[CRED] = depthSearch(null, CRED, 1, [], true, $option);
-
-			if ($interval === "daily") {
-				$response[CRED . "Analysis"] = getGrowthRateAfterAndBeforeDaysInterval(changeToExtendedTableDashboard(CRED), getValueToCalculateGrowthRate(CRED), $FROM_STARTED, $TO);
-			} else {
-				$response[CRED . "Analysis"] = getGrowthRateAfterAndBefore("equality_" . CRED, "value", $FROM_STARTED, $TO);
-			}
-		}
-		if (hasPermissionForDashboardIf($permission, DEBT, "list")) {
-			$response[DEBT] = depthSearch(null, DEBT, 1, [], true, $option);
-			if ($interval === "daily") {
-				$response[DEBT . "Analysis"] = getGrowthRateAfterAndBeforeDaysInterval(changeToExtendedTableDashboard(DEBT), getValueToCalculateGrowthRate(DEBT), $FROM_STARTED, $TO);
-			} else
-				$response[DEBT . "Analysis"] = getGrowthRateAfterAndBefore("equality_" . DEBT, "value", $FROM_STARTED, $TO);
-		}
-		if (hasPermissionForDashboardIf($permission, ORDR, "list")) {
-			$response[ORDR] = depthSearch(null, ORDR, 1, [ORDR_D], [EQ, CUST, EMP], $option);
-			$response[ORDR . "Analysis"] = getGrowthRateAfterAndBefore("extended_order_refund", "quantity", $FROM_STARTED, $TO);
-		}
-		if ((!empty($response[ORDR]) || !is_null($response[ORDR])) && isCustomer()) {
-			$results = array_map(function ($tmp) {
-				return $tmp['iD'];
-			}, $response[ORDR]);
-			$op["KEY"] = "OrderID";
-			if (hasPermissionForDashboardIf($permission, ORDR_R, "list")) {
-				$response[ORDR_R] = depthSearch($results, ORDR_R, 1, [ORDR_R_D], true, $op);
-			}
-		} else {
-			if (isCustomer()) {
-				$response[ORDR_R] = array();
-			} else {
-				if (hasPermissionForDashboardIf($permission, ORDR_R, "list")) {
-					$response[ORDR_R] = depthSearch(null, ORDR_R, 1, [], true, $option);
-				}
-			}
 		}
 
-		if (hasPermissionForDashboardIf($permission, PURCH, "list")) {
-			//PURCH_D
-			$response[PURCH] = depthSearch(null, PURCH, 1, [], [CUST, EMP], $option);
-			$response[PURCH . "Analysis"] = getGrowthRateAfterAndBefore("extended_purchases_refund", "quantity", $FROM_STARTED, $TO);
-		}
-		if ((!empty($response[PURCH]) || !is_null($response[PURCH])) && isCustomer()) {
-			$results = array_map(function ($tmp) {
-				return $tmp['iD'];
-			}, $response[PURCH]);
-			$op["KEY"] = "PurchaseID";
-			if (hasPermissionForDashboardIf($permission, PURCH_R, "list")) {
-				$response[PURCH_R] = depthSearch($results, PURCH_R, 1, [], true, $op);
-			}
-		} else {
-			if (isCustomer()) {
-				$response[PURCH_R] = array();
-			} else {
-				if (hasPermissionForDashboardIf($permission, PURCH_R, "list")) {
-					$response[PURCH_R] = depthSearch(null, PURCH_R, 1, [], true, $option);
-				}
-			}
-		}
-		if (hasPermissionForDashboardIf($permission, CUT, "list")) {
-			$response[CUT] = depthSearch(null, CUT, 1, [], true, $option);
-			$response[CUT . "Analysis"] = getGrowthRateAfterAndBefore(CUT, "quantity", $FROM_STARTED, $TO);
-		}
-		if (hasPermissionForDashboardIf($permission, RI, "list")) {
-			$response[RI] = depthSearch(null, RI, 1, [], [CUST, EMP], $option);
-			$response[RI . "Analysis"] = getGrowthRateAfterAndBefore("extended_reservation_invoice", "quantity", $FROM_STARTED, $TO);
-		}
 
-		if (hasPermissionForDashboardIf($permission, CRS, "list")) {
-			$response[CRS] = depthSearch(null, CRS, 1, [], [CUST, EMP], $option);
-		}
 
 		//pending reservation
 		if (hasPermissionForDashboardIf($permission, RI, "list")) {
@@ -1535,79 +1359,7 @@ $API_ACTIONS["list_fund"] = function () {
 		returnResponse($response);
 	}
 };
-$API_ACTIONS["list_most_popular_products"] = function () {
-	$results = getBestSellingType(5);
-	$response = array();
-	foreach ($results as $res) {
-		$iD = $res['iD'];
-		$product = depthSearch($iD, PR, 1, [], true, null);
-		$response[] = $product;
-	}
-	returnResponse($response);
-};
 //date
-
-$API_ACTIONS["list_product_analysis"] = function () {
-	checkPermissionAction("list_profit_loses");
-
-	$Limit = 5;
-	if (checkRequestValue('limit')) {
-		if (!checkRequestValueInt('limit')) {
-			returnBadRequest("LIMIT");
-		} else {
-			$Limit = getRequestValue('limit');
-		}
-	}
-	if (!checkRequestValue('iD')) {
-		returnBadRequest("iDs should be action");
-	}
-	$DateOrMonth;
-	$IsDate;
-	checkDateRequest($DateOrMonth, $IsDate);
-
-	$FROM = date("Y-m-d", strtotime($DateOrMonth['from']));
-	$TO = date("Y-m-d", strtotime($DateOrMonth['to']));
-	$E_FROM = date('Y-m-d', (strtotime('-1 day', strtotime($TO))));
-	$results = getBestSellingSize($Limit);
-	$response["bestSellingSize"] = array();
-	foreach ($results as $res) {
-		$iD = $res['iD'];
-		$product = depthSearch($iD, PR, 1, getRequireArrayTables(), getRequireObjectTable(), null);
-		$product['total'] = $res['total'];
-		array_push($response["bestSellingSize"], $product);
-	}
-
-	$results = getBestSellingGSM($Limit);
-	$response["bestSellingGSM"] = array();
-	foreach ($results as $res) {
-		$iD = $res['iD'];
-		$product = depthSearch($iD, PR, 1, getRequireArrayTables(), getRequireObjectTable(), null);
-		$product['total'] = $res['total'];
-		array_push($response["bestSellingGSM"], $product);
-	}
-
-	$results = getBestSellingType($Limit);
-	$response["bestSellingTYPE"] = array();
-	foreach ($results as $res) {
-		$iD = $res['iD'];
-		$product = depthSearch($iD, PR, 1, getRequireArrayTables(), getRequireObjectTable(), null);
-		$product['total'] = $res['total'];
-		array_push($response["bestSellingTYPE"], $product);
-	}
-
-	$results = getBestProfitableType($Limit);
-	$response["bestProfitableType"] = array();
-	foreach ($results as $res) {
-		$iD = $res['iD'];
-		$product = depthSearch($iD, PR, 1, getRequireArrayTables(), getRequireObjectTable(), null);
-		$product['iD'] = $res['iD'];
-		$product['sellPrice'] = $res['sellPrice'];
-		$product['purchasePrice'] = $res['purchasePrice'];
-		$product['Count_ProductID'] = $res['Count_ProductID'];
-
-		array_push($response["bestProfitableType"], $product);
-	}
-};
 
 $API_ACTIONS["list_sales"] = function () {
 	$Limit = 5;

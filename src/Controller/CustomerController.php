@@ -25,11 +25,12 @@ final class CustomerController extends BaseController
         $val = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
         $this->iD = $val ? (int)$val : null;
     }
+    //TODO bad performance
     public function getProfits(Request $request, Response $response, array $args): Response
     {
-        $modelReflector = new \ReflectionClass(__CLASS__);
-        $method = $modelReflector->getMethod(__METHOD__);
-        return $this->textResponse($response, $method->name);
+        $this->initi($request, $args);
+        $result = $this->container['customer_repository']->getProfits($this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
 
     public function getStatement(Request $request, Response $response, array $args): Response

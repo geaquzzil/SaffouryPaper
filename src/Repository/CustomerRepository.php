@@ -17,22 +17,22 @@ class CustomerRepository extends SharedDashboardAndCustomerRepo
         $customer = $this->view(CUST, $iD, null, Options::getInstance()->requireObjects());
         $option = Options::withStaticWhereQuery("CustomerID ='$iD'")->withDate($date)
             ->requireObjects()
-            ->requireDetails([ORDR_D, ORDR_R_D, PURCH_D, PURCH_R_D]);
+            ->requireDetails([ORDR_D, ORDR_R_D, PURCH_D, PURCH_R_D, RI_D, CRS_D, CUT_RESULT]);
 
-        $this->setListsWithAnalysis($customer, CRED, CUST, $withAnalsis, $option);
-        $this->setListsWithAnalysis($customer, DEBT, CUST, $withAnalsis, $option);
+        $this->setListsWithAnalysis($customer, CRED, $option, CUST, $withAnalsis);
+        $this->setListsWithAnalysis($customer, DEBT,  $option, CUST, $withAnalsis);
 
-        $this->setLists($customer, ORDR, "OrderID", ORDR_R, ORDR_R_D, $withAnalsis, $option);
-        $this->setLists($customer, PURCH, "PurchaseID", PURCH_R, PURCH_R_D, $withAnalsis, $option);
+        $this->setLists($customer, ORDR, "OrderID", ORDR_R, ORDR_R_D, $option, CUST, $withAnalsis);
+        $this->setLists($customer, PURCH, "PurchaseID", PURCH_R, PURCH_R_D, $option, CUST, $withAnalsis);
 
-        $this->setListsWithAnalysis($customer, RI, CUST, $withAnalsis, $option);
-        $this->setListsWithAnalysis($customer, CRS, CUST, false, $option);
-        $this->setListsWithAnalysis($customer, CUT, CUST, $withAnalsis, $option);
+        $this->setListsWithAnalysis($customer, RI,  $option, CUST, $withAnalsis);
+        $this->setListsWithAnalysis($customer, CRS,  $option, CUST, false);
+        $this->setListsWithAnalysis($customer, CUT,  $option, CUST, $withAnalsis);
 
         Helpers::setKeyValueFromObj(
             $customer,
             "previousBalance",
-            $this->getBalance($iD, Date::getInstance()->getPreviousTo($date?->from))
+            $date ? $this->getBalance($iD, Date::getInstance()->getPreviousTo($date?->from)) : null
         );
         Helpers::setKeyValueFromObj(
             $customer,

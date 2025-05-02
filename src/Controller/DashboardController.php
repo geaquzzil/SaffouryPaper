@@ -26,6 +26,7 @@ final class DashboardController extends BaseController
         $val = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
         $this->iD = $val ? (int)$val : null;
     }
+
     public function getDashboard(Request $request, Response $response, array $args): Response
     {
         $this->initi($request, $args);
@@ -35,9 +36,27 @@ final class DashboardController extends BaseController
         $auth =   $request->getAttribute('Auth');
         $val = $auth->isEmployee() ? "True" : "false";
         $iD = $auth->getUserID();
-        $result = $this->container['dashboard_repository']->getDashboard($auth, $this->options->date);
+        $result = $this->container['dashboard_repository']->getDashboard($auth, $this->options->date, true, true);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
+
+
+
+    public function getNotUsedRecords(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+        $result = $this->container['dashboard_repository']->getNotUsedRecords($this->tableName, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+
+    public function deleteNotUsedRecords(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+        $result = $this->container['dashboard_repository']->deleteNotUsedRecords($this->tableName, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+    public function getChangedRecords(Request $request, Response $response) {}
+
 
     // public function getTearms(Request $request, Response $response, array $args): Response
     // {

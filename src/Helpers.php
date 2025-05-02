@@ -154,6 +154,22 @@ class Helpers
     {
         return (substr($str, 0, 1) == "<" && substr($str, -1) == ">");
     }
+    public static function removeAllNonFoundInTowArray($arr1, $arr2, ?bool $getArrayByValues = true)
+    {
+        $arr = (
+            array_filter($arr1, function ($value) use ($arr2) {
+                return array_search($value, $arr2) !== false;
+            })
+        );
+        if ($getArrayByValues) {
+            return array_values($arr);
+        }
+        return $arr;
+    }
+    public static function searchInArray($search, $arr)
+    {
+        return array_search($search, $arr) !== false;
+    }
     public static function has_perfix_reg($string, $reg)
     {
         return eregi($reg, $string);

@@ -5,8 +5,6 @@ namespace Etq\Restful\Repository;
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Helpers;
 use Etq\Restful\QueryHelpers;
-use Illuminate\Support\Arr;
-use Mpdf\Tag\Option;
 
 class SearchRepository extends BaseRepository
 {
@@ -16,16 +14,27 @@ class SearchRepository extends BaseRepository
         $res = $this->getSearchObjectStringValue($object, $tableName);
         return ($res);
     }
-    public function getSearchByColumnQuery($searchByColumns, $tableName)
-    {
+    public function getSearchByColumnQuery(
+        $searchByColumns,
+        $tableName,
+        ?string $replaceTableNameInWhereClouser = null,
+        $getFromObject = null
+    ) {
         $tableColumns = $this->getCachedTableColumns($tableName);
         $tableColumns = array_values($tableColumns);
         $whereQuery = array();
-
+        $searchByColumns = $getFromObject ?? $searchByColumns;
         foreach ($searchByColumns as $key => $value) {
-            // echo "checking $key \n";
-            if (array_search((string)$key, $tableColumns)) {
-                $whereQuery[] =    $key . " LIKE '" . $value . "'";
+            if (($i = array_search($key, $tableColumns)) !== FALSE) {
+                if (Helpers::isArray($value)) {
+                    $ids = implode("','", $value);
+                    $query = addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` IN ( '" . $ids . "' )";
+                    $whereQuery[] = $query;
+                } else {
+                    $whereQuery[] =    addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` LIKE '" . $value . "'";
+                }
+            } else {
+                throw new \Exception("$key  not Found in column");
             }
         }
 

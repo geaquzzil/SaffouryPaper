@@ -12,9 +12,13 @@ use Illuminate\Support\Arr;
 class SharedDashboardAndCustomerRepo extends BaseRepository
 {
     protected $cachedCustomerBalances = [];
+
+
+    
+
     ///if date is null then current date is execution
     ///if 
-    protected function getNextAndOverDuePayment(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
+    public function getNextAndOverDuePayment(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
     {
         $result = array();
         $response = array();
@@ -38,7 +42,8 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         }
         return $response;
     }
-    protected function getBalance(?int $iD = null, ?Date $date = null)
+
+    public function getBalance(?int $iD = null, ?Date $date = null)
     {
 
         $iDQuery = "";
@@ -103,13 +108,13 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
              
              ");
     }
-    protected function getBalanceAll()
+    public function getBalanceAll()
     {
         $Query = "SELECT ((SELECT SUM(extendedNetPrice) FROM extended_order_refund)  + (SELECT SUM(value) FROM equality_debits)) -  ( (SELECT SUM(value) FROM equality_credits) -(SELECT SUM(extendedNetPrice) FROM extended_purchases_refund) ) as balance";
         return $this->getFetshTableWithQuery($Query);
     }
 
-    protected function getBalanceAllByTable($tableName)
+    public function getBalanceAllByTable($tableName)
     {
         $Query = "";
         switch ($tableName) {
@@ -128,47 +133,34 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         }
         return $this->getFetshTableWithQuery($Query);
     }
-    protected function getBalanceFund($tableName, $date)
+    public function getBalanceFund($tableName, ?string  $staticWhere = null, ?Date $date = null)
     {
+        $option = Options::getInstance()
+            ->withStaticWhereQuery($staticWhere)
+            ->addStaticQuery("(isDirect is NULL OR isDirect=0)")
+            ->addStaticQuery("(FromBox is NULL OR FromBox=0)")
+            ->withDate($date)->withGroupByArray(
+                [
+                    "currency.name"
+                ]
+            );
 
-        switch ($tableName) {
+        $query = $option->getQuery($tableName);
+        $query =  "SELECT 
+                        currency.name AS currency,
+                        Sum($tableName.value) AS sum
+                    FROM 
+                        currency
+                    JOIN 
+                        equalities ON currency.iD = equalities.CurrencyID
+                    LEFT JOIN 
+                    $tableName ON equalities.iD = $tableName.EqualitiesID
+                    $query";
 
-            default:
-                if (!is_numeric($date)) {
-                    return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (Date($tableName.date) <= '$date') GROUP BY currency.name  ");
-                }
-                return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (month($tableName.date) <= '$date') GROUP BY currency.name  ");
-            case DB_TABLE_DEBTS:
-            case DB_TABLE_PAYMENTS:
-            case DB_TABLE_SPENDING:
-            case DB_TABLE_INCOMES:
-                if (!is_numeric($date)) {
-                    return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (Date($tableName.date) <= '$date') AND (isDirect is NULL OR isDirect=0) AND (FromBox is NULL OR FromBox=0) GROUP BY currency.name  ");
-                }
-                return getFetshALLTableWithQuery("SELECT currency.name AS currency,
-			Sum($tableName.value) AS sum
-			FROM currency
-			JOIN equalities ON currency.iD = equalities.CurrencyID
-			LEFT JOIN $tableName ON equalities.iD = $tableName.EqualitiesID
-			WHERE (month($tableName.date) <= '$date') AND (isDirect is NULL OR isDirect=0) AND (FromBox is NULL OR FromBox=0) GROUP BY currency.name  ");
-        }
+
+        return $this->getFetshALLTableWithQuery($query);
     }
-    private function getTermsQuery(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
+    public function getTermsQuery(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
     {
         $sign = $isOverDue ? "<=" : ">=";
         $dateQuery = $date ? $date->getQuery("extended_order_refund", "termsDate", $requiresEqualsSign)
@@ -189,7 +181,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         $Query = !$iD ?  $Query : $Query . " AND customers.iD='$iD'";
         return $Query;
     }
-    protected function getCachedCustomerBalance(int $iD, ?Date $date = null)
+    public function getCachedCustomerBalance(int $iD, ?Date $date = null)
     {
         $key = $iD . ($date?->getQuery() ?? "");
         if (key_exists($key, $this->cachedCustomerBalances)) {
@@ -199,20 +191,36 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
             return $this->cachedCustomerBalances[$key];
         }
     }
-    protected function setLists(
+    public function setDue(
+        &$object,
+        $tableName,
+        ?string $staticWhere = null,
+        ?Date $date = null,
+        ?string $preString = null,
+        string $postString = "Due",
+    ) {
+        $key = $preString ? $preString . $tableName . $postString : $tableName . $postString;
+        Helpers::setKeyValueFromObj(
+            $object,
+            $key,
+            $this->getBalanceFund($tableName, $staticWhere, $date)
+        );
+    }
+    public function setLists(
         &$object,
         $tableName,
         $forginID,
         $detailTableName,
         $detailTableNameDetail,
+        Options $option,
+        ?string  $parentTableName,
         bool $withAnalysis = false,
-        ?Options $option = null
     ) {
 
         Helpers::setKeyValueFromObj(
             $object,
             $tableName,
-            $this->list($tableName, CUST, $option)
+            $this->list($tableName, $parentTableName, $option)
         );
 
         $results = array_map(function ($tmp) {
@@ -221,11 +229,10 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
 
         if (!empty($results)) {
             if ($withAnalysis) {
-                $iD = Helpers::getKeyValueFromObj($object, "iD");
                 Helpers::setKeyValueFromObj(
                     $object,
                     $tableName . "Analysis",
-                    $this->getGrowthRate(($tableName), null, "CustomerID ='$iD' ", $option?->date)
+                    $this->getGrowthRate(($tableName), null, $option)
                 );
             }
             $ids = implode("','", $results);
@@ -235,7 +242,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
             Helpers::setKeyValueFromObj(
                 $object,
                 $detailTableName,
-                $this->list($detailTableName, CUST, $detailOption)
+                $this->list($detailTableName, $parentTableName, $detailOption)
             );
         } else {
             Helpers::setKeyValueFromObj(
@@ -245,25 +252,49 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
             );
         }
     }
-    protected function setListsWithAnalysis(
+    public function setListsWithAnalysis(
         &$object,
         $tableName,
+        Options $option,
         ?string  $parentTableName = null,
         bool $withAnalysis = false,
-        ?Options $option = null
+
     ) {
+
         Helpers::setKeyValueFromObj(
             $object,
             $tableName,
             $this->list($tableName, $parentTableName, $option)
         );
         if ($withAnalysis) {
-            $iD = Helpers::getKeyValueFromObj($object, "iD");
             Helpers::setKeyValueFromObj(
                 $object,
                 $tableName . "Analysis",
-                $this->getGrowthRate(($tableName), null, "CustomerID ='$iD' ", $option?->date)
+                $this->getGrowthRate(($tableName), null, $option)
             );
         }
+    }
+    public function setListsWithAnalysisByListByDetail(
+        &$object,
+        $tableName,
+        $detailTableName,
+        Options $option,
+        ?string  $parentTableName = null,
+        bool $withAnalysis = false,
+
+    ) {
+
+        Helpers::setKeyValueFromObj(
+            $object,
+            $tableName,
+            $this->listByDetailListColumn($tableName, $detailTableName, $option)
+        );
+        if ($withAnalysis) {
+        }
+    }
+    public function getProfits(Options $option)
+    {
+
+        return $this->getGrowthRate("profits_orders", "total", $option);
     }
 }

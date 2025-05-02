@@ -1,1441 +1,352 @@
 {
     "code": 200,
     "status": "success",
-    "message": [
-        {
-            "iD": 852,
-            "EmployeeID": 4,
-            "CustomerID": 986,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-17 13:16:43",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-16 13:16:43",
-            "quantity": 5,
-            "refundQuantity": null,
-            "extendedNetQuantity": 5,
-            "extendedPrice": "230.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 230,
-            "orders_details": [
-                {
-                    "iD": 1905,
-                    "ProductID": 1402,
-                    "OrderID": 852,
-                    "WarehouseID": 1,
-                    "unitPrice": "0.2300",
-                    "price": "230.0000",
-                    "quantity": 5,
-                    "discount": "0.0000",
+    "message": {
+        "iD": 1,
+        "ParentID": null,
+        "userlevelid": -2,
+        "name": "Qussai Al-Saffoury",
+        "phone": 933326882,
+        "password": "$2y$10$v5ZYrQqoVSrjSptCp..ihu3Sc3K/ol0M7LaGlucLJgwct5ghf0aEq",
+        "email": "geaquzzil@gmail.com",
+        "token": "dI7sFHhES6m6QrK4M_0AWv:APA91bFHpw4S6HSPZ82pzlbNrYdJcF2aJWxQtcmfUCTBsreEZuva1id3hfq9JNJ-ZRr55AcwsTrkJG4i62QpzipCmBB-94we_td7mABkM6GwROPl68SlF2rcxlu-621uJRqBD16xxYnP",
+        "activated": 1,
+        "date": "2019-10-06 00:00:00",
+        "city": null,
+        "address": null,
+        "profile": "a:2:{s:15:\"LoginRetryCount\";i:1;s:20:\"LastBadLoginDateTime\";s:19:\"2019/10/21 19:56:51\";}",
+        "publish": 1,
+        "comments": null,
+        "sellingRatio": null,
+        "userlevels": {
+            "iD": -2,
+            "userlevelname": "Administrator"
+        },
+        "credits": [
+            {
+                "iD": 642,
+                "CashBoxID": 1,
+                "EmployeeID": 1,
+                "CustomerID": 1013,
+                "EqualitiesID": 1,
+                "isDirect": null,
+                "date": "2021-10-30 11:48:19",
+                "value": 1380,
+                "fromBox": 0,
+                "comments": "بينهم ١٠٠٠ يو",
+                "customers": {
+                    "iD": 1013,
+                    "EmployeeID": 1,
+                    "userlevelid": 2,
+                    "name": "مطبعة الفاكهاني",
+                    "phone": null,
+                    "password": "AZO4I2RU",
+                    "email": null,
+                    "token": null,
+                    "activated": 0,
+                    "date": "2021-09-30 14:56:47",
+                    "birthday": null,
+                    "city": null,
+                    "address": null,
+                    "cash": 0,
                     "comments": null,
-                    "products": {
-                        "iD": 1402,
+                    "mainSupplier": null,
+                    "sellingRatio": 0,
+                    "profile": null,
+                    "employees": {
+                        "iD": 1,
                         "ParentID": null,
-                        "ProductTypeID": 19,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 684,
-                        "GSMID": null,
-                        "GradeID": null,
-                        "QualityID": null,
-                        "ProductColorID": 1,
-                        "date": "2022-01-17 04:41:25",
-                        "sheets": 200,
-                        "barcode": null,
-                        "fiberLines": "Length",
+                        "userlevelid": -2,
+                        "name": "Qussai Al-Saffoury",
+                        "phone": 933326882,
+                        "password": "$2y$10$v5ZYrQqoVSrjSptCp..ihu3Sc3K/ol0M7LaGlucLJgwct5ghf0aEq",
+                        "email": "geaquzzil@gmail.com",
+                        "token": "dI7sFHhES6m6QrK4M_0AWv:APA91bFHpw4S6HSPZ82pzlbNrYdJcF2aJWxQtcmfUCTBsreEZuva1id3hfq9JNJ-ZRr55AcwsTrkJG4i62QpzipCmBB-94we_td7mABkM6GwROPl68SlF2rcxlu-621uJRqBD16xxYnP",
+                        "activated": 1,
+                        "date": "2019-10-06 00:00:00",
+                        "city": null,
+                        "address": null,
+                        "profile": "a:2:{s:15:\"LoginRetryCount\";i:1;s:20:\"LastBadLoginDateTime\";s:19:\"2019/10/21 19:56:51\";}",
+                        "publish": 1,
                         "comments": null,
-                        "status": "NONE",
-                        "sizes": {
-                            "iD": 684,
-                            "width": 510,
-                            "length": 700
-                        },
-                        "gsms": null,
-                        "countries_manufactures": null,
-                        "qualities": null,
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 19,
-                            "GradeID": null,
-                            "name": "LETTIO",
-                            "unit": "Sheet",
-                            "sellPrice": "0.2300",
-                            "purchasePrice": "0.1550",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": {
-                            "iD": 1,
-                            "top": "ffffff",
-                            "middle": "dbd8e0",
-                            "back": "ab8153"
+                        "sellingRatio": null,
+                        "userlevels": {
+                            "iD": -2,
+                            "userlevelname": "Administrator"
                         }
                     },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 851,
-            "EmployeeID": 4,
-            "CustomerID": 977,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-17 10:16:58",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-16 10:16:58",
-            "quantity": 900,
-            "refundQuantity": null,
-            "extendedNetQuantity": 900,
-            "extendedPrice": "2250.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 2250,
-            "orders_details": [
-                {
-                    "iD": 1903,
-                    "ProductID": 2827,
-                    "OrderID": 851,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "1125.0000",
-                    "quantity": 450,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2827,
-                        "ParentID": 2358,
-                        "ProductTypeID": 44,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1533,
-                        "GSMID": 32,
-                        "GradeID": null,
-                        "QualityID": 187,
-                        "ProductColorID": null,
-                        "date": "2022-10-17 10:06:23",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2358,
-                                "ParentID": null,
-                                "ProductTypeID": 44,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 1200,
-                                "GSMID": 32,
-                                "GradeID": null,
-                                "QualityID": 187,
-                                "ProductColorID": null,
-                                "date": "2022-04-14 01:57:49",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 1200,
-                                    "width": 2500,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 32,
-                                    "gsm": 160
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 187,
-                                    "name": "11"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 44,
-                                    "GradeID": null,
-                                    "name": "BILL MATT",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "1.1900",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 1533,
-                            "width": 1500,
-                            "length": 720
-                        },
-                        "gsms": {
-                            "iD": 32,
-                            "gsm": 160
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 187,
-                            "name": "11"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 44,
-                            "GradeID": null,
-                            "name": "BILL MATT",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "1.1900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
+                    "userlevels": {
+                        "iD": 2,
+                        "userlevelname": "Customer"
                     }
                 },
-                {
-                    "iD": 1904,
-                    "ProductID": 2826,
-                    "OrderID": 851,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "1125.0000",
-                    "quantity": 450,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2826,
-                        "ParentID": 2358,
-                        "ProductTypeID": 44,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1532,
-                        "GSMID": 32,
-                        "GradeID": null,
-                        "QualityID": 187,
-                        "ProductColorID": null,
-                        "date": "2022-10-17 10:06:23",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2358,
-                                "ParentID": null,
-                                "ProductTypeID": 44,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 1200,
-                                "GSMID": 32,
-                                "GradeID": null,
-                                "QualityID": 187,
-                                "ProductColorID": null,
-                                "date": "2022-04-14 01:57:49",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 1200,
-                                    "width": 2500,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 32,
-                                    "gsm": 160
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 187,
-                                    "name": "11"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 44,
-                                    "GradeID": null,
-                                    "name": "BILL MATT",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "1.1900",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 1532,
-                            "width": 1500,
-                            "length": 1000
-                        },
-                        "gsms": {
-                            "iD": 32,
-                            "gsm": 160
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 187,
-                            "name": "11"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 44,
-                            "GradeID": null,
-                            "name": "BILL MATT",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "1.1900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
+                "equalities": {
+                    "iD": 1,
+                    "CurrencyID": 1,
+                    "value": 1,
+                    "date": "2019-05-01 00:00:00",
+                    "currency": {
                         "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 2,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 850,
-            "EmployeeID": 4,
-            "CustomerID": 994,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-16 13:27:17",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-15 13:27:17",
-            "quantity": 580,
-            "refundQuantity": null,
-            "extendedNetQuantity": 580,
-            "extendedPrice": "1450.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 1450,
-            "orders_details": [
-                {
-                    "iD": 1902,
-                    "ProductID": 2824,
-                    "OrderID": 850,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "1450.0000",
-                    "quantity": 580,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2824,
-                        "ParentID": 1910,
-                        "ProductTypeID": 22,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1313,
-                        "GSMID": 23,
-                        "GradeID": null,
-                        "QualityID": 58,
-                        "ProductColorID": null,
-                        "date": "2022-10-16 13:26:06",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 1910,
-                                "ParentID": null,
-                                "ProductTypeID": 22,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 205,
-                                "GSMID": 23,
-                                "GradeID": null,
-                                "QualityID": 58,
-                                "ProductColorID": 1,
-                                "date": "2021-12-21 01:35:51",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 205,
-                                    "width": 700,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 23,
-                                    "gsm": 325
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 58,
-                                    "name": "Sipco"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 22,
-                                    "GradeID": null,
-                                    "name": "Sipco",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "0.8900",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": {
-                                    "iD": 1,
-                                    "top": "ffffff",
-                                    "middle": "dbd8e0",
-                                    "back": "ab8153"
-                                }
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 1313,
-                            "width": 700,
-                            "length": 1020
-                        },
-                        "gsms": {
-                            "iD": 23,
-                            "gsm": 325
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 58,
-                            "name": "Sipco"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 22,
-                            "GradeID": null,
-                            "name": "Sipco",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "0.8900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 849,
-            "EmployeeID": 4,
-            "CustomerID": 986,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-16 10:41:33",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-15 10:41:33",
-            "quantity": 25,
-            "refundQuantity": null,
-            "extendedNetQuantity": 25,
-            "extendedPrice": "1150.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 1150,
-            "orders_details": [
-                {
-                    "iD": 1901,
-                    "ProductID": 1402,
-                    "OrderID": 849,
-                    "WarehouseID": 1,
-                    "unitPrice": "0.2300",
-                    "price": "1150.0000",
-                    "quantity": 25,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 1402,
-                        "ParentID": null,
-                        "ProductTypeID": 19,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 684,
-                        "GSMID": null,
-                        "GradeID": null,
-                        "QualityID": null,
-                        "ProductColorID": 1,
-                        "date": "2022-01-17 04:41:25",
-                        "sheets": 200,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "sizes": {
-                            "iD": 684,
-                            "width": 510,
-                            "length": 700
-                        },
-                        "gsms": null,
-                        "countries_manufactures": null,
-                        "qualities": null,
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 19,
-                            "GradeID": null,
-                            "name": "LETTIO",
-                            "unit": "Sheet",
-                            "sellPrice": "0.2300",
-                            "purchasePrice": "0.1550",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": {
-                            "iD": 1,
-                            "top": "ffffff",
-                            "middle": "dbd8e0",
-                            "back": "ab8153"
-                        }
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 848,
-            "EmployeeID": 4,
-            "CustomerID": 1017,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-12 15:03:39",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-11 15:03:39",
-            "quantity": 2250,
-            "refundQuantity": null,
-            "extendedNetQuantity": 2250,
-            "extendedPrice": "5675.5000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 5675.5,
-            "orders_details": [
-                {
-                    "iD": 1899,
-                    "ProductID": 2823,
-                    "OrderID": 848,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "4362.5000",
-                    "quantity": 1745,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2823,
-                        "ParentID": 2390,
-                        "ProductTypeID": 44,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1530,
-                        "GSMID": 72,
-                        "GradeID": null,
-                        "QualityID": 219,
-                        "ProductColorID": null,
-                        "date": "2022-10-12 15:01:45",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2390,
-                                "ParentID": null,
-                                "ProductTypeID": 44,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 1367,
-                                "GSMID": 72,
-                                "GradeID": null,
-                                "QualityID": 219,
-                                "ProductColorID": null,
-                                "date": "2022-04-14 01:57:49",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 1367,
-                                    "width": 2650,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 72,
-                                    "gsm": 175
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 219,
-                                    "name": "43"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 44,
-                                    "GradeID": null,
-                                    "name": "BILL MATT",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "1.1900",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 1530,
-                            "width": 1640,
-                            "length": 0
-                        },
-                        "gsms": {
-                            "iD": 72,
-                            "gsm": 175
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 219,
-                            "name": "43"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 44,
-                            "GradeID": null,
-                            "name": "BILL MATT",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "1.1900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
+                        "name": "S.Y.P",
+                        "nameAr": "S.Y.P"
                     }
                 },
-                {
-                    "iD": 1900,
-                    "ProductID": 2821,
-                    "OrderID": 848,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.6000",
-                    "price": "1313.0000",
-                    "quantity": 505,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2821,
-                        "ParentID": 2236,
-                        "ProductTypeID": 11,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1529,
-                        "GSMID": 10,
-                        "GradeID": null,
-                        "QualityID": 129,
-                        "ProductColorID": null,
-                        "date": "2022-10-12 14:55:29",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2236,
-                                "ParentID": null,
-                                "ProductTypeID": 11,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 1025,
-                                "GSMID": 10,
-                                "GradeID": null,
-                                "QualityID": 129,
-                                "ProductColorID": null,
-                                "date": "2022-03-26 01:21:11",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 1025,
-                                    "width": 950,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 10,
-                                    "gsm": 300
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 129,
-                                    "name": "رقم41 غراماج الحقيقي :300"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 11,
-                                    "GradeID": null,
-                                    "name": "sappi",
-                                    "unit": "KG",
-                                    "sellPrice": "2.6000",
-                                    "purchasePrice": "0.7050",
-                                    "image": "/home2/saffoury/public_html/SaffouryPaper2/Images/sappiLogo.png",
-                                    "comments": "وجهين كرفت حشوه سكري dsa",
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 1529,
-                            "width": 940,
-                            "length": 640
-                        },
-                        "gsms": {
-                            "iD": 10,
-                            "gsm": 300
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 129,
-                            "name": "رقم41 غراماج الحقيقي :300"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 11,
-                            "GradeID": null,
-                            "name": "sappi",
-                            "unit": "KG",
-                            "sellPrice": "2.6000",
-                            "purchasePrice": "0.7050",
-                            "image": "/home2/saffoury/public_html/SaffouryPaper2/Images/sappiLogo.png",
-                            "comments": "وجهين كرفت حشوه سكري dsa",
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
+                "journal_voucher": null,
+                "warehouse": {
+                    "iD": 1,
+                    "name": "مستودع القزاز"
                 }
-            ],
-            "orders_details_count": 2,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 847,
-            "EmployeeID": 4,
-            "CustomerID": 978,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-11 13:59:09",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-10 13:59:09",
-            "quantity": 1055,
-            "refundQuantity": null,
-            "extendedNetQuantity": 1055,
-            "extendedPrice": "2637.5000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 2637.5,
-            "orders_details": [
-                {
-                    "iD": 1898,
-                    "ProductID": 2819,
-                    "OrderID": 847,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "2637.5000",
-                    "quantity": 1055,
-                    "discount": "0.0000",
+            },
+            {
+                "iD": 643,
+                "CashBoxID": 1,
+                "EmployeeID": 1,
+                "CustomerID": 1013,
+                "EqualitiesID": 600,
+                "isDirect": null,
+                "date": "2021-10-30 11:48:44",
+                "value": 168000,
+                "fromBox": 0,
+                "comments": "باقي ٢٠",
+                "customers": {
+                    "iD": 1013,
+                    "EmployeeID": 1,
+                    "userlevelid": 2,
+                    "name": "مطبعة الفاكهاني",
+                    "phone": null,
+                    "password": "AZO4I2RU",
+                    "email": null,
+                    "token": null,
+                    "activated": 0,
+                    "date": "2021-09-30 14:56:47",
+                    "birthday": null,
+                    "city": null,
+                    "address": null,
+                    "cash": 0,
                     "comments": null,
-                    "products": {
-                        "iD": 2819,
-                        "ParentID": 2358,
-                        "ProductTypeID": 44,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1527,
-                        "GSMID": 32,
-                        "GradeID": null,
-                        "QualityID": 187,
-                        "ProductColorID": null,
-                        "date": "2022-10-11 11:29:34",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2358,
-                                "ParentID": null,
-                                "ProductTypeID": 44,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 1200,
-                                "GSMID": 32,
-                                "GradeID": null,
-                                "QualityID": 187,
-                                "ProductColorID": null,
-                                "date": "2022-04-14 01:57:49",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 1200,
-                                    "width": 2500,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 32,
-                                    "gsm": 160
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 187,
-                                    "name": "11"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 44,
-                                    "GradeID": null,
-                                    "name": "BILL MATT",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "1.1900",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 1527,
-                            "width": 1000,
-                            "length": 1070
-                        },
-                        "gsms": {
-                            "iD": 32,
-                            "gsm": 160
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 187,
-                            "name": "11"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 44,
-                            "GradeID": null,
-                            "name": "BILL MATT",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "1.1900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
+                    "mainSupplier": null,
+                    "sellingRatio": 0,
+                    "profile": null,
+                    "employees": {
                         "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 846,
-            "EmployeeID": 4,
-            "CustomerID": 1145,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-11 13:03:08",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-10 13:03:08",
-            "quantity": 18,
-            "refundQuantity": null,
-            "extendedNetQuantity": 18,
-            "extendedPrice": "828.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 828,
-            "orders_details": [
-                {
-                    "iD": 1897,
-                    "ProductID": 1402,
-                    "OrderID": 846,
-                    "WarehouseID": 1,
-                    "unitPrice": "0.2300",
-                    "price": "828.0000",
-                    "quantity": 18,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 1402,
                         "ParentID": null,
-                        "ProductTypeID": 19,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 684,
-                        "GSMID": null,
-                        "GradeID": null,
-                        "QualityID": null,
-                        "ProductColorID": 1,
-                        "date": "2022-01-17 04:41:25",
-                        "sheets": 200,
-                        "barcode": null,
-                        "fiberLines": "Length",
+                        "userlevelid": -2,
+                        "name": "Qussai Al-Saffoury",
+                        "phone": 933326882,
+                        "password": "$2y$10$v5ZYrQqoVSrjSptCp..ihu3Sc3K/ol0M7LaGlucLJgwct5ghf0aEq",
+                        "email": "geaquzzil@gmail.com",
+                        "token": "dI7sFHhES6m6QrK4M_0AWv:APA91bFHpw4S6HSPZ82pzlbNrYdJcF2aJWxQtcmfUCTBsreEZuva1id3hfq9JNJ-ZRr55AcwsTrkJG4i62QpzipCmBB-94we_td7mABkM6GwROPl68SlF2rcxlu-621uJRqBD16xxYnP",
+                        "activated": 1,
+                        "date": "2019-10-06 00:00:00",
+                        "city": null,
+                        "address": null,
+                        "profile": "a:2:{s:15:\"LoginRetryCount\";i:1;s:20:\"LastBadLoginDateTime\";s:19:\"2019/10/21 19:56:51\";}",
+                        "publish": 1,
                         "comments": null,
-                        "status": "NONE",
-                        "sizes": {
-                            "iD": 684,
-                            "width": 510,
-                            "length": 700
-                        },
-                        "gsms": null,
-                        "countries_manufactures": null,
-                        "qualities": null,
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 19,
-                            "GradeID": null,
-                            "name": "LETTIO",
-                            "unit": "Sheet",
-                            "sellPrice": "0.2300",
-                            "purchasePrice": "0.1550",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": {
-                            "iD": 1,
-                            "top": "ffffff",
-                            "middle": "dbd8e0",
-                            "back": "ab8153"
+                        "sellingRatio": null,
+                        "userlevels": {
+                            "iD": -2,
+                            "userlevelname": "Administrator"
                         }
                     },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 845,
-            "EmployeeID": 4,
-            "CustomerID": 931,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-11 09:05:27",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-10 09:05:27",
-            "quantity": 502,
-            "refundQuantity": null,
-            "extendedNetQuantity": 502,
-            "extendedPrice": "1255.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 1255,
-            "orders_details": [
-                {
-                    "iD": 1896,
-                    "ProductID": 2817,
-                    "OrderID": 845,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "1255.0000",
-                    "quantity": 502,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2817,
-                        "ParentID": 2390,
-                        "ProductTypeID": 44,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 943,
-                        "GSMID": 72,
-                        "GradeID": null,
-                        "QualityID": 219,
-                        "ProductColorID": null,
-                        "date": "2022-10-08 13:45:29",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2390,
-                                "ParentID": null,
-                                "ProductTypeID": 44,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 1367,
-                                "GSMID": 72,
-                                "GradeID": null,
-                                "QualityID": 219,
-                                "ProductColorID": null,
-                                "date": "2022-04-14 01:57:49",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 1367,
-                                    "width": 2650,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 72,
-                                    "gsm": 175
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 219,
-                                    "name": "43"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 44,
-                                    "GradeID": null,
-                                    "name": "BILL MATT",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "1.1900",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 943,
-                            "width": 1000,
-                            "length": 1100
-                        },
-                        "gsms": {
-                            "iD": 72,
-                            "gsm": 175
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 219,
-                            "name": "43"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 44,
-                            "GradeID": null,
-                            "name": "BILL MATT",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "1.1900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 844,
-            "EmployeeID": 4,
-            "CustomerID": 1104,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-10 11:05:03",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-09 11:05:03",
-            "quantity": 541,
-            "refundQuantity": null,
-            "extendedNetQuantity": 541,
-            "extendedPrice": "1352.5000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 1352.5,
-            "orders_details": [
-                {
-                    "iD": 1895,
-                    "ProductID": 2762,
-                    "OrderID": 844,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "1352.5000",
-                    "quantity": 541,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2762,
-                        "ParentID": 2723,
-                        "ProductTypeID": 48,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 508,
-                        "GSMID": 1,
-                        "GradeID": null,
-                        "QualityID": 184,
-                        "ProductColorID": null,
-                        "date": "2022-09-06 10:55:56",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "parents": [
-                            {
-                                "iD": 2723,
-                                "ParentID": null,
-                                "ProductTypeID": 48,
-                                "CustomsDeclarationID": null,
-                                "Country_Manufacture_CompanyID": null,
-                                "SizeID": 263,
-                                "GSMID": 1,
-                                "GradeID": null,
-                                "QualityID": 184,
-                                "ProductColorID": null,
-                                "date": "2022-09-03 02:15:17",
-                                "sheets": null,
-                                "barcode": null,
-                                "fiberLines": "Width",
-                                "comments": null,
-                                "status": "NONE",
-                                "sizes": {
-                                    "iD": 263,
-                                    "width": 1000,
-                                    "length": 0
-                                },
-                                "gsms": {
-                                    "iD": 1,
-                                    "gsm": 350
-                                },
-                                "countries_manufactures": null,
-                                "qualities": {
-                                    "iD": 184,
-                                    "name": "8"
-                                },
-                                "grades": null,
-                                "customs_declarations": null,
-                                "products_types": {
-                                    "iD": 48,
-                                    "GradeID": null,
-                                    "name": "USN",
-                                    "unit": "KG",
-                                    "sellPrice": "2.5000",
-                                    "purchasePrice": "1.0000",
-                                    "image": null,
-                                    "comments": null,
-                                    "grades": null
-                                },
-                                "products_colors": null
-                            }
-                        ],
-                        "sizes": {
-                            "iD": 508,
-                            "width": 1000,
-                            "length": 700
-                        },
-                        "gsms": {
-                            "iD": 1,
-                            "gsm": 350
-                        },
-                        "countries_manufactures": null,
-                        "qualities": {
-                            "iD": 184,
-                            "name": "8"
-                        },
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 48,
-                            "GradeID": null,
-                            "name": "USN",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "1.0000",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
-                    }
-                }
-            ],
-            "orders_details_count": 1,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        },
-        {
-            "iD": 843,
-            "EmployeeID": 4,
-            "CustomerID": 941,
-            "CargoTransID": null,
-            "TermsID": -1,
-            "date": "2022-10-09 15:02:33",
-            "billNo": null,
-            "comments": null,
-            "status": "NONE",
-            "termsDate": "2022-10-08 15:02:33",
-            "quantity": 167,
-            "refundQuantity": null,
-            "extendedNetQuantity": 167,
-            "extendedPrice": "983.0000",
-            "extendedRefundPrice": null,
-            "extendedDiscount": "0.0000",
-            "extendedNetPrice": 983,
-            "orders_details": [
-                {
-                    "iD": 1893,
-                    "ProductID": 1402,
-                    "OrderID": 843,
-                    "WarehouseID": 1,
-                    "unitPrice": "0.2300",
-                    "price": "598.0000",
-                    "quantity": 13,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 1402,
-                        "ParentID": null,
-                        "ProductTypeID": 19,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 684,
-                        "GSMID": null,
-                        "GradeID": null,
-                        "QualityID": null,
-                        "ProductColorID": 1,
-                        "date": "2022-01-17 04:41:25",
-                        "sheets": 200,
-                        "barcode": null,
-                        "fiberLines": "Length",
-                        "comments": null,
-                        "status": "NONE",
-                        "sizes": {
-                            "iD": 684,
-                            "width": 510,
-                            "length": 700
-                        },
-                        "gsms": null,
-                        "countries_manufactures": null,
-                        "qualities": null,
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 19,
-                            "GradeID": null,
-                            "name": "LETTIO",
-                            "unit": "Sheet",
-                            "sellPrice": "0.2300",
-                            "purchasePrice": "0.1550",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": {
-                            "iD": 1,
-                            "top": "ffffff",
-                            "middle": "dbd8e0",
-                            "back": "ab8153"
-                        }
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
+                    "userlevels": {
+                        "iD": 2,
+                        "userlevelname": "Customer"
                     }
                 },
-                {
-                    "iD": 1894,
-                    "ProductID": 2334,
-                    "OrderID": 843,
-                    "WarehouseID": 1,
-                    "unitPrice": "2.5000",
-                    "price": "385.0000",
-                    "quantity": 154,
-                    "discount": "0.0000",
-                    "comments": null,
-                    "products": {
-                        "iD": 2334,
-                        "ParentID": null,
-                        "ProductTypeID": 22,
-                        "CustomsDeclarationID": null,
-                        "Country_Manufacture_CompanyID": null,
-                        "SizeID": 1,
-                        "GSMID": 23,
-                        "GradeID": null,
-                        "QualityID": null,
-                        "ProductColorID": null,
-                        "date": "2022-04-11 03:36:22",
-                        "sheets": null,
-                        "barcode": null,
-                        "fiberLines": "Width",
-                        "comments": null,
-                        "status": "NONE",
-                        "sizes": {
-                            "iD": 1,
-                            "width": 700,
-                            "length": 1000
-                        },
-                        "gsms": {
-                            "iD": 23,
-                            "gsm": 325
-                        },
-                        "countries_manufactures": null,
-                        "qualities": null,
-                        "grades": null,
-                        "customs_declarations": null,
-                        "products_types": {
-                            "iD": 22,
-                            "GradeID": null,
-                            "name": "Sipco",
-                            "unit": "KG",
-                            "sellPrice": "2.5000",
-                            "purchasePrice": "0.8900",
-                            "image": null,
-                            "comments": null,
-                            "grades": null
-                        },
-                        "products_colors": null
-                    },
-                    "warehouse": {
-                        "iD": 1,
-                        "name": "مستودع القزاز"
+                "equalities": {
+                    "iD": 600,
+                    "CurrencyID": 2,
+                    "value": 0.00028571428571429,
+                    "date": "2021-10-30 11:48:44",
+                    "currency": {
+                        "iD": 2,
+                        "name": "SYP",
+                        "nameAr": "ل.س"
                     }
+                },
+                "journal_voucher": null,
+                "warehouse": {
+                    "iD": 1,
+                    "name": "مستودع القزاز"
                 }
-            ],
-            "orders_details_count": 2,
-            "orders_refunds": [],
-            "orders_refunds_count": 0,
-            "order_refunds_order_details": [],
-            "order_refunds_order_details_count": 0
-        }
-    ]
+            },
+            {
+                "iD": 647,
+                "CashBoxID": 1,
+                "EmployeeID": 1,
+                "CustomerID": 1006,
+                "EqualitiesID": 1,
+                "isDirect": null,
+                "date": "2021-10-30 14:35:33",
+                "value": 5000,
+                "fromBox": 0,
+                "comments": null,
+                "customers": {
+                    "iD": 1006,
+                    "EmployeeID": 1,
+                    "userlevelid": 2,
+                    "name": "محمود دوبا",
+                    "phone": null,
+                    "password": "PV2BSXKA",
+                    "email": null,
+                    "token": null,
+                    "activated": 0,
+                    "date": "2021-09-24 18:41:25",
+                    "birthday": null,
+                    "city": null,
+                    "address": null,
+                    "cash": 0,
+                    "comments": null,
+                    "mainSupplier": null,
+                    "sellingRatio": 0,
+                    "profile": null,
+                    "employees": {
+                        "iD": 1,
+                        "ParentID": null,
+                        "userlevelid": -2,
+                        "name": "Qussai Al-Saffoury",
+                        "phone": 933326882,
+                        "password": "$2y$10$v5ZYrQqoVSrjSptCp..ihu3Sc3K/ol0M7LaGlucLJgwct5ghf0aEq",
+                        "email": "geaquzzil@gmail.com",
+                        "token": "dI7sFHhES6m6QrK4M_0AWv:APA91bFHpw4S6HSPZ82pzlbNrYdJcF2aJWxQtcmfUCTBsreEZuva1id3hfq9JNJ-ZRr55AcwsTrkJG4i62QpzipCmBB-94we_td7mABkM6GwROPl68SlF2rcxlu-621uJRqBD16xxYnP",
+                        "activated": 1,
+                        "date": "2019-10-06 00:00:00",
+                        "city": null,
+                        "address": null,
+                        "profile": "a:2:{s:15:\"LoginRetryCount\";i:1;s:20:\"LastBadLoginDateTime\";s:19:\"2019/10/21 19:56:51\";}",
+                        "publish": 1,
+                        "comments": null,
+                        "sellingRatio": null,
+                        "userlevels": {
+                            "iD": -2,
+                            "userlevelname": "Administrator"
+                        }
+                    },
+                    "userlevels": {
+                        "iD": 2,
+                        "userlevelname": "Customer"
+                    }
+                },
+                "equalities": {
+                    "iD": 1,
+                    "CurrencyID": 1,
+                    "value": 1,
+                    "date": "2019-05-01 00:00:00",
+                    "currency": {
+                        "iD": 1,
+                        "name": "S.Y.P",
+                        "nameAr": "S.Y.P"
+                    }
+                },
+                "journal_voucher": null,
+                "warehouse": {
+                    "iD": 1,
+                    "name": "مستودع القزاز"
+                }
+            }
+        ],
+        "creditsAnalysis": [
+            {
+                "year": 2021,
+                "month": 10,
+                "total": 6428
+            }
+        ],
+        "debits": [],
+        "debitsAnalysis": [],
+        "debitsDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 396707
+            },
+            {
+                "currency": "SYP",
+                "sum": 381446500
+            }
+        ],
+        "creditsDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 320504
+            },
+            {
+                "currency": "SYP",
+                "sum": 366359000
+            }
+        ],
+        "incomesDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 1000
+            },
+            {
+                "currency": "SYP",
+                "sum": 100000
+            }
+        ],
+        "spendingsDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 2200
+            },
+            {
+                "currency": "SYP",
+                "sum": 17100500
+            }
+        ],
+        "previousdebitsDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 396707
+            },
+            {
+                "currency": "SYP",
+                "sum": 381446500
+            }
+        ],
+        "previouscreditsDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 314124
+            },
+            {
+                "currency": "SYP",
+                "sum": 366191000
+            }
+        ],
+        "previousincomesDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 1000
+            },
+            {
+                "currency": "SYP",
+                "sum": 100000
+            }
+        ],
+        "previousspendingsDue": [
+            {
+                "currency": "S.Y.P",
+                "sum": 2200
+            },
+            {
+                "currency": "SYP",
+                "sum": 17100500
+            }
+        ],
+        "debitsBalanceToday": [],
+        "creditsBalanceToday": [
+            {
+                "currency": "S.Y.P",
+                "sum": 6380
+            },
+            {
+                "currency": "SYP",
+                "sum": 168000
+            }
+        ],
+        "incomesBalanceToday": [],
+        "spendingsBalanceToday": []
+    }
 }

@@ -15,8 +15,12 @@ final class Create  extends BaseController
         parent::init($request);
         $input = (array) $request->getParsedBody();
         // $user = $this->getCreateUserService()->create($input);
+        parent::init($request);
 
+        $result = $this->container['repository']->add($this->tableName, $input, $this->options);
 
-        return $this->textResponse($response, "Create");
+        // $users = $this->getFindUserService()
+        //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

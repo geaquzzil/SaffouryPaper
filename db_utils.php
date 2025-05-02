@@ -226,26 +226,7 @@ function getSearchQueryAttributes($object, $tableName)
 	}
 	return implode(" AND ", $whereQuery);
 }
-function getInsertQuery($iD, $object, $tableName, $insert)
-{
-	$action = ($insert ? "INSERT INTO " : " UPDATE ");
-	if ($insert) {
-		$query = $action . addslashes($tableName) .
-			" (`" . implode('`,`',  array_keys(($object))) .
-			"`) VALUES ('" . implode("','", array_values(($object))) . "')";
-		//   echo "\n $query \n";
-		return $query;
-	} else {
-		$query = "UPDATE `" . addslashes($tableName) . "` SET ";
-		$sep = '';
-		foreach ($object as $key => $value) {
-			$query .= $sep . "`" . $key . "` = '" . $value . "'";
-			$sep = ',';
-		}
-		//	 echo "\n $query WHERE iD=$iD \n";
-		return $query . "  WHERE `iD`='$iD'";
-	}
-}
+
 // is array of iD / is json / is iD
 function getWhereQuery($iD)
 {

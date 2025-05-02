@@ -20,17 +20,58 @@ final class ApiError extends \Slim\Handlers\Error
             'message' => $exception->getMessage(),
             'class' => $className->getName(),
             'trace' => $exception->getTraceAsString(),
+            // 'trace' => $this->getExceptionTraceAsString($exception),
             'status' => 'error',
             'code' => $statusCode,
         ];
-        $body = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $body = json_encode($data,  JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         $response->getBody()->write((string) $body);
 
         return $response
             ->withStatus($statusCode)
             ->withHeader('Content-type', 'application/problem+json');
     }
-
+    private function getExceptionTraceAsString($exception)
+    {
+        $rtn = "";
+        $count = 0;
+        foreach ($exception->getTrace() as $frame) {
+            $args = "";
+            if (isset($frame['args'])) {
+                $args = array();
+                foreach ($frame['args'] as $arg) {
+                    if (is_string($arg)) {
+                        $args[] = "'" . $arg . "'";
+                    } elseif (is_array($arg)) {
+                        $args[] = "Array";
+                    } elseif (is_null($arg)) {
+                        $args[] = 'NULL';
+                    } elseif (is_bool($arg)) {
+                        $args[] = ($arg) ? "true" : "false";
+                    } elseif (is_object($arg)) {
+                        $args[] = get_class($arg);
+                    } elseif (is_resource($arg)) {
+                        $args[] = get_resource_type($arg);
+                    } else {
+                        $args[] = $arg;
+                    }
+                }
+                $args = join(", ", $args);
+            }
+            $rtn .= sprintf(
+                "#%s %s\n(%s): %s%s%s(%s)\n",
+                $count,
+                $frame['file'],
+                $frame['line'],
+                isset($frame['class']) ? $frame['class'] : '',
+                isset($frame['type']) ? $frame['type'] : '', // "->" or "::"
+                $frame['function'],
+                $args
+            );
+            $count++;
+        }
+        return $rtn;
+    }
     private function getStatusCode(\Exception $exception): int
     {
         $statusCode = 500;

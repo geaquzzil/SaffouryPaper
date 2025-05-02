@@ -5,6 +5,7 @@ namespace Etq\Restful\Controller;
 use Etq\Restful\Helpers;
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Repository\Repository;
+use Etq\Restful\Repository\SearchRepository;
 use Exception;
 use Slim\Container;
 use Slim\Http\Response;
@@ -83,5 +84,8 @@ abstract class BaseController
     {
         $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
         $this->options = new Options($request);
+        $this->options->searchRepository = new SearchRepository($this->container->get("db"), $this->container);
     }
+
+    
 }

@@ -50,6 +50,14 @@ class RouteFromTable
                 $app->post('', Create::class)->add(new AddPermission($permissionRep));
                 $app->put('/{iD:[0-9]+}', Update::class)->add(new EditPermission($permissionRep));
                 $app->delete('/{iD:[0-9]+}', Delete::class)->add(new DeletePermission($permissionRep));
+                $app->group(
+                    "/not_used",
+                    function () use ($app): void {
+                        $app->delete('[/]', 'Etq\Restful\Controller\DashboardController:deleteNotUsedRecords')->add(new Auth(UserType::ADMIN));
+                        $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getNotUsedRecords')->add(new Auth(UserType::EMPLOYEE));
+                    }
+
+                );
                 // echo " sad";
 
                 $r->addExtensionTableUrl($table, $app);
@@ -145,10 +153,42 @@ class RouteFromTable
     private $getExtessionTableUrl =
 
     [
-        // PR => [
-        // ['most_popular', 'Etq\Restful\Controller\ProductController:getMostPopularProduct', 'get', null],
-        //     ['movement[[/]{iD:\d+}]', 'Etq\Restful\Controller\ProductController:getMovement', 'get', null],
+        //todo this permssion should by user  not talbe 
+        ORDR => [
+            [
+                '/overdue[/]',
+                'Etq\Restful\Controller\CustomerController:getOverDueCustomers',
+                'get',
+                ORDR // new ViewPermission($app->getContainer()['permission_repository'])
 
+            ],
+            [
+                '/nextPayment[/]',
+                'Etq\Restful\Controller\CustomerController:getNextPayment',
+                'get',
+                ORDR
+            ],
+            [
+                '/currentDayPayment[/]',
+                'Etq\Restful\Controller\CustomerController:getCurrentDayPayment',
+                'get',
+                ORDR
+            ],
+
+
+            [
+                '/profits[/]',
+                'Etq\Restful\Controller\CustomerController:getProfits',
+                'get',
+                ORDR
+            ],
+        ],
+        PR => [
+            ['/most_popular[/]', 'Etq\Restful\Controller\ProductController:getMostPopularProducts', 'get', PR],
+            ['/bestSelling[/]', 'Etq\Restful\Controller\ProductController:getBestSellingProducts', 'get', PR],
+            ['/expectedToBuy[/]', 'Etq\Restful\Controller\ProductController:getExpectedProductsToBuy', 'get', PR],
+            ['/movement' . self::ID_REQUIRED, 'Etq\Restful\Controller\ProductController:getMovement', 'get', PR],
+        ],
         //     //TODO should i deprecated
         //     ['search', 'Etq\Restful\Controller\ProductController:searchForProduct', 'get', null],
         //     ['similar/{iD:\d+}', 'Etq\Restful\Controller\ProductController:getSimilar', 'get', null],

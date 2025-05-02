@@ -4,22 +4,27 @@ namespace Etq\Restful\Repository;
 
 use Slim\Http\Request;
 use Etq\Restful\Helpers;
+use Exception;
 
 class Options
 {
-
+    // private $staticSearchByColumnRequests = [
+    //     "IDS"
+    // ];
 
     public  $addForginsObject;
     public  $addForginsList;
+    // private ?array $staticSearchByColumnValues = null;
 
     private bool $requireParent = true;
 
     private $recursiveLevel = 1;
 
 
-
+    public ?SearchRepository $searchRepository;
     public ?SearchOption $searchOption = null;
     public ?SortOption $sortOption = null;
+
 
     public  $listObjects;
 
@@ -38,23 +43,48 @@ class Options
     private array $staticQuery = [];
 
     private array $groupBy = [];
-    private array $orderBy = [];
+
+    private ?string $whereHavingQuery = null;
 
     /// this is for the request if <SizesID>
 
-    public function withGroupByArray($groupBy)
+    public function withGroupByArray($groupBy, ?string $whereHavingQuery = null)
     {
         $this->groupBy = $groupBy;
+        $this->whereHavingQuery = $whereHavingQuery;
         return $this;
     }
-    public function withOrderByArray($orderBy)
+
+    public function withLimit(?int $limit = null)
     {
-        $this->orderBy = $orderBy;
+        if ($limit) {
+            $this->limit = $limit;
+        }
         return $this;
     }
-    public function addOrderBy($orderBy)
+    public function unsetDate()
     {
-        $this->orderBy[] = $orderBy;
+        $this->date = null;
+        return $this;
+    }
+    public function getClone()
+    {
+        return clone $this;
+    }
+    public function removeDate()
+    {
+        $this->date = null;
+        return $this;
+    }
+    public function addOrderBy(?string $orderBy = null)
+    {
+        if ($orderBy) {
+            if (!$this->sortOption) {
+                $this->sortOption = new SortOption([$orderBy], SortType::ASC);
+            } else {
+                $this->sortOption->addField($orderBy);
+            }
+        }
         return $this;
     }
     public function addGroupBy($groupBy)
@@ -92,7 +122,7 @@ class Options
     {
         return new self();
     }
-    public static function withStaticWhereQuery($query)
+    public static function withStaticWhereQuery(?string $query = null)
     {
         $instance = new self();
         $instance->addStaticQuery($query);
@@ -105,17 +135,43 @@ class Options
         }
         return $this;
     }
-    public function withASC($field)
+    public function withASCArray(?array $field = null)
     {
-        $this->sortOption = new SortOption($field, SortType::ASC);
+        $this->sortOption = $field ? new SortOption($field, SortType::ASC) : null;
         return $this;
     }
-    public function withDESC($field)
+    public function withDESCArray(?array $field = null)
     {
-        $this->sortOption = new SortOption($field, SortType::DESC);
+        $this->sortOption = $field ? new SortOption($field, SortType::DESC) : null;
         return $this;
     }
-
+    public function getRequestColumnValue($key)
+    {
+        if ($this->isSetRequestColumnsKey($key)) {
+            return $this->searchOption?->searchByColumn[$key];
+        }
+        return array();
+    }
+    public function setOrChangeRequestColumnValue($key, $val)
+    {
+        if (!$this->searchOption) {
+            $arr = array();
+            $arr[$key] = $val;
+            $this->searchOption = new SearchOption(null, null, $arr);
+            return $this;
+        }
+        $this->searchOption->searchByColumn[$key] = $val;
+        return $this;
+    }
+    public function isSetRequestColumnsKey($key): bool
+    {
+        $arr = $this->searchOption?->searchByColumn;
+        if (!$arr) return false;
+        if (empty($arr)) {
+            return false;
+        }
+        return key_exists($key, $arr);
+    }
     public function __construct(protected ?Request $request = null)
     {
         if (!$request) return;
@@ -129,7 +185,20 @@ class Options
         foreach (array_keys($request->getQueryParams()) as $ke) {
             $val = $request->getQueryParam($ke, null);
             if (str_starts_with($ke, "<") && str_ends_with($ke, ">") && $val) {
-                $searchByColumn[substr($ke, 1, -1)] = $val;
+                $key = substr($ke, 1, -1);
+
+                if (Helpers::isJson($val)) {
+                    $json =  (Helpers::jsonDecode($val));
+                    if (!Helpers::isArray($json)) {
+                        throw new Exception("val is not array");
+                    } else {
+                        // if (array_search($key, $this->staticSearchByColumnRequests)) {
+                        // }
+                        $searchByColumn[$key] = $json;
+                    }
+                } else {
+                    $searchByColumn[$key] = $val;
+                }
             }
         }
         // print_r($searchByColumn);
@@ -154,9 +223,9 @@ class Options
         if ($asc || $desc) {
             // echo " has asc || desc";
             if ($asc) {
-                $this->sortOption = new SortOption($asc, SortType::ASC);
+                $this->sortOption = new SortOption([$asc], SortType::ASC);
             } else {
-                $this->sortOption = new SortOption($desc, SortType::DESC);
+                $this->sortOption = new SortOption([$desc], SortType::DESC);
             }
         }
         $this->requireParent = true;
@@ -193,26 +262,25 @@ class Options
             return false;
         }
     }
-    public function getQuery(string $tableName, ?SearchRepository $repo = null): string
+    public function getQuery(string $tableName, ?string $replaceTableNameInWhereClouser = null): string
     {
         $limitQuery = $this->getLimitOrPageCountOffset();
         $sortQuery = $this->sortOption?->getQuery();
-        $dateQuery = $this->date?->getQuery();
-        $searchQuery = $this->searchOption?->getQuery($tableName, $repo, $this->request);
+        $dateQuery = $this->date?->getQuery($tableName);
+        $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request);
         $statics = null;
         $groupBy = null;
-        $customOrderBy = null;
+
         if (!empty($this->staticQuery)) {
             //TODO STATIC QUERY IMPOLDE SHOULD BE AND
-            $statics = "WHERE " . implode(" ", $this->staticQuery);
+            $statics = "WHERE " . implode(" AND ", $this->staticQuery);
         }
         if (!empty($this->groupBy)) {
-            $groupBy = "GROUP BY " . implode(",", $this->groupBy);
+            $having = $this->whereHavingQuery ? "HAVING " . $this->whereHavingQuery : "";
+            $groupBy = "GROUP BY " . implode(",", $this->groupBy)  . "  " . $having;
         }
-        if (!empty($this->orderBy)) {
-            $customOrderBy = "ORDER BY " . implode(",", $this->orderBy);
-        }
-        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics && !$groupBy && !$customOrderBy) {
+
+        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics && !$groupBy) {
             return "";
         }
         $whereQuery = "";
@@ -230,17 +298,13 @@ class Options
         if ($groupBy) {
             $whereQuery = $whereQuery . "  $groupBy\n";
         }
-        if ($customOrderBy) {
-            $whereQuery = $whereQuery . "$customOrderBy\n";
-        } else {
-            if ($sortQuery) {
-                $whereQuery = $whereQuery . "  $sortQuery\n";
-            }
+        if ($sortQuery) {
+            $whereQuery = $whereQuery . "  $sortQuery\n";
+        }
 
 
-            if ($limitQuery) {
-                $whereQuery = $whereQuery . " $limitQuery\n";
-            }
+        if ($limitQuery) {
+            $whereQuery = $whereQuery . " $limitQuery\n";
         }
         //TODO 
         //     if(isset($option["CUSTOM_JOIN"])){
@@ -272,22 +336,28 @@ class Date
     {
         return new self(null, null);
     }
+    public function getMonthNumber(bool $from)
+    {
+        return date('m',  strtotime($from ? $this->from : $this->to));
+    }
     public function getPreviousTo(?string $to = null)
     {
-        if ($to) {
+        $instance = clone $this;
 
-            $this->to = $to;
+        if ($to) {
+            $instance->to = $to;
         } else {
-            $this->to = date("Y-m-d");
+            $instance->to = date("Y-m-d");
         }
-        $this->to = $this->getPreviousDateTo();
-        return $this;
+        $instance->to = $instance->getPreviousDateTo();
+        return $instance->unsetFrom();
     }
 
     public function unsetFrom()
     {
-        $this->from = null;
-        return $this;
+        $instance = clone $this;
+        $instance->from = null;
+        return $instance;
     }
     public static function to($to)
     {
@@ -354,15 +424,19 @@ class Date
 }
 class SortOption
 {
-    public function __construct(protected string $field, protected SortType $sortType) {}
+    public function addField($field)
+    {
+        $this->fields[] = $field;
+    }
+    public function __construct(public array $fields, protected SortType $sortType) {}
     public function getQuery(): string
     {
         switch ($this->sortType) {
-            case SortType::ASC;
-                return  " ORDER BY `" . $this->field . "` ASC ";
+            case SortType::ASC:
+                return  " ORDER BY `" .  implode(",", $this->fields) . "` ASC ";
 
-            case SortType::DESC;
-                return  " ORDER BY `" . $this->field . "` DESC ";
+            case SortType::DESC:
+                return  " ORDER BY `" .  implode(",", $this->fields) . "` DESC ";
         }
         return "";
     }
@@ -376,11 +450,11 @@ class SearchOption
         public ?string $searchByField = null,
         public array $searchByColumn = []
     ) {}
-    public function getQuery(string $tableName, ?SearchRepository $repo = null, ?Request $request): string
+    public function getQuery(string $tableName, SearchRepository $repo, ?string $replaceTableNameInWhereClouser = null, ?Request $request): string
     {
         $searchWhere = array();
 
-        if (!is_null($repo) && $this->searchQuery) {
+        if ($this->searchQuery) {
             $starttime = microtime(true);
             $generatedSearchQuery = $repo->getSearchQueryMasterStringValue($this->searchQuery, $tableName);
             $endtime = microtime(true);
@@ -389,8 +463,10 @@ class SearchOption
             $searchWhere[] = $generatedSearchQuery;
         }
         if ($this->searchByColumn) {
-            $searchWhere[] = $repo->getSearchByColumnQuery($this->searchByColumn, $tableName);
+            $searchWhere[] = $repo->getSearchByColumnQuery($this->searchByColumn, $tableName, $replaceTableNameInWhereClouser);
         }
+        // print_r($this->searchByColumn);
+        // die;
 
         return implode(" AND ", $searchWhere);
 
