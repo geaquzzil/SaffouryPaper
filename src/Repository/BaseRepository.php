@@ -13,9 +13,6 @@ abstract class BaseRepository extends BaseDataBaseFunction
 {
 
 
-    private $cacheForginObjects = [];
-    private $cacheForginList = [];
-    protected $cacheTableColumns = [];
 
 
 
@@ -23,24 +20,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
 
 
-    protected function getCachedForginList($tableName)
-    {
-        if (key_exists($tableName, $this->cacheForginList)) {
-            return $this->cacheForginList[$tableName];
-        } else {
-            $this->cacheForginList[$tableName] = $this->getArrayForginKeys($tableName);
-            return $this->cacheForginList[$tableName];
-        }
-    }
-    protected function getCachedForginObject($tableName)
-    {
-        if (key_exists($tableName, $this->cacheForginObjects)) {
-            return $this->cacheForginObjects[$tableName];
-        } else {
-            $this->cacheForginObjects[$tableName] = $this->getObjectForginKeys($tableName);
-            return  $this->cacheForginObjects[$tableName];
-        }
-    }
+
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
         $forgins = $this->getCachedForginObject($tableName);
@@ -244,15 +224,31 @@ abstract class BaseRepository extends BaseDataBaseFunction
     public function edit(string $tableName, object $object) {}
     public function add(string $tableName, $object, ?Options $option = null)
     {
+        $origianlObject = Helpers::cloneByJson($object);
+        Helpers::convertToObject($object);
+        $this->unsetKeysThatNotFoundInObject($tableName, $object);
+
+
+
+
+
+        // $searchedArray = $this->search($tableName, $object);
+
 
 
         return $object;
     }
     public function search(string $tableName, $object)
     {
+
+
+        $cloned =  $object;
+        Helpers::unSetKeyFromObj($cloned, "iD");
         $option = Options::getInstance();
-        $option->searchOption = new SearchOption(null, null, $object);
-        return $this->view($tableName, Helpers::getKeyValueFromObj($object, "iD"), null, $option);
+        $option->searchRepository = $this->getSearchRepository();
+        $option->searchOption = new SearchOption(null, null, $cloned);
+
+        return $this->list($tableName, null,  $option);
     }
     public function delete(string $tableName, ?int $iD, ?Options $option = null)
     {
@@ -426,15 +422,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         return $obj;
     }
 
-    public function getCachedTableColumns($tableName)
-    {
-        if (key_exists($tableName, $this->cacheForginList)) {
-            return $this->cacheTableColumns[$tableName];
-        } else {
-            $this->cacheTableColumns[$tableName] = $this->getTableColumns($tableName);
-            return $this->cacheTableColumns[$tableName];
-        }
-    }
+
 
     function getSearchObjectStringValue($object, $tableName)
     {

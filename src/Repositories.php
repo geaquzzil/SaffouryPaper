@@ -7,6 +7,7 @@ use Etq\Restful\Repository\UserRepository;
 use Etq\Restful\Repository\PermissionRepository;
 use Etq\Restful\Repository\NotificationRepository;
 use Etq\Restful\Repository\ProductRepository;
+use Etq\Restful\Repository\SearchRepository;
 use Psr\Container\ContainerInterface;
 
 $container['repository'] = static fn(
@@ -25,6 +26,9 @@ $container['dashboard_repository'] = static fn(
 $container['product_repository'] = static fn(
     ContainerInterface $container
 ): ProductRepository => new ProductRepository($container->get('db'), $container);
+$container['search_repository'] = static fn(
+    ContainerInterface $container
+): SearchRepository => new SearchRepository($container->get('db'), $container);
 
 $container['permission_repository'] = static fn(
     ContainerInterface $container

@@ -1,6 +1,6 @@
 <?php
 
-define("TABLE_NAME", "table_name"); // todo on publish TABLE_NAME
+
 function getQueryMaxID($tableName)
 {
 	return "SELECT iD FROM $tableName ORDER BY iD DESC LIMIT 1";

@@ -84,8 +84,6 @@ abstract class BaseController
     {
         $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
         $this->options = new Options($request);
-        $this->options->searchRepository = new SearchRepository($this->container->get("db"), $this->container);
+        $this->options->searchRepository = $this->container->get("search_repository");
     }
-
-    
 }

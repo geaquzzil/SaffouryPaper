@@ -24,6 +24,7 @@ class SearchRepository extends BaseRepository
         $tableColumns = array_values($tableColumns);
         $whereQuery = array();
         $searchByColumns = $getFromObject ?? $searchByColumns;
+        $isNullGetFromObject = $getFromObject ? true : false;
         foreach ($searchByColumns as $key => $value) {
             if (($i = array_search($key, $tableColumns)) !== FALSE) {
                 if (Helpers::isArray($value)) {
@@ -31,7 +32,14 @@ class SearchRepository extends BaseRepository
                     $query = addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` IN ( '" . $ids . "' )";
                     $whereQuery[] = $query;
                 } else {
-                    $whereQuery[] =    addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` LIKE '" . $value . "'";
+                    $isNull = is_null($value);
+                    //if getFromObject then we want to enable is null to get the exact result from query
+                    if (!$isNullGetFromObject && $isNull) {
+
+                        $whereQuery[] =    addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` IS NULL ";
+                    } else {
+                        $whereQuery[] =    addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` LIKE '" . $value . "'";
+                    }
                 }
             } else {
                 throw new \Exception("$key  not Found in column");

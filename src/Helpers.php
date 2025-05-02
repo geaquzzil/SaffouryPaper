@@ -33,6 +33,17 @@ class Helpers
     {
         return isset($searchData[$key]) && !empty($searchData[$key]) && is_string($searchData[$key]) && trim($searchData[$key]);
     }
+    public static function convertToObject(&$object)
+    {
+        if (is_array($object)) {
+            //  echo "\n object is array convert to object \n";
+            $soso = new \stdClass();
+            foreach ($object as $key => $value) {
+                $soso->$key = $value;
+            }
+            $object = $soso;
+        }
+    }
     public static function isJson($str)
     {
         if (self::IsNullOrEmptyString($str)) return false;
@@ -154,11 +165,15 @@ class Helpers
     {
         return (substr($str, 0, 1) == "<" && substr($str, -1) == ">");
     }
-    public static function removeAllNonFoundInTowArray($arr1, $arr2, ?bool $getArrayByValues = true)
+    public static function removeAllNonFoundInTowArray($arr1, $arr2, ?bool $getArrayByValues = true, &$removedItmes = [])
     {
         $arr = (
-            array_filter($arr1, function ($value) use ($arr2) {
-                return array_search($value, $arr2) !== false;
+            array_filter($arr1, function ($value) use ($arr2, &$removedItmes) {
+                $res = array_search($value, $arr2) !== false;
+                if (!$res) {
+                    $removedItmes[] = $value;
+                }
+                return $res;
             })
         );
         if ($getArrayByValues) {
@@ -210,7 +225,7 @@ class Helpers
     }
     public static  function cloneByJson($object)
     {
-        return jsonDecode(jsonEncode($object));
+        return self::jsonDecode(self::jsonEncode($object));
     }
     public static function removeFromArray(&$array, $key)
     {

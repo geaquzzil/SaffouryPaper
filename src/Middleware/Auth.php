@@ -29,7 +29,7 @@ class Auth extends BasePermission
             $this->currentID = $token->data->userlevelid;
         }
         // echo $levelID;
-        if (!$this->hasAccess($this->currentID)) {
+        if (!$this->hasAccess()) {
             throw new \Exception('Permission denied.', 400);
         }
 
@@ -48,7 +48,7 @@ class Auth extends BasePermission
     private  function hasAccess()
     {
         $levelID = $this->currentID;
-        $currentUserType = $this->checkForUserType($levelID);
+        $currentUserType = $this->checkForUserType();
         $requiredPriority = $this->getPermissionProiority($this->requiredType->value);
         $currentProiority = $this->getPermissionProiority($levelID);
         if ($this->allowHigherPermission) {

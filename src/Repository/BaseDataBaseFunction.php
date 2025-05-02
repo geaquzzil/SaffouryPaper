@@ -12,10 +12,44 @@ use Slim\Container;
 abstract class BaseDataBaseFunction
 {
     protected $DB_NAME = "";
+    private $cacheForginObjects = [];
+    private $cacheForginList = [];
+    protected $cacheTableColumns = [];
 
     public function __construct(protected \PDO $database, protected Container $container)
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
+    }
+    public function getCachedForginList($tableName)
+    {
+        if (key_exists($tableName, $this->cacheForginList)) {
+            return $this->cacheForginList[$tableName];
+        } else {
+            $this->cacheForginList[$tableName] = $this->getArrayForginKeys($tableName);
+            return $this->cacheForginList[$tableName];
+        }
+    }
+    public function getCachedForginObject($tableName)
+    {
+        if (key_exists($tableName, $this->cacheForginObjects)) {
+            return $this->cacheForginObjects[$tableName];
+        } else {
+            $this->cacheForginObjects[$tableName] = $this->getObjectForginKeys($tableName);
+            return  $this->cacheForginObjects[$tableName];
+        }
+    }
+    public function getCachedTableColumns($tableName)
+    {
+        if (key_exists($tableName, $this->cacheForginList)) {
+            return $this->cacheTableColumns[$tableName];
+        } else {
+            $this->cacheTableColumns[$tableName] = $this->getTableColumns($tableName);
+            return $this->cacheTableColumns[$tableName];
+        }
+    }
+    public function getSearchRepository()
+    {
+        return $this->container->get("search_repository");
     }
     public function getFetshALLTableWithQuery($query)
     {
@@ -74,8 +108,45 @@ abstract class BaseDataBaseFunction
         WHERE
             TABLE_SCHEMA = 'saffoury_paper' AND TABLE_NAME = '$tableName';")["AUTO_INCREMENT"];
     }
-    public function unsetKeysThatNotFoundInObject($tableName, &$object){
-        
+    public function unsetKeysThatNotFoundInObject($tableName, &$object)
+    {
+        $isArray = is_array($object)  ? "true" : "false";
+        echo "is Array $tableName $isArray\n";
+        $tableColumns = $this->getCachedTableColumns($tableName);
+        $forginsObjects =  array_values(array_map(function ($va) {
+            return $va[rtn];
+        }, $this->getCachedForginObject($tableName)));
+
+        $forginsLists =  array_values(array_map(function ($va) {
+            return $va[TABLE_NAME];
+        }, $this->getCachedForginList($tableName)));
+
+
+        $tableColumns = array_values($tableColumns);
+        $tableColumns = array_merge($tableColumns, ($forginsObjects));
+        $tableColumns = array_merge($tableColumns, ($forginsLists));
+
+        $removedColumns = [];
+        Helpers::removeAllNonFoundInTowArray(array_keys((array)$object), $tableColumns, true, $removedColumns);
+        if (!empty($removedColumns)) {
+            foreach ($removedColumns as $c) {
+                unset($object->$c);
+            }
+        }
+        foreach ($forginsObjects as $ob) {
+            $val = Helpers::isSetKeyFromObjReturnValue($object, $ob);
+            if (!is_null($val)) {
+
+                $this->unsetKeysThatNotFoundInObject($ob, $object->$ob);
+            }
+        }
+        foreach ($forginsLists as $ob) {
+            $val = Helpers::isSetKeyFromObjReturnValue($object, $ob);
+            if (!is_null($val)) {
+                $this->unsetKeysThatNotFoundInObject($ob, $object->$ob);
+            }
+        }
+        return $object;
     }
     public function getArrayForginKeys($tableName)
     {
