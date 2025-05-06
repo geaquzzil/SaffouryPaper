@@ -8,7 +8,23 @@ use Etq\Restful\QueryHelpers;
 
 class SearchRepository extends BaseRepository
 {
+    private function getSearchKeyValueWhereClouser($tableName, $key, $value, bool $addPercent = false,  ?string $replaceTableNameInWhereClouser = null)
+    {
 
+        $keyToFind = addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key`";
+        if (is_null($value)) {
+            return "($keyToFind IS NULL OR $keyToFind = '0' OR $keyToFind ='')   ";
+        }
+        if (Helpers::isArray($value)) {
+            $ids = implode("','", $value);
+            return "$keyToFind IN ( '" . $ids . "' )";
+        }
+        if (is_double($value) || is_float($value) || is_int($value) || is_numeric($value)) {
+            return "($keyToFind = '$value')   ";
+        }
+        $addPercentQuery = $addPercent ? "%" : "";
+        return "$keyToFind LIKE '$addPercentQuery" . $value . "$addPercentQuery'";
+    }
     public function getSearchQueryMasterStringValue($object, $tableName)
     {
         $res = $this->getSearchObjectStringValue($object, $tableName);
@@ -27,20 +43,22 @@ class SearchRepository extends BaseRepository
         $isNullGetFromObject = $getFromObject ? true : false;
         foreach ($searchByColumns as $key => $value) {
             if (($i = array_search($key, $tableColumns)) !== FALSE) {
-                if (Helpers::isArray($value)) {
-                    $ids = implode("','", $value);
-                    $query = addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` IN ( '" . $ids . "' )";
-                    $whereQuery[] = $query;
-                } else {
-                    $isNull = is_null($value);
-                    //if getFromObject then we want to enable is null to get the exact result from query
-                    if (!$isNullGetFromObject && $isNull) {
+                $whereQuery[] = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, false, $replaceTableNameInWhereClouser);
 
-                        $whereQuery[] =    addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` IS NULL ";
-                    } else {
-                        $whereQuery[] =    addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key` LIKE '" . $value . "'";
-                    }
-                }
+                // $keyToFind = addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key`";
+                // if (Helpers::isArray($value)) {
+                //     $ids = implode("','", $value);
+                //     $query = "$keyToFind IN ( '" . $ids . "' )";
+                //     $whereQuery[] = $query;
+                // } else {
+                //     $isNull = is_null($value);
+                //     //if getFromObject then we want to enable is null to get the exact result from query
+                //     if (!$isNullGetFromObject && $isNull) {
+                //         $whereQuery[] =   "($keyToFind IS NULL OR $keyToFind = '0')   ";
+                //     } else {
+                //         $whereQuery[] =    "$keyToFind LIKE '" . $value . "'";
+                //     }
+                // }
             } else {
                 throw new \Exception("$key  not Found in column");
             }
@@ -88,23 +106,9 @@ class SearchRepository extends BaseRepository
         //unSetKeyFromObj($object,'iD');
         $whereQuery = array();
         foreach ($object as $key => $value) {
+            $whereQuery[] = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, true, null);
             //do something with your $key and $value;
-            if (is_array($value)) {
-                $ids = implode("','", $value);
-                $query = addslashes($tableName) . ".`$key` IN ( '" . $ids . "' )";
-                $whereQuery[] = $query;
-            } else {
-                //TODO
-                // if (addKeyValueToSearchExtenstion($tableName, $key)) {
-                if (is_numeric($value)) {
-                    $query = addslashes($tableName) . ".`" . $key . "` LIKE '" . $value . "'";
-                } else {
-                    $query = addslashes($tableName) . ".`" . $key . "` LIKE '%" . $value . "%'";
-                }
 
-                $whereQuery[] = $query;
-                // }
-            }
         }
         return implode(" OR ", $whereQuery);
     }

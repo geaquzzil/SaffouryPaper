@@ -165,6 +165,11 @@ class Helpers
     {
         return (substr($str, 0, 1) == "<" && substr($str, -1) == ">");
     }
+    ///set arr2 to arr1
+    public static function setValuesThatNotFoundInTowArray($arr1, $arr2)
+    {
+        return array_diff($arr1, $arr2);
+    }
     public static function removeAllNonFoundInTowArray($arr1, $arr2, ?bool $getArrayByValues = true, &$removedItmes = [])
     {
         $arr = (

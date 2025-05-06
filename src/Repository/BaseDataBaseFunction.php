@@ -6,6 +6,8 @@ namespace Etq\Restful\Repository;
 
 use Etq\Restful\Helpers;
 use Etq\Restful\Repository\BaseRepository;
+use Etq\Restful\QueryHelpers;
+use Exception;
 use Slim\Container;
 
 
@@ -20,9 +22,12 @@ abstract class BaseDataBaseFunction
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
+
+
     public function getCachedForginList($tableName)
     {
         if (key_exists($tableName, $this->cacheForginList)) {
+
             return $this->cacheForginList[$tableName];
         } else {
             $this->cacheForginList[$tableName] = $this->getArrayForginKeys($tableName);
@@ -32,6 +37,7 @@ abstract class BaseDataBaseFunction
     public function getCachedForginObject($tableName)
     {
         if (key_exists($tableName, $this->cacheForginObjects)) {
+
             return $this->cacheForginObjects[$tableName];
         } else {
             $this->cacheForginObjects[$tableName] = $this->getObjectForginKeys($tableName);
@@ -41,6 +47,7 @@ abstract class BaseDataBaseFunction
     public function getCachedTableColumns($tableName)
     {
         if (key_exists($tableName, $this->cacheForginList)) {
+
             return $this->cacheTableColumns[$tableName];
         } else {
             $this->cacheTableColumns[$tableName] = $this->getTableColumns($tableName);
@@ -56,6 +63,14 @@ abstract class BaseDataBaseFunction
         $statement = $this->database->prepare($query);
         $statement->execute();
         return (array) $statement->fetchAll();
+    }
+    public function getCount($obj, $foreing)
+    {
+        return
+            Helpers::getKeyValueFromObj(
+                $this->getFetshTableWithQuery(QueryHelpers::getCountQuery($obj, $foreing)),
+                "result"
+            );
     }
     public function getFetshTableWithQuery($query)
     {
@@ -100,54 +115,324 @@ abstract class BaseDataBaseFunction
     }
     public function getLastIncrementID($tableName)
     {
-        return getFetshTableWithQuery("
+        return Helpers::getKeyValueFromObj($this->getFetshTableWithQuery("
         SELECT
             AUTO_INCREMENT
         FROM
             INFORMATION_SCHEMA.TABLES
         WHERE
-            TABLE_SCHEMA = 'saffoury_paper' AND TABLE_NAME = '$tableName';")["AUTO_INCREMENT"];
+            TABLE_SCHEMA = 'saffoury_paper' AND TABLE_NAME = '$tableName';"), "AUTO_INCREMENT",);
     }
-    public function unsetKeysThatNotFoundInObject($tableName, &$object)
+    protected function validatePhoneNumber(&$object, bool $isResponse = true)
     {
-        $isArray = is_array($object)  ? "true" : "false";
-        echo "is Array $tableName $isArray\n";
+        $phone = Helpers::isSetKeyFromObjReturnValue($object, "phone");
+        if ($phone) {
+
+            Helpers::setKeyValueFromObj($object, "phone", $isResponse ? urlencode($phone) : urldecode($phone));
+        }
+    }
+    protected function unsetAllForginListWithOutRefrence($tableName, $object, &$resultsForginLists = [], ?bool $unset = false)
+    {
+        $cloned =  clone $object;
+        $forginsListsOriginal = array_values(array_map(function ($va) {
+            return $va[TABLE_NAME];
+        }, $this->getCachedForginList($tableName)));
+
+        foreach (array_keys((array)$cloned) as $key) {
+            if (in_array($key, $forginsListsOriginal)) {
+                $resultsForginLists[] = $key;
+                if ($unset) {
+                    Helpers::unSetKeyFromObj($cloned, $key);
+                }
+            }
+        }
+        return $cloned;
+    }
+    protected function unsetAllForginList($tableName, &$object, &$resultsForginLists = [], ?bool $unset = false)
+    {
+        $forginsListsOriginal = array_values(array_map(function ($va) {
+            return $va[TABLE_NAME];
+        }, $this->getCachedForginList($tableName)));
+
+        foreach (array_keys((array)$object) as $key) {
+            if (in_array($key, $forginsListsOriginal)) {
+                $resultsForginLists[] = $key;
+                if ($unset) {
+                    Helpers::unSetKeyFromObj($object, $key);
+                }
+            }
+        }
+    }
+    private function validateObject($tableName, &$object, ?bool $addNonFoundColumns = true)
+    {
+
         $tableColumns = $this->getCachedTableColumns($tableName);
+        $forginsObjectsOriginal = $this->getCachedForginObject($tableName);
+        $forginsListsOriginal = $this->getCachedForginList($tableName);
+
         $forginsObjects =  array_values(array_map(function ($va) {
             return $va[rtn];
-        }, $this->getCachedForginObject($tableName)));
+        }, $forginsObjectsOriginal));
 
         $forginsLists =  array_values(array_map(function ($va) {
             return $va[TABLE_NAME];
-        }, $this->getCachedForginList($tableName)));
+        }, $forginsListsOriginal));
+        $this->validatePhoneNumber($object, false);
+        $onlyTableColumn = array_values($tableColumns);
+
+        echo "\nvalidateObject $tableName\n";
+        print_r($forginsObjects);
+        print_r($forginsLists);
 
 
         $tableColumns = array_values($tableColumns);
         $tableColumns = array_merge($tableColumns, ($forginsObjects));
         $tableColumns = array_merge($tableColumns, ($forginsLists));
 
-        $removedColumns = [];
         Helpers::removeAllNonFoundInTowArray(array_keys((array)$object), $tableColumns, true, $removedColumns);
         if (!empty($removedColumns)) {
             foreach ($removedColumns as $c) {
                 unset($object->$c);
             }
         }
-        foreach ($forginsObjects as $ob) {
-            $val = Helpers::isSetKeyFromObjReturnValue($object, $ob);
-            if (!is_null($val)) {
+        if ($addNonFoundColumns) {
+            $diff = (Helpers::setValuesThatNotFoundInTowArray($onlyTableColumn, array_keys((array)$object)));
+            foreach ($diff as $d) {
+                Helpers::setKeyValueFromObj(
+                    $object,
+                    $d,
+                    null
+                );
+            }
+        }
+        // Helpers::unSetKeyFromObj($object, "iD");
 
-                $this->unsetKeysThatNotFoundInObject($ob, $object->$ob);
-            }
-        }
-        foreach ($forginsLists as $ob) {
-            $val = Helpers::isSetKeyFromObjReturnValue($object, $ob);
-            if (!is_null($val)) {
-                $this->unsetKeysThatNotFoundInObject($ob, $object->$ob);
-            }
-        }
         return $object;
     }
+    private function getValueToCheckForeing($object, $foreing, $typeArray, $currentForeingTableName, &$type)
+    {
+        $type = ForginCheckType::NONE;
+        if (is_array($typeArray)) {
+            if (key_exists($currentForeingTableName, $typeArray)) {
+                $type = $typeArray[$currentForeingTableName];
+            }
+        }
+        switch ($type) {
+            case ForginCheckType::NONE:
+                $key = $foreing[rtn];
+                echo "\ngetValueToCheckForeing NONE -->->key is  $key\n";
+                return Helpers::isSetKeyFromObjReturnValue($object, $key);
+            case ForginCheckType::BY_FOREING_ID:
+                $key = $foreing[cn];
+                echo "\ngetValueToCheckForeing BY_FOREING_ID -->->key is  $key\n";
+                return Helpers::isSetKeyFromObjReturnValue($object, $key);
+            case ForginCheckType::BY_ID_IN_VALUE:
+                $key = $foreing[rtn];
+                echo "\ngetValueToCheckForeing BY_ID_IN_VALUE -->->key is  $key\n";
+                $val =
+                    Helpers::isSetKeyFromObjReturnValue($object, $foreing[rtn]);
+                if (!$val) {
+                    echo "---> is NULL";
+                    return null;
+                }
+                $val = Helpers::isSetKeyFromObjReturnValue($val, "iD");
+                echo "\ngetValueToCheckForeing BY_ID_IN_VALUE -->->value $key is  $val\n";
+                return $val;
+        }
+    }
+    private function addForginObjectsFromObject($tableName, &$object, BaseRepository $baseRepository, $type = ForginCheckType::NONE, ?string $parentTableName = null)
+    {
+        $forginsObjectsOriginal = $this->getCachedForginObject($tableName);
+        foreach ($forginsObjectsOriginal as $fo) {
+            $childTableName = $fo[rtn];
+            $forginIDInParent = $fo[cn];
+            $ob = $fo[rtn]; //tablename
+            print_r($object);
+            echo "tableName $tableName";
+            $val = $this->getValueToCheckForeing($object, $fo, $type, $childTableName, $type);
+
+            if ($childTableName == $parentTableName) {
+                Helpers::setKeyValueFromObj($object, $forginIDInParent, $val);
+                echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and child $childTableName and set $forginIDInParent: $val ";
+                unset($object->$childTableName);
+                continue;
+            }
+            if ($type != ForginCheckType::NONE) {
+                $array = ["iD" => $val];
+                if (Helpers::isNewRecord($array)) {
+                    echo "\n addingForginOBjectsFromOBject is new record ";
+                    $val = $this->getValueToCheckForeing($object, $fo,  ForginCheckType::NONE, $childTableName, $type);
+                } else {
+                    echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and set $forginIDInParent: $val ";
+                    Helpers::setKeyValueFromObj($object, $forginIDInParent, $val);
+                    unset($object->$childTableName);
+                    continue;
+                }
+            }
+
+            if (!is_null($val)) {
+                Helpers::convertToObject($object->$ob);
+                Helpers::setKeyValueFromObj(
+                    $object,
+                    $ob,
+                    $this->validateObjectAndAdd($ob, $object->$ob, $baseRepository, $type)
+                );
+                $res =
+                    ($baseRepository)->search(
+                        $ob,
+                        Helpers::getKeyValueFromObj($object, $ob),
+                        true,
+                        true,
+                        true
+                    );
+
+
+                if ($res) {
+                    $iD =
+                        Helpers::getKeyValueFromObj($res, "iD");
+                    echo "\nfounded  $childTableName--->->-> $iD\n";
+                    Helpers::setKeyValueFromObj($object, $forginIDInParent, $iD);
+                    Helpers::unSetKeyFromObj($object, $childTableName);
+                }
+            } else {
+                Helpers::setKeyValueFromObj(
+                    $object,
+                    $forginIDInParent,
+                    null
+                );
+            }
+            unset($object->$childTableName);
+        }
+    }
+
+    protected function addForginListFromObject($tableName, &$object,  BaseRepository $baseRepository, $resultsForingList)
+    {
+        $type = [$tableName => ForginCheckType::BY_ID_IN_VALUE];
+        $forginsLists = $this->getCachedForginList($tableName);
+        $iD = Helpers::getKeyValueFromObj($object, 'iD');
+        foreach ($resultsForingList as $fo) {
+            echo "\naddForginListFromObject getting $fo from $tableName\n";
+            $objectValueArray = Helpers::isSetKeyFromObjReturnValue($object, $fo);
+            // print_r($objectValueArray);
+            foreach ((array)$objectValueArray as &$item) {
+                echo "\naddForginListFromObject search for $fo result\n";
+                $res =  array_search($fo, array_column($forginsLists, TABLE_NAME));
+                $res = $forginsLists[$res];
+                Helpers::convertToObject($item);
+                Helpers::setKeyValueFromObj($item, $res[cn], $iD);
+                Helpers::setKeyValueFromObj($item, $tableName, $object);
+                echo "\nstarting adding foring list for $fo\n\n\n";
+                $this->validateObjectAndAdd($fo, $item, $baseRepository, $type, $tableName);
+                die;
+                // die;
+                // Helpers::setKeyValueFromObj($item,$iD
+
+
+            }
+
+
+            continue;
+
+
+
+            // addForginListFromObject for userlevels withID = -2
+            // Array
+            // (
+            //     [TABLE_NAME] => customers
+            //     [COLUMN_NAME] => userlevelid
+            //     [REFERENCED_TABLE_NAME] => userlevels
+            //     [REFERENCED_COLUMN_NAME] => iD
+            // )
+            $objectTableName = $fo[TABLE_NAME];
+            $objectForginParentKeyName = $fo[cn];
+            $objectValue = Helpers::isSetKeyFromObjReturnValue($object, $objectTableName);
+            if ($objectValue && !empty($objectValue)) {
+                $clone = Helpers::cloneByJson($object);
+                Helpers::setKeyValueFromObj($clone, $objectTableName, null);
+                foreach ($objectValue as &$ov) {
+                    Helpers::setKeyValueFromObj($ov, $tableName, $clone);
+
+                    print_r($ov);
+                }
+                // print_r($objectValue);
+                die;
+                // print_r($fo);
+                // echo "addForginListFromObject setting to parent $objectTableName with $objectForginParentKeyName:$iD \n";
+                // $clone = Helpers::cloneByJson($object);
+                // Helpers::unSetKeyFromObj($clone, $objectTableName);
+                // Helpers::setKeyValueFromObj($clone, $tableName, $clone);
+                // Helpers::setKeyValueFromObj($objectValue, $objectTableName, $iD);
+            }
+            Helpers::unSetKeyFromObj($object, $objectTableName);
+            continue;
+            // die;
+
+            continue;
+            $childTableName = $fo[rtn];
+            $forginIDInParent = $fo[cn];
+            $ob = $fo[rtn]; //tablename
+            // echo "$ob dxsd\n";
+            $val = Helpers::isSetKeyFromObjReturnValue($object, $ob);
+            if (!is_null($val)) {
+                Helpers::convertToObject($object->$ob);
+                Helpers::setKeyValueFromObj(
+                    $object,
+                    $ob,
+                    $this->validateObjectAndAddForginObjects($ob, $object->$ob, $baseRepository)
+                );
+                $res =
+                    ($baseRepository)->search(
+                        $ob,
+                        Helpers::getKeyValueFromObj($object, $ob),
+                        true,
+                        true,
+                        true,
+                        true
+                    );
+
+
+                if ($res) {
+                    $iD =
+                        Helpers::getKeyValueFromObj($res, "iD");
+                    echo "\nfounded  $childTableName--->->-> $iD\n";
+                    Helpers::setKeyValueFromObj($object, $forginIDInParent, $iD);
+                    Helpers::unSetKeyFromObj($object, $childTableName);
+                }
+            } else {
+                Helpers::setKeyValueFromObj(
+                    $object,
+                    $forginIDInParent,
+                    null
+                );
+            }
+            unset($object->$childTableName);
+        }
+    }
+    public function validateObjectAndAdd($tableName, &$object, BaseRepository $baseRepository, $type = ForginCheckType::NONE, ?string $parentTableName = null)
+    {
+
+        $isArray = is_array($object)  ? true : false;
+        if ($isArray) {
+            foreach ((array)$object as $key => &$item) {
+                Helpers::convertToObject($item);
+                Helpers::setKeyValueFromObj(
+                    $object,
+                    $key,
+                    $this->validateObjectAndAdd($tableName, $item, $baseRepository, $type, $parentTableName)
+                );
+            }
+            // print_r($object);
+            return $object;
+        }
+        $object = $this->validateObject($tableName, $object, true);
+        $this->addForginObjectsFromObject($tableName, $object, $baseRepository, $type, $parentTableName);
+
+        return $object;
+    }
+    protected function before($tableName, &$object, ServerAction $ation, ?Options $option) {}
+    protected function after($tableName, &$object, ServerAction $action, ?Options $option) {}
+
+
     public function getArrayForginKeys($tableName)
     {
         return $this->getFetshALLTableWithQuery("
@@ -266,4 +551,44 @@ abstract class BaseDataBaseFunction
         }
         return $r;
     }
+
+    protected function unsetDateWhenSearch($tableName)
+    {
+        switch ($tableName) {
+            case EQ:
+            case PR:
+                return true;
+            default:
+                return false;
+        }
+    }
+    protected function isSearchDisbled($tableName)
+    {
+        //todo get from list
+        switch ($tableName) {
+            case ORDR_D:
+            case ORDR_R_D:
+            case PURCH_R_D:
+            case PURCH_D:
+            case PR_INPUT_D:
+            case PR_OUTPUT_D:
+            case CUT_RESULT:
+            case CRS_D:
+            case RI_D:
+            case TR_D:
+                return true;
+            default:
+                return false;
+        }
+    }
+}
+
+enum ForginCheckType
+{
+    //this will search for values and unset id
+    case NONE;
+        //this will get the id from value and set it without search
+    case BY_ID_IN_VALUE;
+        //this will get the foreing id value and set it without search
+    case BY_FOREING_ID;
 }

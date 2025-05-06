@@ -8,7 +8,8 @@ define("JSONTOMYSQL_LOCKED", false);
 define("ROOT_LOCAL", dirname(__FILE__) . "\\");
 
 define("TABLE_NAME", "TABLE_NAME"); // todo on publish TABLE_NAME
-define("rtn","REFERENCED_TABLE_NAME");
+define("rtn", "REFERENCED_TABLE_NAME");
+define("cn", "COLUMN_NAME");
 define("ADD", "add");
 define("EDIT", "edit");
 define("DELETE", "delete");

@@ -72,7 +72,7 @@ abstract class BaseController
             'message' => $message,
         ];
 
-        return $response->withJson($withHeder ? $result : $message, $code, JSON_NUMERIC_CHECK);
+        return $response->withJson($withHeder ? $result : $message, $code, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     }
 
     protected static function isRedisEnabled(): bool

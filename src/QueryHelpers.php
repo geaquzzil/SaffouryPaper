@@ -106,7 +106,9 @@ class QueryHelpers
         $tableName = self::getJsonKeyFromForginArray($key);
         $primaryKey = $key["COLUMN_NAME"];
         $iD = Helpers::getKeyValueFromObj($object, "iD");
-        return "SELECT Count(iD) AS result FROM  `" . addslashes($tableName) . "`  WHERE `$primaryKey`='$iD'";
+        $query = "SELECT Count(iD) AS result FROM  `" . addslashes($tableName) . "`  WHERE `$primaryKey`='$iD'";
+        echo $query . "\n";
+        return $query;
     }
     public static function isDetailObjectRequire($ParentKey, $key, $detailObjectTable)
     {

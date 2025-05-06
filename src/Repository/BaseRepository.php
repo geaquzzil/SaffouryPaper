@@ -24,50 +24,21 @@ abstract class BaseRepository extends BaseDataBaseFunction
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
         $forgins = $this->getCachedForginObject($tableName);
-        // echo $tableName . "\n";
-        // print_r($forgins);
         if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
                 $forginTableName = QueryHelpers::getJsonKeyFromForginObject($forgin);
                 if ($forginTableName == $parentTableName) {
                     continue;
                 }
-                //TODO skip parent tableName on child
-                if (QueryHelpers::isParent($forgin)) {
-                    $iD = Helpers::getKeyValueFromObj($obj, "ParentID");
-                    if ($option?->isRequireParent() && $iD) {
-                        Helpers::setKeyValueFromObj(
-                            $obj,
-                            "parents",
-                            $this->list(
-                                QueryHelpers::getJsonKeyFromForginArray($forgin),
-                                $parentTableName,
-                                $this->getOptionWithRequired($tableName . ".`iD` = '$iD'", true)
-                            )
-                        );
-                    }
-                } else if (
+                if (
                     !QueryHelpers::isCurrentObjectIDEmpty($obj, $forgin) &&
                     QueryHelpers::isDetailObjectRequire($parentTableName, $forgin, $option?->addForginsObject)
-                    // && !Helpers::isActionTableIs($pp)TODO
                 ) {
-                    // echo "SDASDCAS\n";
-                    // $theResult =    $this->getFetshTableWithQuery(
-                    //     QueryHelpers::getQueryFromForginCurrent($obj, $forgin)
-                    // );
-
-                    //TODO $theResult = addObjectExtenstion($theResult, $pp);
-
                     Helpers::setKeyValueFromObj(
                         $obj,
                         $forginTableName,
                         $this->view($forginTableName, QueryHelpers::getKeyValue($obj, $forgin), $tableName, $this->getOptionWithRequired(null, true))
                     );
-
-                    // $theResult;
-                    // $result[$forginTableName] =$this->view($)
-
-
                 } else {
                     Helpers::setKeyValueFromObj($obj, $forginTableName, null);
                 }
@@ -77,61 +48,45 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
     private function addforginKeysList(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
-
         $forgins = $this->getCachedForginList($tableName);
-        // echo $tableName . "\n";
-        // print_r($forgins);
         if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
+                echo "\n sososososos \n";
                 $isParent = QueryHelpers::isParent($forgin);
                 $forginTableName = QueryHelpers::getJsonKeyFromForginArray($forgin);
+                $valueKey = $isParent ? "childs" : $forginTableName;
                 if ($forginTableName == $parentTableName) {
-
                     continue;
                 }
                 $iD = Helpers::getKeyValueFromObj($obj, "iD");
                 $where = $forgin["COLUMN_NAME"];
-                if ($isParent && $iD) {
-                    if ($option?->isRequireParent()) {
-                        Helpers::setKeyValueFromObj(
-                            $obj,
-                            "childs",
-                            $this->list(
-                                QueryHelpers::getJsonKeyFromForginArray($forgin),
-                                $parentTableName,
-                                $this->getOptionWithRequired("`$where` = '$iD'", true)
-                            )
-                        );
-                    }
-                } else if (
+                if (
                     !QueryHelpers::isDetailedIDEmpty($obj, $forgin) &&
                     QueryHelpers::isDetailArrayRequire($parentTableName, $forgin, $option?->addForginsList)
                 ) {
-
                     Helpers::setKeyValueFromObj(
                         $obj,
-                        $forginTableName,
+                        $valueKey,
                         $this->list($forginTableName, $tableName, $this->getOptionWithRequired("`$where` = '$iD'", true))
                     );
-
-                    // $result[$t] = depthSearch(null, $t, $recursiveLevel, true, true, $options);
                 } else {
                     Helpers::setKeyValueFromObj(
                         $obj,
-                        $isParent ? "childs" : $forginTableName,
-                        array()
+                        $valueKey,
+                        null
                     );
                 }
+                $list = Helpers::getKeyValueFromObj($obj, $valueKey);
+                $count =  is_null($list) ? $this->getCount($obj, $forgin) : count($list);
                 Helpers::setKeyValueFromObj(
                     $obj,
-                    $isParent ? "childs_count" :  $forginTableName . "_count",
-                    QueryHelpers::isDetailedIDEmpty($obj, $forgin) ? 0 :
-                        Helpers::getKeyValueFromObj($this->getFetshTableWithQuery(QueryHelpers::getCountQuery($obj, $forgin)), "result")
+                    $valueKey . "_count",
+                    $count
                 );
             }
         }
     }
-    private function checkToSetForgins(string $tableName, &$queryResult, ?Options $option = null, ?string $parentTableName = null)
+    private function checkToSetForgins(string $tableName, &$queryResult, ?Options $option = null, ?string $parentTableName = null, bool &$isIn = false)
     {
         if (!$option?->addForginsObject && !$option?->addForginsList) return;
         if (!is_array($queryResult)) {
@@ -143,20 +98,29 @@ abstract class BaseRepository extends BaseDataBaseFunction
             }
         } else {
             foreach ($queryResult as &$res) {
+                $isIn = true;
                 if ($option?->isRequestedForginObjects()) {
                     $this->addforginKeys($tableName, $res, $option, $parentTableName);
                 }
                 if ($option?->isRequestedForginList()) {
                     $this->addforginKeysList($tableName, $res, $option, $parentTableName);
                 }
+                $this->after($tableName, $res, ServerAction::VIEW, $option);
             }
         }
     }
     public function list(string $tableName, ?string $parentTableName = null, ?Options $option = null)
     {
+
         $query = $this->getQuery($tableName, ServerAction::LIST,  $option, $parentTableName);
         $result = $this->getFetshALLTableWithQuery($query);
-        $this->checkToSetForgins($tableName, $result, $option, $parentTableName);
+        $isIn = false;
+        $this->checkToSetForgins($tableName, $result, $option, $parentTableName, $isIn);
+        if (!$isIn) {
+            foreach ($result as &$res) {
+                $this->after($tableName, $res, ServerAction::VIEW, $option);
+            }
+        }
         return $result;
     }
 
@@ -213,42 +177,122 @@ abstract class BaseRepository extends BaseDataBaseFunction
         } else {
             $option = $option->getClone()->addStaticQuery("iD = '$iD'");
         }
+
         $query = $this->getQuery($tableName, ServerAction::VIEW,  $option, $parentTableName);
         $result = $this->getFetshTableWithQuery($query);
+        $this->validatePhoneNumber($result);
+
+
         // print_r($result);
         if ($result) {
             $this->checkToSetForgins($tableName, $result, $option);
         }
+        $this->after($tableName, $result, ServerAction::VIEW, $option);
         return $result;
     }
-    public function edit(string $tableName, object $object) {}
-    public function add(string $tableName, $object, ?Options $option = null)
+    public function edit(string $tableName, int $iD, $object, ?Options $option = null)
     {
         $origianlObject = Helpers::cloneByJson($object);
+        $this->before($tableName, $object, ServerAction::EDIT, $option);
         Helpers::convertToObject($object);
-        $this->unsetKeysThatNotFoundInObject($tableName, $object);
+        $this->validateObjectAndAdd($tableName, $object, $this);
+        echo $this->getInsertQuery($tableName, (array)$object, $iD);
+
+        return $this->view($tableName, $iD, null, $option);
+    }
+    public function add(string $tableName, $object, ?Options $option = null, bool $isAlreadyValidated = false, bool $isSearchedBefore = false)
+    {
+        $origianlObject = Helpers::cloneByJson($object);
+        Helpers::convertToObject($origianlObject);
+
+
+        $this->before($tableName, $object, ServerAction::ADD, $option);
+        // todo unset foringlists to another array 
+        Helpers::convertToObject($object);
+        if (!$isAlreadyValidated) {
+            $this->validateObjectAndAdd($tableName, $object, $this);
+        }
+        $resultsForingList = [];
+
+        if (!$isSearchedBefore) {
+            $searchedArray = $this->search($tableName, $object, true, false, true, $resultsForingList);
+            if ($searchedArray) {
+                $iD = $searchedArray['iD'];
+                echo "\nfounded  $tableName--->->-> $iD\n";
+                return $searchedArray;
+            }
+        }
+        // $forginsDetails= $this->getCachedForginList($tableName);
+
+        // $hasForginList=
+        echo "----->->->->->to be added to $tableName \n\n";
+
+        Helpers::setKeyValueFromObj($object, "iD", null);
+
+        $insertID = $this->getLastIncrementID($tableName);
+        echo $this->getInsertQuery($tableName, (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true)) . " withID: $insertID";
+
+        Helpers::setKeyValueFromObj($object, "iD", $insertID);
+        // print_r($object);
+        if (!empty($resultsForingList)) {
+            $this->addForginListFromObject($tableName, $object, $this, $resultsForingList);
+            echo " \n im in add for $tableName\n";
+            die;
+        }
+        //
 
 
 
 
+        // $this->addForginListFromObject($tableName, $object, $this);
 
-        // $searchedArray = $this->search($tableName, $object);
-
+        $this->after($tableName, $object, ServerAction::ADD, $option);
 
 
         return $object;
     }
-    public function search(string $tableName, $object)
-    {
+    public function search(
+        string $tableName,
+        $object,
+        ?bool $getFirstResult = true,
+        ?bool $addWhenNotFounded = false,
+        ?bool $isAlreadyValidated = true,
+        &$resultsForingList = [],
 
-
-        $cloned =  $object;
+    ) {
+        $cloned =   Helpers::cloneByJson($object);
+        echo "search for $tableName\n";
+        if ($this->isSearchDisbled($tableName)) {
+            echo "search is disabled for $tableName\n";
+            return array();
+        }
         Helpers::unSetKeyFromObj($cloned, "iD");
+        if ($this->unsetDateWhenSearch($tableName)) {
+            Helpers::unSetKeyFromObj($cloned, "date");
+        }
+
+        Helpers::unSetKeyFromObj($cloned, "token");
+        Helpers::unSetKeyFromObj($cloned, "password");
+        Helpers::unSetKeyFromObj($cloned, "profile");
+        $this->unsetAllForginList($tableName, $cloned, $resultsForingList, true);
+
+
         $option = Options::getInstance();
         $option->searchRepository = $this->getSearchRepository();
-        $option->searchOption = new SearchOption(null, null, $cloned);
+        $option->searchOption = new SearchOption(null, null, (array)$cloned);
 
-        return $this->list($tableName, null,  $option);
+        $res = $this->list($tableName, null, $option);
+        if (empty($res)) {
+            if ($addWhenNotFounded) {
+                return $this->add($tableName, $cloned, null, $isAlreadyValidated, true);
+            } else {
+                return array();
+            }
+        }
+        if (!empty($res) && $getFirstResult) {
+            return $res[0];
+        }
+        return $res;
     }
     public function delete(string $tableName, ?int $iD, ?Options $option = null)
     {
@@ -262,6 +306,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 $option = $option->getClone()->addStaticQuery("iD = '$iD'");
             }
         }
+        $this->before($tableName, $iD, ServerAction::DELETE, $option);
         $query = $this->getQuery($tableName, ServerAction::DELETE,  $option);
         $rowCount = $this->getDeleteTableWithQuery($query);
         $requestArrayCount = count($option?->getRequestColumnValue("iD"));
@@ -272,6 +317,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $response["requestIDS"] = $requestIDS;
         $response["serverCount"] = $rowCount;
         $response["serverStatus"] = $rowCount == $requestCount;
+        $this->after($tableName, $response, ServerAction::DELETE, $option);
         return $response;
         // return $this->getDeleteTableWithQuery($query);
     }
