@@ -463,6 +463,7 @@ class SearchOption
             $searchWhere[] = $generatedSearchQuery;
         }
         if ($this->searchByColumn) {
+            print_r($this->searchByColumn);
             $searchWhere[] = $repo->getSearchByColumnQuery($this->searchByColumn, $tableName, $replaceTableNameInWhereClouser);
         }
         // print_r($this->searchByColumn);

@@ -101,6 +101,7 @@ class Helpers
     public static function unSetKeyFromObj(&$object, $key)
     {
         if (self::isSetKeyFromObj($object, $key)) {
+         
             if (self::isObject($object)) {
                 unset($object->$key);
             } else {
@@ -232,13 +233,15 @@ class Helpers
     {
         return self::jsonDecode(self::jsonEncode($object));
     }
-    public static function removeFromArray(&$array, $key)
+    public static function removeFromArray(&$array, $key, bool &$isFounded = false)
     {
         if (is_bool($array)) {
             return $array;
         }
         $index = array_search($key, $array);
         if ($index !== FALSE) {
+
+            $isFounded = true;
             unset($array[$index]);
         }
         return $array;

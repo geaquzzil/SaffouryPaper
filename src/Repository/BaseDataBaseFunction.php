@@ -138,8 +138,14 @@ abstract class BaseDataBaseFunction
             return $va[TABLE_NAME];
         }, $this->getCachedForginList($tableName)));
 
-        foreach (array_keys((array)$cloned) as $key) {
+        foreach ($object as $key => &$val) {
             if (in_array($key, $forginsListsOriginal)) {
+                if (is_null($val) || empty($val)) {
+                    Helpers::setKeyValueFromObj($object, $key, "");
+                    echo "\n unsetAllForginList is  null or empty ------>$key\n ";
+                    Helpers::unSetKeyFromObj($object, $key);
+                    continue;
+                }
                 $resultsForginLists[] = $key;
                 if ($unset) {
                     Helpers::unSetKeyFromObj($cloned, $key);
@@ -153,14 +159,31 @@ abstract class BaseDataBaseFunction
         $forginsListsOriginal = array_values(array_map(function ($va) {
             return $va[TABLE_NAME];
         }, $this->getCachedForginList($tableName)));
-
-        foreach (array_keys((array)$object) as $key) {
+        $this->changeParentsToChild($tableName, $forginsListsOriginal);
+        foreach ($object as $key => &$val) {
             if (in_array($key, $forginsListsOriginal)) {
+                if (is_null($val) || empty($val)) {
+                    Helpers::setKeyValueFromObj($object, $key, "");
+                    echo "\n unsetAllForginList is  null or empty ------>$key\n ";
+                    Helpers::unSetKeyFromObj($object, $key);
+                    continue;
+                }
                 $resultsForginLists[] = $key;
                 if ($unset) {
+                    echo "\nunsetAllForginList unset $key\n";
                     Helpers::unSetKeyFromObj($object, $key);
                 }
             }
+        }
+
+        return $object;
+    }
+    private function changeParentsToChild($tableName, &$forginsLists)
+    {
+        $hasChilds = false;
+        Helpers::removeFromArray($forginsLists, $tableName, $hasChilds);
+        if ($hasChilds) {
+            $forginsLists[] = "childs";
         }
     }
     private function validateObject($tableName, &$object, ?bool $addNonFoundColumns = true)
@@ -177,12 +200,14 @@ abstract class BaseDataBaseFunction
         $forginsLists =  array_values(array_map(function ($va) {
             return $va[TABLE_NAME];
         }, $forginsListsOriginal));
+
         $this->validatePhoneNumber($object, false);
+
+        $this->changeParentsToChild($tableName, $forginsLists);
         $onlyTableColumn = array_values($tableColumns);
 
         echo "\nvalidateObject $tableName\n";
-        print_r($forginsObjects);
-        print_r($forginsLists);
+
 
 
         $tableColumns = array_values($tableColumns);
@@ -247,7 +272,7 @@ abstract class BaseDataBaseFunction
             $childTableName = $fo[rtn];
             $forginIDInParent = $fo[cn];
             $ob = $fo[rtn]; //tablename
-            print_r($object);
+
             echo "tableName $tableName";
             $val = $this->getValueToCheckForeing($object, $fo, $type, $childTableName, $type);
 
@@ -269,7 +294,7 @@ abstract class BaseDataBaseFunction
                     continue;
                 }
             }
-
+            print_r($val);
             if (!is_null($val)) {
                 Helpers::convertToObject($object->$ob);
                 Helpers::setKeyValueFromObj(
@@ -290,7 +315,7 @@ abstract class BaseDataBaseFunction
                 if ($res) {
                     $iD =
                         Helpers::getKeyValueFromObj($res, "iD");
-                    echo "\nfounded  $childTableName--->->-> $iD\n";
+                    echo "founded  $childTableName--->->-> $iD\n";
                     Helpers::setKeyValueFromObj($object, $forginIDInParent, $iD);
                     Helpers::unSetKeyFromObj($object, $childTableName);
                 }
@@ -311,17 +336,21 @@ abstract class BaseDataBaseFunction
         $forginsLists = $this->getCachedForginList($tableName);
         $iD = Helpers::getKeyValueFromObj($object, 'iD');
         foreach ($resultsForingList as $fo) {
-            echo "\naddForginListFromObject getting $fo from $tableName\n";
             $objectValueArray = Helpers::isSetKeyFromObjReturnValue($object, $fo);
             // print_r($objectValueArray);
             foreach ((array)$objectValueArray as &$item) {
-                echo "\naddForginListFromObject search for $fo result\n";
+
+                echo "\naddForginListFromObject getting $fo from $tableName\n";
                 $res =  array_search($fo, array_column($forginsLists, TABLE_NAME));
                 $res = $forginsLists[$res];
                 Helpers::convertToObject($item);
                 Helpers::setKeyValueFromObj($item, $res[cn], $iD);
                 Helpers::setKeyValueFromObj($item, $tableName, $object);
                 echo "\nstarting adding foring list for $fo\n\n\n";
+                if ($fo == "childs") {
+                    echo "\nis childs chnging to $tableName \n";
+                    $fo = $tableName;
+                }
                 $this->validateObjectAndAdd($fo, $item, $baseRepository, $type, $tableName);
                 die;
                 // die;
@@ -394,7 +423,7 @@ abstract class BaseDataBaseFunction
                 if ($res) {
                     $iD =
                         Helpers::getKeyValueFromObj($res, "iD");
-                    echo "\nfounded  $childTableName--->->-> $iD\n";
+                    echo "founded  $childTableName--->->-> $iD\n";
                     Helpers::setKeyValueFromObj($object, $forginIDInParent, $iD);
                     Helpers::unSetKeyFromObj($object, $childTableName);
                 }

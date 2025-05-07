@@ -51,7 +51,6 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $forgins = $this->getCachedForginList($tableName);
         if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
-                echo "\n sososososos \n";
                 $isParent = QueryHelpers::isParent($forgin);
                 $forginTableName = QueryHelpers::getJsonKeyFromForginArray($forgin);
                 $valueKey = $isParent ? "childs" : $forginTableName;
@@ -215,10 +214,16 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $resultsForingList = [];
 
         if (!$isSearchedBefore) {
+            echo " not searching before $tableName ";
             $searchedArray = $this->search($tableName, $object, true, false, true, $resultsForingList);
             if ($searchedArray) {
                 $iD = $searchedArray['iD'];
-                echo "\nfounded  $tableName--->->-> $iD\n";
+                Helpers::setKeyValueFromObj($object, "iD", $iD);
+                echo "founded  $tableName--->->-> $iD\n";
+                if (!empty($resultsForingList)) {
+                    $this->addForginListFromObject($tableName, $object, $this, $resultsForingList);
+                }
+
                 return $searchedArray;
             }
         }
@@ -274,8 +279,8 @@ abstract class BaseRepository extends BaseDataBaseFunction
         Helpers::unSetKeyFromObj($cloned, "token");
         Helpers::unSetKeyFromObj($cloned, "password");
         Helpers::unSetKeyFromObj($cloned, "profile");
-        $this->unsetAllForginList($tableName, $cloned, $resultsForingList, true);
-
+        $cloned = $this->unsetAllForginList($tableName, $cloned, $resultsForingList, true);
+        // print_r($cloned);
 
         $option = Options::getInstance();
         $option->searchRepository = $this->getSearchRepository();
