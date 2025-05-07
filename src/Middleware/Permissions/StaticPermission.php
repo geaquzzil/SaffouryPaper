@@ -24,10 +24,9 @@ class StaticPermission extends BasePermission
         Response $response,
         $next
     ) {
-        // echo gettype($next);
+
         parent::invoke($request, $response, $next);
         $response =  $next($request, $response);
-        // echo "AFter Response $response";
         return $response;
     }
 

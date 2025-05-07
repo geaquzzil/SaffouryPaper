@@ -28,6 +28,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             foreach ($forgins as $forgin) {
                 $forginTableName = QueryHelpers::getJsonKeyFromForginObject($forgin);
                 if ($forginTableName == $parentTableName) {
+                    echo "addforginKeys isParent skip";
                     continue;
                 }
                 if (
@@ -55,6 +56,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 $forginTableName = QueryHelpers::getJsonKeyFromForginArray($forgin);
                 $valueKey = $isParent ? "childs" : $forginTableName;
                 if ($forginTableName == $parentTableName) {
+                    echo "addforginKeysList isParent skip";
                     continue;
                 }
                 $iD = Helpers::getKeyValueFromObj($obj, "iD");
@@ -199,7 +201,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
         return $this->view($tableName, $iD, null, $option);
     }
-    public function add(string $tableName, $object, ?Options $option = null, bool $isAlreadyValidated = false, bool $isSearchedBefore = false)
+    public function add(string $tableName, $object, ?Options $option = null, bool $isAlreadyValidated = false, bool $isSearchedBefore = false, $type = ForginCheckType::NONE)
     {
         $origianlObject = Helpers::cloneByJson($object);
         Helpers::convertToObject($origianlObject);
@@ -209,7 +211,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         // todo unset foringlists to another array 
         Helpers::convertToObject($object);
         if (!$isAlreadyValidated) {
-            $this->validateObjectAndAdd($tableName, $object, $this);
+            $this->validateObjectAndAdd($tableName, $object, $this, $type);
         }
         $resultsForingList = [];
 

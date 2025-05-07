@@ -273,7 +273,7 @@ abstract class BaseDataBaseFunction
             $forginIDInParent = $fo[cn];
             $ob = $fo[rtn]; //tablename
 
-            echo "tableName $tableName";
+            echo "\ntableName $tableName\n";
             $val = $this->getValueToCheckForeing($object, $fo, $type, $childTableName, $type);
 
             if ($childTableName == $parentTableName) {
@@ -351,8 +351,8 @@ abstract class BaseDataBaseFunction
                     echo "\nis childs chnging to $tableName \n";
                     $fo = $tableName;
                 }
-                $this->validateObjectAndAdd($fo, $item, $baseRepository, $type, $tableName);
-                die;
+                $baseRepository->add($fo, $item, null, false, false, $type);
+                echo " \nfinished\n";
                 // die;
                 // Helpers::setKeyValueFromObj($item,$iD
 

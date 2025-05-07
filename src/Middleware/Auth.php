@@ -28,7 +28,7 @@ class Auth extends BasePermission
             $this->currentUserID =   $token->data->iD;
             $this->currentID = $token->data->userlevelid;
         }
-        // echo $levelID;
+
         if (!$this->hasAccess()) {
             throw new \Exception('Permission denied.', 400);
         }

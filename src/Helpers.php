@@ -76,16 +76,12 @@ class Helpers
     public static function explodeURIGetTableName($url)
     {
         $arr = explode('/', $url);
-        echo count($arr) . "\n";
-
         //todo this not working if api/v1/product/221 it returns 221
         return $arr[2];
     }
     public static function explodeURIGetID($url)
     {
         $arr = explode('/', $url);
-        echo count($arr) . "\n";
-
         //todo this not working if api/v1/product/221 it returns 221
         return $arr[3];
     }
@@ -101,7 +97,7 @@ class Helpers
     public static function unSetKeyFromObj(&$object, $key)
     {
         if (self::isSetKeyFromObj($object, $key)) {
-         
+
             if (self::isObject($object)) {
                 unset($object->$key);
             } else {

@@ -14,7 +14,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
     protected $cachedCustomerBalances = [];
 
 
-    
+
 
     ///if date is null then current date is execution
     ///if 
@@ -23,7 +23,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         $result = array();
         $response = array();
         $Query = $this->getTermsQuery($iD, $date, $requiresEqualsSign, $isOverDue);
-        echo $Query;
+        // echo $Query;
         $result = $this->getFetshALLTableWithQuery($Query);
         if (is_array($result)) {
             for ($x = 0; $x < count($result); $x++) {
