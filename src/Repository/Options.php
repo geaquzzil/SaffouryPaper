@@ -12,6 +12,8 @@ class Options
     //     "IDS"
     // ];
 
+    public $validateNullValue = true;
+
     public  $addForginsObject;
     public  $addForginsList;
     // private ?array $staticSearchByColumnValues = null;

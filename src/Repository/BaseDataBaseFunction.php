@@ -141,9 +141,9 @@ abstract class BaseDataBaseFunction
         foreach ($object as $key => &$val) {
             if (in_array($key, $forginsListsOriginal)) {
                 if (is_null($val) || empty($val)) {
-                    Helpers::setKeyValueFromObj($object, $key, "");
-                    echo "\n unsetAllForginList is  null or empty ------>$key\n ";
-                    Helpers::unSetKeyFromObj($object, $key);
+                    Helpers::setKeyValueFromObj($cloned, $key, "");
+                    echo "\n unsetAllForginListWithOutRefrence is  null or empty ------>$key\n ";
+                    Helpers::unSetKeyFromObj($cloned, $key);
                     continue;
                 }
                 $resultsForginLists[] = $key;
@@ -358,6 +358,7 @@ abstract class BaseDataBaseFunction
 
 
             }
+            unset($object->$fo);
 
 
             continue;
