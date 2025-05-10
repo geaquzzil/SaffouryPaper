@@ -27,7 +27,8 @@ class App
 
         require_once __DIR__ . '/../src/Repositories.php';
 
-        require_once __DIR__ . '/../src/Extension/SensetiveDataPermission.php';
+
+        require_once __DIR__ . '/../src/Extension/Extensions.php';
 
 
 
@@ -37,11 +38,6 @@ class App
         require_once __DIR__ . '/../src/Routes.php';
 
         $this->app = $app;
-
-        // $this->app->add(new NotificationPermission($app->getContainer()['permission_repository']));
-
-        // $this->setUpDatabaseManager();
-        // $this->setUpDatabaseSchema();
     }
     /**
      * Setup Eloquent ORM.

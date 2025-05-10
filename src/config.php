@@ -14,6 +14,7 @@ define("ADD", "add");
 define("EDIT", "edit");
 define("DELETE", "delete");
 define("LIST", "list");
+define("LISTO", "list");
 define("VIEW", "view");
 define("PRINT", "print");
 

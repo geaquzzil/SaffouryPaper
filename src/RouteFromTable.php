@@ -31,25 +31,22 @@ class RouteFromTable
 
     const ID_REQUIRED = '/{iD:\d+}';
 
-    public function __invoke($app): void
+    public function __invoke(\Slim\App $app): void
     {
 
         $tables = $app->getContainer()['repository']->getAllTablesWithoutView();
         $permissionRep = $app->getContainer()['permission_repository'];
         $r = $this;
-
         for ($i = 0; $i < count($tables); $i++) {
             // $table = "";
-
             $table = (string)$tables[$i]["table_name"];
-
             $app->group('/' . $table, function () use ($app, $table, $permissionRep, $r): void {
                 $app->get('', GetAll::class)->add(new ListPermission($permissionRep));
-                $app->get('/{iD:[0-9]+}', GetOne::class)->add(new ViewPermission($permissionRep));
+                $app->get(self::ID_REQUIRED, GetOne::class)->add(new ViewPermission($permissionRep));
                 // $app->get('/print/{iD}', Task\GetAll::class)->add(new \PrintPermssion($table));
                 $app->post('', Create::class)->add(new AddPermission($permissionRep));
-                $app->put('/{iD:[0-9]+}', Update::class)->add(new EditPermission($permissionRep));
-                $app->delete('/{iD:[0-9]+}', Delete::class)->add(new DeletePermission($permissionRep));
+                $app->put(self::ID_REQUIRED, Update::class)->add(new EditPermission($permissionRep));
+                $app->delete(self::ID_REQUIRED, Delete::class)->add(new DeletePermission($permissionRep));
                 $app->group(
                     "/not_used",
                     function () use ($app): void {
@@ -58,6 +55,7 @@ class RouteFromTable
                     }
 
                 );
+                $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerDataByTable')->add(new Auth(UserType::GUEST));
                 // echo " sad";
 
                 $r->addExtensionTableUrl($table, $app);
@@ -68,6 +66,8 @@ class RouteFromTable
         //     $app->post('/{iD:[0-9]+', '');
         //     $app->put('/{iD:[0-9]+', '');
         // });
+
+        $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerData')->add(new Auth(UserType::GUEST));
         $app->group('/database', function () use ($app): void {
 
             $res = array();
@@ -127,8 +127,7 @@ class RouteFromTable
         //     // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
         // })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
 
-        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTabels')->add(new Auth(UserType::ADMIN));
-        $app->get('/server_data[/]', '');
+        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTables')->add(new Auth(UserType::ADMIN));
         $app->get('/exchange_rate[/]', ExchangeRateController::class)
             ->add(new StaticPermission("action_exchange_rate", $permissionRep));
     }

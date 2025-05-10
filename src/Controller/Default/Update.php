@@ -20,8 +20,12 @@ final class Update extends BaseController
     ): Response {
         parent::init($request);
         $input = (array) $request->getParsedBody();
-        $iD = $this->checkForID($request);
 
+
+        if (!$input) {
+            throw new \Exception("you dont have any body");
+        }
+        $iD = (int)$args['iD'];
         // $userIdLogged = $this->getAndValidateUserId($input);
         // $this->checkUserPermissions($id, $userIdLogged);
         // $user = $this->getUpdateUserService()->update($input, $id);

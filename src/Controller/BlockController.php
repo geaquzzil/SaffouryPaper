@@ -34,5 +34,27 @@ final class BlockController extends BaseController
         }
 
         return $this->textResponse($response, "Notification");
+
+
+
+        // if (
+        //     !checkRequestValueInt('iD')  ||
+        //     !checkRequestValue('tableName') || !checkRequestValue('blockValue')
+        // ) {
+        //     returnBadRequest("Not set iD or tableName");
+        // }
+        // $Action = getRequestValue('tableName');
+        // if ($Action == EMP) {
+        //     returnResponseMessage(block(getRequestValue('iD'), false, getRequestValue('blockValue')));
+        // }
+        // if ($Action == CUST) {
+        //     returnResponseMessage(block(getRequestValue('iD'), true, getRequestValue('blockValue')));
+        // }
+        // if ($Action == "ALL") {
+        //     returnResponseMessage(blockALL(true));
+        // }
+        // if ($Action == "NONE") {
+        //     returnResponseMessage(blockALL(false));
+        // }
     }
 }

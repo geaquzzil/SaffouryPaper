@@ -183,6 +183,15 @@ class Helpers
         }
         return $arr;
     }
+    public static function searchInArrayGetValue($search, $array, $column_key)
+    {
+        // print_r($array);
+        $index = array_search($search,  array_column($array, $column_key));
+        if ($index !== FALSE) {
+            return Helpers::getKeyValueFromObj($array, $index);
+        }
+        return null;
+    }
     public static function searchInArray($search, $arr)
     {
         return array_search($search, $arr) !== false;

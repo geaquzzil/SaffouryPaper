@@ -197,18 +197,6 @@ function getQueryFromAdvancedSearch($isSimilar)
 	}
 	return $Query;
 }
-function checkDateRequest(&$DateOrMonth, &$IsDate)
-{
-	if (!checkRequestValue('date')) {
-		returnBadRequest('no date');
-	}
-	$DateOrMonth = jsonDecode(getRequestValue('date'));
-	$IsDate = !is_null(isSetKeyFromObjReturnValue($DateOrMonth, 'from')) ||  isDateTime($DateOrMonth) || isDate($DateOrMonth);
-
-	if (!checkRequestValueInt('date') && !$IsDate) {
-		returnBadRequest('date is not date or month');
-	}
-}
 function returnResponseSearchProducts($Query)
 {
 
@@ -222,60 +210,6 @@ function returnResponseSearchProducts($Query)
 		returnResponse(array());
 		// no content
 	}
-}
-function getExchangeRateResource()
-{
-	// libxml_use_internal_errors(true);
-	//	$context  = stream_context_create(array('http' => array('header' => 'Accept: application/xml')));
-	// $ctx = stream_context_create(array('http'=>
-	//  array(
-	//     'timeout' => 1200,  //1200 Seconds is 20 Minutes
-	// )
-	//));
-	// $url = 'http://dollar-lira.com/syrian-exchange/prices.xml';
-	// $xml = file_get_contents($url, false, $context);
-	// $xml = simplexml_load_string($xml);
-	$xml = false;
-	$json;
-	if ($xml === false) {
-		$json['status'] = false;
-		return $json;
-	} else {
-		$json['status'] = true;
-		$json['dollar']['buy'] = (string)$xml->element[0]->buy;
-		$json['dollar']['sell'] = (string)$xml->element[0]->sell[0];
-		$json['euro']['buy'] = (string)$xml->element[1]->buy;
-		$json['euro']['sell'] = (string)$xml->element[1]->sell;
-		return $json;
-	}
-}
-function getServerDataResource()
-{
-	$response = array();
-	if (isEmployee()) {
-		$response[GOV] = depthSearch(null, GOV, 0, null, null, null);
-		$response[CARGO] = depthSearch(null, CARGO, 0, null, null, null);
-		$response[AC_NAME_TYPE] = depthSearch(null, AC_NAME_TYPE, 0, null, null, null);
-		$response[AC_NAME] = depthSearch(null, AC_NAME, 0, null, [AC_NAME_TYPE], null);
-		$response[CUSTOMS] = depthSearch(null, CUSTOMS, 0, null, [EMP], null);
-		$response[CUR] = getProductTables(CUR);
-		$response[CUST] = getProductTables(CUST);
-		$response[USR] = depthSearch(null, USR, 0, null, [], null);
-	}
-	if (isAdmin()) {
-		//this is for blocking soso
-		$response[EMP] =	depthSearch(null, EMP, 0, null, null, null);
-		// getProductTables(EMP);
-		// (array)getFetshALLTableWithQuery("SELECT iD,name,userlevelid,phone FROM `".EMP."`");
-	}
-	$response[WARE] = getProductTables(WARE);
-	$response[GSM] = getProductTables(GSM);
-	$response[COUNTRY] = getProductTables(COUNTRY);
-	$response[MAN] = getProductTables(MAN);
-	$response[GD] = getProductTables(GD);
-	$response[TYPE] = depthSearch(null, TYPE, 0, null, [GD], null);
-	$response[QUA] = getProductTables(QUA);
-	return $response;
 }
 //EXTENSTION API CALLS
 function addObjectExtenstion($object, $objectName)
@@ -442,47 +376,7 @@ $API_ACTIONS["available_product_type"] = function () {
 		// no content
 	}
 };
-$API_ACTIONS["set_customs_declarations"] = function () {
-	// checkEditAddRequest();
-	//  checkPermissionAction("list_customers");
-	$data = json_decode(getRequestValue('data'), false);
-	$customsDeclaration = isSetKeyFromObjReturnValue($data, CUSTOMS);
-	$productType = isSetKeyFromObjReturnValue($data, TYPE);
 
-	$CDID = isSetKeyFromObjReturnValue($customsDeclaration, 'iD');
-	$PRID = isSetKeyFromObjReturnValue($productType, 'iD');
-
-	if ($CDID > 0 and $PRID > 0) {
-		$query =  " UPDATE `products` Set `CustomsDeclarationID` = '$CDID' WHERE ProductTypeID = '$PRID'";
-		getUpdateTableWithQuery($query);
-		returnResponse($data);
-	} else {
-		returnResponse(-1);
-	}
-
-
-
-	//  $countryManufacture=isSetKeyFromObjReturnValue($data,CMC);
-	if (!is_null($customsDeclaration)) {
-		if (isNewRecord($customsDeclaration)) {
-			$customsDeclaration = addEditObject($customsDeclaration, CUSTOMS, getDefaultAddOptions());
-		}
-	}
-	if (!is_null($purchases)) {
-		foreach (getKeyValueFromObj($purchases, PURCH_D) as &$purch) {
-			$purch->{PR}->{CUSTOMS} = $customsDeclaration;
-			$purch->{PR}->{CMC} = $countryManufacture;
-		}
-		returnResponse($data);
-	}
-
-
-	// echo " NO WE ADDING PURCHASIG\n ";
-
-
-
-	//json_decode(getRequestValue('data'),false)
-};
 $API_ACTIONS["add_from_importer"] = function () {
 	checkEditAddRequest();
 	// checkPermissionAction("list_customers");
@@ -508,21 +402,7 @@ $API_ACTIONS["add_from_importer"] = function () {
 
 	//json_decode(getRequestValue('data'),false)
 };
-$API_ACTIONS["action_exchange_rate"] = function () {
-	returnResponse(getExchangeRateResource());
-};
-$API_ACTIONS["list_server_data"] = function () {
-	returnResponse(getServerDataResource());
-};
-$API_ACTIONS["login_flutter"] = function () {
-	global $User;
-	returnResponse($User);
-};
-$API_ACTIONS["login"] = function () {
-	global $User;
-	$User["serverData"] = getServerDataResource();
-	returnResponse($User);
-};
+
 
 $API_ACTIONS["list_block"] = function () {
 	$response[CUST] = getFetshALLTableWithQuery("SELECT iD,name,activated FROM " . CUST);
@@ -546,45 +426,6 @@ $API_ACTIONS["action_cut_request_change_quantity"] = function () {
 	// $data[CUT]=;
 
 	return returnResponse($data);
-};
-$API_ACTIONS["action_cut_request_scan_by_product"] = function () {
-	//to get product id to search if there are any pending requests
-	$data = getRequestValue("data");
-	$response = array();
-	$response = $data;
-	$productID = $data['iD'];
-	$results = getFetshALLTableWithQuery("SELECT `CutRequestID` FROM `pending_cut_requests`  WHERE ProductID='$productID'");
-	if (!empty($results) || !is_null($results)) {
-		$results = array_map(function ($tmp) {
-			return $tmp['CutRequestID'];
-		}, $results);
-		$response["cut_requests"] = depthSearch($results, CUT, 1, true, true, null);
-	} else {
-		return null;
-	}
-	return $response;
-};
-//iD tableName blockValue 1 or 0
-$API_ACTIONS["action_block"] = function () {
-	if (
-		!checkRequestValueInt('iD')  ||
-		!checkRequestValue('tableName') || !checkRequestValue('blockValue')
-	) {
-		returnBadRequest("Not set iD or tableName");
-	}
-	$Action = getRequestValue('tableName');
-	if ($Action == EMP) {
-		returnResponseMessage(block(getRequestValue('iD'), false, getRequestValue('blockValue')));
-	}
-	if ($Action == CUST) {
-		returnResponseMessage(block(getRequestValue('iD'), true, getRequestValue('blockValue')));
-	}
-	if ($Action == "ALL") {
-		returnResponseMessage(blockALL(true));
-	}
-	if ($Action == "NONE") {
-		returnResponseMessage(blockALL(false));
-	}
 };
 //iD token
 $API_ACTIONS["token"] = function () {
@@ -1490,17 +1331,6 @@ $API_ACTIONS["backup_database"] = function () {
 	} else {
 		echo "No permission";
 	}
-};
-$API_ACTIONS["tables"] = function () {
-
-	if (isAdmin()) {
-		$response = array();
-		$response = getFetshAllTableWithQuery("show full tables");
-		returnResponse($response);
-	} else {
-		returnPermissionResponse("tables", 0);
-	}
-	//   executeMultiQuery("SET FOREIGN_KEY_CHECKS=0;REPLACE INTO purchases VALUES(11,900,1,'2020-01-21 12:57:08',null,null);");
 };
 $API_ACTIONS["restore_database"] = function () {
 	if (isAdmin()) {

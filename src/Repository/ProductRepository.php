@@ -11,7 +11,50 @@ use Etq\Restful\Repository\BaseRepository;
 
 class ProductRepository extends SharedDashboardAndCustomerRepo
 {
+    public function setCustomsDeclaration()
+    {
+        // $API_ACTIONS["set_customs_declarations"] = function () {
+        //     // checkEditAddRequest();
+        //     //  checkPermissionAction("list_customers");
+        //     $data = json_decode(getRequestValue('data'), false);
+        //     $customsDeclaration = isSetKeyFromObjReturnValue($data, CUSTOMS);
+        //     $productType = isSetKeyFromObjReturnValue($data, TYPE);
 
+        //     $CDID = isSetKeyFromObjReturnValue($customsDeclaration, 'iD');
+        //     $PRID = isSetKeyFromObjReturnValue($productType, 'iD');
+
+        //     if ($CDID > 0 and $PRID > 0) {
+        //         $query =  " UPDATE `products` Set `CustomsDeclarationID` = '$CDID' WHERE ProductTypeID = '$PRID'";
+        //         getUpdateTableWithQuery($query);
+        //         returnResponse($data);
+        //     } else {
+        //         returnResponse(-1);
+        //     }
+
+
+
+        //     //  $countryManufacture=isSetKeyFromObjReturnValue($data,CMC);
+        //     if (!is_null($customsDeclaration)) {
+        //         if (isNewRecord($customsDeclaration)) {
+        //             $customsDeclaration = addEditObject($customsDeclaration, CUSTOMS, getDefaultAddOptions());
+        //         }
+        //     }
+        //     if (!is_null($purchases)) {
+        //         foreach (getKeyValueFromObj($purchases, PURCH_D) as &$purch) {
+        //             $purch->{PR}->{CUSTOMS} = $customsDeclaration;
+        //             $purch->{PR}->{CMC} = $countryManufacture;
+        //         }
+        //         returnResponse($data);
+        //     }
+
+
+        //     // echo " NO WE ADDING PURCHASIG\n ";
+
+
+
+        //     //json_decode(getRequestValue('data'),false)
+        // };
+    }
     public function getMovement(int $iD, Options $options)
     {
         $object = $this->view(PR, $iD, null, $options->getClone()->removeDate());

@@ -16,25 +16,24 @@ final class DefaultController extends BaseController
     private const API_VERSION = '2.23.0';
 
 
-    public function getTabels(Request $request, Response $response): Response
+    public function getServerDataByTable(Request $request, Response $response)
     {
-        $url = $this->container->get('settings')['app']['domain'];
+        $this->init($request);
+        $result = $this->container['repository']->getServerData($this->tableName, $this->auth);
+        // $result = [];
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+    public function getServerData(Request $request, Response $response)
+    {
+        $this->init($request);
 
-
-        $tables = $this->container['repository']->getAllTables();
-        $endpoints = array();
-        for ($i = 0; $i < count($tables); $i++) {
-            $table = $tables[$i];
-            $endpoints[$table["table_name"]] = ($url . '/api/v1/' . $table["table_name"]);
-        }
-
-        $message = [
-            'endpoints' => $endpoints,
-            'version' => self::API_VERSION,
-            'timestamp' => time(),
-        ];
-
-        return $this->jsonResponse($response, 'success', $message, 200);
+        $result = $this->container['repository']->getServerData(null, $this->auth);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+    public function getTables(Request $request, Response $response): Response
+    {
+        $result = $this->container['repository']->getTables();
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
     private function getRouters(Request $request, Response $response)
     {

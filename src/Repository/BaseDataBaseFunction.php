@@ -8,6 +8,7 @@ use Etq\Restful\Helpers;
 use Etq\Restful\Repository\BaseRepository;
 use Etq\Restful\QueryHelpers;
 use Exception;
+use Etq\Restful\Handler\Validater;
 use Slim\Container;
 
 
@@ -17,13 +18,24 @@ abstract class BaseDataBaseFunction
     private $cacheForginObjects = [];
     private $cacheForginList = [];
     protected $cacheTableColumns = [];
+    private $cacheColumnType = [];
 
     public function __construct(protected \PDO $database, protected Container $container)
     {
         $this->DB_NAME = $_SERVER['DB_NAME'];
     }
 
+    public function getCachedColumnType($tableName)
+    {
 
+        if (key_exists($tableName, $this->cacheColumnType)) {
+
+            return $this->cacheColumnType[$tableName];
+        } else {
+            $this->cacheColumnType[$tableName] = $this->getObjcetColumnType($tableName);
+            return $this->cacheColumnType[$tableName];
+        }
+    }
     public function getCachedForginList($tableName)
     {
         if (key_exists($tableName, $this->cacheForginList)) {
@@ -186,7 +198,7 @@ abstract class BaseDataBaseFunction
             $forginsLists[] = "childs";
         }
     }
-    private function validateObject($tableName, &$object, ?bool $addNonFoundColumns = true)
+    private function validateObject($tableName, &$object, ?bool $addNonFoundColumns = true, bool $throwExceptionAndValidate = true)
     {
 
         $tableColumns = $this->getCachedTableColumns($tableName);
@@ -200,6 +212,8 @@ abstract class BaseDataBaseFunction
         $forginsLists =  array_values(array_map(function ($va) {
             return $va[TABLE_NAME];
         }, $forginsListsOriginal));
+
+        $tableColumnType = $this->getCachedColumnType($tableName);
 
         $this->validatePhoneNumber($object, false);
 
@@ -230,6 +244,25 @@ abstract class BaseDataBaseFunction
                 );
             }
         }
+        $exceptions = [];
+        if ($throwExceptionAndValidate) {
+            foreach ($tableColumnType as $tc) {
+                $isNullable = $tc["IS_NULLABLE"] == "YES" ? true : false;
+                $columnName = $tc[cn];
+                $searchValue = Helpers::searchInArrayGetValue($columnName, $forginsObjectsOriginal, cn);
+                $refrenceTable = $searchValue ? $searchValue[rtn] : "";
+                $valByID =    Helpers::isSetKeyFromObjReturnValue($object, $columnName);
+                $valueByObject = is_null($searchValue) ? [] : Helpers::isSetKeyFromObjReturnValue($object, $searchValue[rtn]);
+                $valueIsNull = is_null($valByID) && is_null($valueByObject);
+                if (!$isNullable && $valueIsNull) {
+                    $exceptions[] = " value must be not null in $tableName   column name :'$columnName', '$refrenceTable' ";
+                }
+            }
+        }
+        if (!empty($exceptions)) {
+            throw new Validater(implode("\n", $exceptions));
+        }
+
         // Helpers::unSetKeyFromObj($object, "iD");
 
         return $object;
@@ -340,102 +373,22 @@ abstract class BaseDataBaseFunction
             // print_r($objectValueArray);
             foreach ((array)$objectValueArray as &$item) {
 
-                echo "\naddForginListFromObject getting $fo from $tableName\n";
+                // echo "\naddForginListFromObject getting $fo from $tableName\n";
                 $res =  array_search($fo, array_column($forginsLists, TABLE_NAME));
                 $res = $forginsLists[$res];
                 Helpers::convertToObject($item);
                 Helpers::setKeyValueFromObj($item, $res[cn], $iD);
                 Helpers::setKeyValueFromObj($item, $tableName, $object);
-                echo "\nstarting adding foring list for $fo\n\n\n";
+                // echo "\nstarting adding foring list for $fo\n\n\n";
                 if ($fo == "childs") {
-                    echo "\nis childs chnging to $tableName \n";
+                    // echo "\nis childs chnging to $tableName \n";
                     $fo = $tableName;
                 }
                 $baseRepository->add($fo, $item, null, false, false, $type);
-                echo " \nfinished\n";
-                // die;
-                // Helpers::setKeyValueFromObj($item,$iD
-
+                // echo " \nfinished\n";
 
             }
             unset($object->$fo);
-
-
-            continue;
-
-
-
-            // addForginListFromObject for userlevels withID = -2
-            // Array
-            // (
-            //     [TABLE_NAME] => customers
-            //     [COLUMN_NAME] => userlevelid
-            //     [REFERENCED_TABLE_NAME] => userlevels
-            //     [REFERENCED_COLUMN_NAME] => iD
-            // )
-            $objectTableName = $fo[TABLE_NAME];
-            $objectForginParentKeyName = $fo[cn];
-            $objectValue = Helpers::isSetKeyFromObjReturnValue($object, $objectTableName);
-            if ($objectValue && !empty($objectValue)) {
-                $clone = Helpers::cloneByJson($object);
-                Helpers::setKeyValueFromObj($clone, $objectTableName, null);
-                foreach ($objectValue as &$ov) {
-                    Helpers::setKeyValueFromObj($ov, $tableName, $clone);
-
-                    print_r($ov);
-                }
-                // print_r($objectValue);
-                die;
-                // print_r($fo);
-                // echo "addForginListFromObject setting to parent $objectTableName with $objectForginParentKeyName:$iD \n";
-                // $clone = Helpers::cloneByJson($object);
-                // Helpers::unSetKeyFromObj($clone, $objectTableName);
-                // Helpers::setKeyValueFromObj($clone, $tableName, $clone);
-                // Helpers::setKeyValueFromObj($objectValue, $objectTableName, $iD);
-            }
-            Helpers::unSetKeyFromObj($object, $objectTableName);
-            continue;
-            // die;
-
-            continue;
-            $childTableName = $fo[rtn];
-            $forginIDInParent = $fo[cn];
-            $ob = $fo[rtn]; //tablename
-            // echo "$ob dxsd\n";
-            $val = Helpers::isSetKeyFromObjReturnValue($object, $ob);
-            if (!is_null($val)) {
-                Helpers::convertToObject($object->$ob);
-                Helpers::setKeyValueFromObj(
-                    $object,
-                    $ob,
-                    $this->validateObjectAndAddForginObjects($ob, $object->$ob, $baseRepository)
-                );
-                $res =
-                    ($baseRepository)->search(
-                        $ob,
-                        Helpers::getKeyValueFromObj($object, $ob),
-                        true,
-                        true,
-                        true,
-                        true
-                    );
-
-
-                if ($res) {
-                    $iD =
-                        Helpers::getKeyValueFromObj($res, "iD");
-                    echo "founded  $childTableName--->->-> $iD\n";
-                    Helpers::setKeyValueFromObj($object, $forginIDInParent, $iD);
-                    Helpers::unSetKeyFromObj($object, $childTableName);
-                }
-            } else {
-                Helpers::setKeyValueFromObj(
-                    $object,
-                    $forginIDInParent,
-                    null
-                );
-            }
-            unset($object->$childTableName);
         }
     }
     public function validateObjectAndAdd($tableName, &$object, BaseRepository $baseRepository, $type = ForginCheckType::NONE, ?string $parentTableName = null)
@@ -459,8 +412,45 @@ abstract class BaseDataBaseFunction
 
         return $object;
     }
-    protected function before($tableName, &$object, ServerAction $ation, ?Options $option) {}
-    protected function after($tableName, &$object, ServerAction $action, ?Options $option) {}
+    protected function before($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
+    {
+        if ($this->container->offsetExists($tableName)) {
+            echo "\n before $tableName\n";
+            $list =    $this->container->get($tableName);
+            $key = BEFORE . $this->getServerActionString($action);
+            if (key_exists($key, $list)) {
+                $list[$key]($object, $option, $repo);
+            }
+        }
+    }
+    protected function after($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
+    {
+        if ($this->container->offsetExists($tableName)) {
+            echo "\n after $tableName\n";
+            $list =    $this->container->get($tableName);
+            $key = AFTER . $this->getServerActionString($action);
+            if (key_exists($key, $list)) {
+                $list[$key]($object, $option, $repo);
+            }
+        }
+    }
+    private function getServerActionString(ServerAction $action)
+    {
+        switch ($action) {
+            case ServerAction::ADD:
+                return ADD;
+            case ServerAction::EDIT:
+                return EDIT;
+            case ServerAction::DELETE:
+                return DELETE;
+
+            case ServerAction::VIEW:
+                return VIEW;
+
+            case ServerAction::LIST:
+                return LISTO;
+        }
+    }
 
 
     public function getArrayForginKeys($tableName)
@@ -484,6 +474,17 @@ abstract class BaseDataBaseFunction
             INFORMATION_SCHEMA.KEY_COLUMN_USAGE
         WHERE
             TABLE_NAME = '$tableName' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA = '" . $this->DB_NAME . "'");
+    }
+    public function getObjcetColumnType($tableName)
+    {
+        return $this->getFetshALLTableWithQuery("
+        SELECT
+            COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, DATETIME_PRECISION,IS_NULLABLE 
+        FROM
+            INFORMATION_SCHEMA.COLUMNS
+        WHERE
+            TABLE_NAME='$tableName'
+        ");
     }
     public function getShowTablesWithOrderByForginKey()
     {
@@ -567,6 +568,10 @@ abstract class BaseDataBaseFunction
             table_schema ='" . $this->DB_NAME . "' AND TABLE_TYPE = 'VIEW' ",
             TABLE_NAME
         );
+    }
+    public function getTables()
+    {
+        return $this->getFetshALLTableWithQuery("show full tables");
     }
 
 

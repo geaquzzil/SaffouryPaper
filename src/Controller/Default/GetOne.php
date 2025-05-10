@@ -21,9 +21,8 @@ final class GetOne extends BaseController
         array $args
     ): Response {
         parent::init($request);
-        $option = new Options($request);
         $iD = (int)$args['iD'];
-        $result = $this->container['repository']->view($this->tableName, $iD, null, $option);
+        $result = $this->container['repository']->view($this->tableName, $iD, null, $this->options);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

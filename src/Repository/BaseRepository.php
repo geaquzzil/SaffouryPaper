@@ -18,7 +18,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
 
 
-
+    
 
 
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
@@ -91,12 +91,14 @@ abstract class BaseRepository extends BaseDataBaseFunction
     {
         if (!$option?->addForginsObject && !$option?->addForginsList) return;
         if (!is_array($queryResult)) {
+            $isIn = true;
             if ($option?->isRequestedForginObjects()) {
                 $this->addforginKeys($tableName, $queryResult, $option, $parentTableName);
             }
             if ($option?->isRequestedForginList()) {
                 $this->addforginKeysList($tableName, $queryResult, $option, $parentTableName);
             }
+            $this->after($tableName, $queryResult, ServerAction::VIEW, $option, $this);
         } else {
             foreach ($queryResult as &$res) {
                 $isIn = true;
@@ -106,20 +108,20 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 if ($option?->isRequestedForginList()) {
                     $this->addforginKeysList($tableName, $res, $option, $parentTableName);
                 }
-                $this->after($tableName, $res, ServerAction::VIEW, $option);
+                $this->after($tableName, $res, ServerAction::VIEW, $option, $this);
             }
         }
     }
     public function list(string $tableName, ?string $parentTableName = null, ?Options $option = null)
     {
-
+        $this->before($tableName, $empty, ServerAction::LIST, $option, $this);
         $query = $this->getQuery($tableName, ServerAction::LIST,  $option, $parentTableName);
         $result = $this->getFetshALLTableWithQuery($query);
         $isIn = false;
         $this->checkToSetForgins($tableName, $result, $option, $parentTableName, $isIn);
         if (!$isIn) {
             foreach ($result as &$res) {
-                $this->after($tableName, $res, ServerAction::VIEW, $option);
+                $this->after($tableName, $res, ServerAction::VIEW, $option, $this);
             }
         }
         return $result;
@@ -185,16 +187,20 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
 
         // print_r($result);
+        $isIn = false;
         if ($result) {
-            $this->checkToSetForgins($tableName, $result, $option);
+            $this->checkToSetForgins($tableName, $result, $option, null, $isIn);
         }
-        $this->after($tableName, $result, ServerAction::VIEW, $option);
+        if (!$isIn) {
+            $this->after($tableName, $result, ServerAction::VIEW, $option, $this);
+        }
+
         return $result;
     }
     public function edit(string $tableName, int $iD, $object, ?Options $option = null)
     {
         $origianlObject = Helpers::cloneByJson($object);
-        $this->before($tableName, $object, ServerAction::EDIT, $option);
+        $this->before($tableName, $object, ServerAction::EDIT, $option, $this);
         Helpers::convertToObject($object);
         $this->validateObjectAndAdd($tableName, $object, $this);
         echo $this->getInsertQuery($tableName, (array)$object, $iD);
@@ -207,7 +213,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         Helpers::convertToObject($origianlObject);
 
 
-        $this->before($tableName, $object, ServerAction::ADD, $option);
+        $this->before($tableName, $object, ServerAction::ADD, $option, $this);
         // todo unset foringlists to another array 
         Helpers::convertToObject($object);
         if (!$isAlreadyValidated) {
@@ -253,7 +259,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
         // $this->addForginListFromObject($tableName, $object, $this);
 
-        $this->after($tableName, $object, ServerAction::ADD, $option);
+        $this->after($tableName, $object, ServerAction::ADD, $option, $this);
 
 
         return $object;
@@ -313,7 +319,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 $option = $option->getClone()->addStaticQuery("iD = '$iD'");
             }
         }
-        $this->before($tableName, $iD, ServerAction::DELETE, $option);
+        $this->before($tableName, $iD, ServerAction::DELETE, $option, $this);
         $query = $this->getQuery($tableName, ServerAction::DELETE,  $option);
         $rowCount = $this->getDeleteTableWithQuery($query);
         $requestArrayCount = count($option?->getRequestColumnValue("iD"));
@@ -324,7 +330,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $response["requestIDS"] = $requestIDS;
         $response["serverCount"] = $rowCount;
         $response["serverStatus"] = $rowCount == $requestCount;
-        $this->after($tableName, $response, ServerAction::DELETE, $option);
+        $this->after($tableName, $response, ServerAction::DELETE, $option, $this);
         return $response;
         // return $this->getDeleteTableWithQuery($query);
     }

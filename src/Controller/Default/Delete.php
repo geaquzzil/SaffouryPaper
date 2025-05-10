@@ -19,7 +19,6 @@ final class Delete extends BaseController
         array $args
     ): Response {
         parent::init($request);
-        $input = (array) $request->getParsedBody();
         $iD = $this->checkForID($args);
         //TODO BEFORE DELETE 
         //TODO DELETE

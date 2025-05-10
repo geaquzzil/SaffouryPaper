@@ -17,7 +17,7 @@ abstract class BaseController
 
     protected string $tableName;
     protected Options $options;
-
+    protected  $auth = null;
     public function __construct(protected Container $container) {}
 
 
@@ -85,5 +85,6 @@ abstract class BaseController
         $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
         $this->options = new Options($request);
         $this->options->searchRepository = $this->container->get("search_repository");
+        $this->auth  = $request->getAttribute('Auth', null);
     }
 }
