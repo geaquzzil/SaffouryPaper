@@ -34,7 +34,8 @@ class SearchRepository extends BaseRepository
         $searchByColumns,
         $tableName,
         ?string $replaceTableNameInWhereClouser = null,
-        $getFromObject = null
+        $getFromObject = null,
+        ?Options $options = null
     ) {
         $tableColumns = $this->getCachedTableColumns($tableName);
         $tableColumns = array_values($tableColumns);
@@ -42,25 +43,16 @@ class SearchRepository extends BaseRepository
         $searchByColumns = $getFromObject ?? $searchByColumns;
         $isNullGetFromObject = $getFromObject ? true : false;
         foreach ($searchByColumns as $key => $value) {
-            if (($i = array_search($key, $tableColumns)) !== FALSE) {
-                $whereQuery[] = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, false, $replaceTableNameInWhereClouser);
 
-                // $keyToFind = addslashes($replaceTableNameInWhereClouser ?? $tableName) . ".`$key`";
-                // if (Helpers::isArray($value)) {
-                //     $ids = implode("','", $value);
-                //     $query = "$keyToFind IN ( '" . $ids . "' )";
-                //     $whereQuery[] = $query;
-                // } else {
-                //     $isNull = is_null($value);
-                //     //if getFromObject then we want to enable is null to get the exact result from query
-                //     if (!$isNullGetFromObject && $isNull) {
-                //         $whereQuery[] =   "($keyToFind IS NULL OR $keyToFind = '0')   ";
-                //     } else {
-                //         $whereQuery[] =    "$keyToFind LIKE '" . $value . "'";
-                //     }
-                // }
+            if (Helpers::searchInArray($key, $tableColumns)) {
+                $whereQuery[] = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, false, $replaceTableNameInWhereClouser);
             } else {
-                throw new \Exception("$key  not Found in column");
+                if (!is_null($options)) {
+                    $options->notFoundedColumns->set($key, $value);
+                }
+                if ($options?->throwExceptionOnColumnNotFound ?? true) {
+                    throw new \Exception("$key  not Found in column");
+                }
             }
         }
 

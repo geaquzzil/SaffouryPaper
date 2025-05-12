@@ -5,6 +5,7 @@ namespace  Etq\Restful\Repository;
 
 use Etq\Restful\Helpers;
 use Etq\Restful\Middleware\Auth;
+use Etq\Restful\Middleware\Permissions\ListPermission;
 use Exception;
 use Mpdf\Tag\Option;
 
@@ -80,116 +81,27 @@ final class Repository extends BaseRepository
         }
         return $response;
     }
-
-    // public function list() {}
-    // public function checkAndGetNote(int $noteId): Note
-    // {
-    //     $query = 'SELECT * FROM `notes` WHERE `id` = :id';
-    //     $statement = $this->database->prepare($query);
-    //     $statement->bindParam(':id', $noteId);
-    //     $statement->execute();
-    //     $note = $statement->fetchObject(Note::class);
-    //     if (! $note) {
-    //         throw new \App\Exception\Note('Note not found.', 404);
-    //     }
-
-    //     return $note;
-    // }
-
-    /**
-     * @return array<string>
-     */
-    public function getNotes(): array
+    public function getChangedRecords($tableName, ?ListPermission $permission = null, ?Options $options = null)
     {
-        $query = 'SELECT * FROM `notes` ORDER BY `id`';
-        $statement = $this->database->prepare($query);
-        $statement->execute();
+        // print_r($options->notFoundedColumns->all());
+        // $query = $options->getQuery($tableName);
 
-        return (array) $statement->fetchAll();
-    }
+        // $this->getGrowthRate()
 
-    public function getQueryNotesByPage(): string
-    {
-        return "
-            SELECT *
-            FROM `notes`
-            WHERE `name` LIKE CONCAT('%', :name, '%')
-            AND `description` LIKE CONCAT('%', :description, '%')
-            ORDER BY `id`
-        ";
-    }
+        // $options->getClone()->addStaticSelect("COUNT(*) as count")
+        // $soso = $options->notFoundedColumns->get("SOSO", null);
+        // echo "value is $soso";
+        // print_r($soso);
+        // if (is_null($options->notFoundedColumns->get("SOSO", null))) {
+        //     throw new Exception("NOT SET ");
+        // }
 
-    /**
-     * @return array<string>
-     */
-    public function getNotesByPage(
-        int $page,
-        int $perPage,
-        ?string $name,
-        ?string $description
-    ): array {
-        $params = [
-            'name' => is_null($name) ? '' : $name,
-            'description' => is_null($description) ? '' : $description,
-        ];
-        $query = $this->getQueryNotesByPage();
-        $statement = $this->database->prepare($query);
-        $statement->bindParam('name', $params['name']);
-        $statement->bindParam('description', $params['description']);
-        $statement->execute();
-        $total = $statement->rowCount();
-
-        return $this->getResultsWithPagination(
-            $query,
-            $page,
-            $perPage,
-            $params,
-            $total
+        return $this->list(
+            $tableName,
+            null,
+            $options
+                ->addStaticSelect("COUNT(*) as count")
+                ->addOrderBy("count")
         );
     }
-
-    // public function createNote(Note $note): Note
-    // {
-    //     $query = '
-    //         INSERT INTO `notes`
-    //             (`name`, `description`)
-    //         VALUES
-    //             (:name, :description)
-    //     ';
-    //     $statement = $this->database->prepare($query);
-    //     $name = $note->getName();
-    //     $desc = $note->getDescription();
-    //     $statement->bindParam(':name', $name);
-    //     $statement->bindParam(':description', $desc);
-    //     $statement->execute();
-
-    //     return $this->checkAndGetNote((int) $this->database->lastInsertId());
-    // }
-
-    // public function updateNote(Note $note): Note
-    // {
-    //     $query = '
-    //         UPDATE `notes`
-    //         SET `name` = :name, `description` = :description
-    //         WHERE `id` = :id
-    //     ';
-    //     $statement = $this->database->prepare($query);
-    //     $id = $note->getId();
-    //     $name = $note->getName();
-    //     $desc = $note->getDescription();
-    //     $statement->bindParam(':id', $id);
-    //     $statement->bindParam(':name', $name);
-    //     $statement->bindParam(':description', $desc);
-    //     $statement->execute();
-
-    //     return $this->checkAndGetNote((int) $id);
-    // }
-
-    // public function deleteNote(int $noteId): void
-    // {
-    //     $query = 'DELETE FROM `notes` WHERE `id` = :id';
-    //     $statement = $this->database->prepare($query);
-    //     $statement->bindParam(':id', $noteId);
-    //     $statement->execute();
-    // }
 }

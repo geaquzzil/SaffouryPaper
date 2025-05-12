@@ -15,6 +15,7 @@ class EditPermission extends BasePermission
         Route $next
     ): ResponseInterface {
         parent::invoke($request, $response, $next);
+        $request = $request->withAttribute('EditPermission', $this);
         $respo =   $next($request, $response);
         $this->checkToSendNotification($request, $respo);
 

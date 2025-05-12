@@ -18,7 +18,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
 
 
-    
+
 
 
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
@@ -338,7 +338,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
 
 
-    protected function changeTableNameToExtended(string $tableName)
+    public function changeTableNameToExtended(string $tableName)
     {
         switch ($tableName) {
             default:
@@ -355,7 +355,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         }
     }
 
-    private function canChangeToExtended(ServerAction $action)
+    public function canChangeToExtended(ServerAction $action)
     {
         return $action == ServerAction::LIST || $action == ServerAction::VIEW;
     }
@@ -364,9 +364,9 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $query = "";
         $tableName = $this->canChangeToExtended($action) ? $this->changeTableNameToExtended($tableName) : $tableName;
         $optionQuery = $this->getOption($tableName, $option);
-        $selectColumn = $this->getSelectColumn($tableName, $parentTableName);
+        $selectColumn = $option->getSelectQuery($tableName);
 
-        echo "\n $tableName from-->->-getQuery-->->OPTION QUERY ==> " . $optionQuery . " \n";
+        echo "\nSELECT $selectColumn from $tableName " . $optionQuery . " \n";
 
         switch ($action) {
             case ServerAction::ADD:
@@ -535,26 +535,6 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
 
 
-
-
-
-
-
-
-
-    function getGrowthRateBeforeDate($tableName, $toFind, $before)
-    {
-        $iD = getUserID();
-        return getFetshAllTableWithQuery(
-            "SELECT Year($tableName.`date`) AS `year`,
-            Month(`$tableName`.date) AS month,
-            COALESCE( round(Sum($tableName.`$toFind`),3) ,0) AS `total`
-            FROM $tableName   " . (isCustomer() ? " WHERE CustomerID= '$iD' && Date(`date`) <= '$before' " : " Date(`date`) <= '$before'  ") . "
-            GROUP BY Year($tableName.`date`),Month($tableName.`date`)
-            ORDER BY `year`,
-            month"
-        );
-    }
     function getGrowthRateByQuery($tableName, $toFind, $whereQuery)
     {
         $iD = getUserID();

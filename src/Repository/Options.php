@@ -5,6 +5,7 @@ namespace Etq\Restful\Repository;
 use Slim\Http\Request;
 use Etq\Restful\Helpers;
 use Exception;
+use Slim\Collection;
 
 class Options
 {
@@ -13,6 +14,8 @@ class Options
     // ];
 
     public $validateNullValue = true;
+
+    public Collection $notFoundedColumns;
 
     public  $addForginsObject;
     public  $addForginsList;
@@ -23,7 +26,7 @@ class Options
     private $recursiveLevel = 1;
 
 
-    public ?SearchRepository $searchRepository;
+
     public ?SearchOption $searchOption = null;
     public ?SortOption $sortOption = null;
 
@@ -46,6 +49,14 @@ class Options
 
     private array $groupBy = [];
 
+    private array $staticSelect = [];
+
+    private array $staticSumSelect = [];
+
+    private array $staticGroupBySelect = [];
+
+
+
     private ?string $whereHavingQuery = null;
 
     /// this is for the request if <SizesID>
@@ -56,7 +67,11 @@ class Options
         $this->whereHavingQuery = $whereHavingQuery;
         return $this;
     }
-
+    public function disableThrowExceptionOnNonFoundColumns()
+    {
+        $this->throwExceptionOnColumnNotFound = false;
+        return $this;
+    }
     public function withLimit(?int $limit = null)
     {
         if ($limit) {
@@ -89,9 +104,46 @@ class Options
         }
         return $this;
     }
+    public function withStaticSelect($staticQuery)
+    {
+        $this->staticSelect[] = $staticQuery;
+        return $this;
+    }
+    public function withStaticSumSelect($staticQuery)
+    {
+        $this->staticSumSelect[] = $staticQuery;
+        return $this;
+    }
+    public function withStaticGroupBySelect($staticQuery)
+    {
+        $this->staticGroupBySelect[] = $staticQuery;
+        return $this;
+    }
     public function addGroupBy($groupBy)
     {
         $this->groupBy[] = $groupBy;
+        return $this;
+    }
+
+    public function addStaticSelect(?string $field = null)
+    {
+        if ($field) {
+            $this->staticSelect[] = $field;
+        }
+        return $this;
+    }
+    public function addStaticSumSelect(?string $field = null)
+    {
+        if ($field) {
+            $this->staticSumSelect[] = $field;
+        }
+        return $this;
+    }
+    public function addStaticGroupSelect(?string $field = null)
+    {
+        if ($field) {
+            $this->staticGroupBySelect[] = $field;
+        }
         return $this;
     }
 
@@ -110,6 +162,25 @@ class Options
             }
         }
     }
+    public function getSelectQuery($tableName)
+    {
+        if (empty($this->staticSelect)) {
+            return "*";
+        } else {
+
+            $arr = $this->staticSelect;
+            print_r($this->staticGroupBySelect);
+            if (!empty($this->staticGroupBySelect)) {
+                $arr = array_merge($arr, $this->staticGroupBySelect);
+            }
+            if (!empty($this->staticSumSelect)) {
+                $arr = array_merge($arr, $this->staticSumSelect);
+            }
+
+
+            return implode(",", $arr);
+        }
+    }
     public function requireDetails(?array $arr = null)
     {
         $this->addForginsList = $arr ?? true;
@@ -124,6 +195,7 @@ class Options
     {
         return new self();
     }
+
     public static function withStaticWhereQuery(?string $query = null)
     {
         $instance = new self();
@@ -174,8 +246,13 @@ class Options
         }
         return key_exists($key, $arr);
     }
-    public function __construct(protected ?Request $request = null)
-    {
+    public function __construct(
+        protected ?Request $request = null,
+        $tableName = null,
+        public ?SearchRepository $searchRepository = null,
+        public bool $throwExceptionOnColumnNotFound = true
+    ) {
+        $this->notFoundedColumns = new Collection();
         if (!$request) return;
         $requestPage = $request->getQueryParam('page', null);
         $requestCountPerPage = $request->getQueryParam('countPerPage', null);
@@ -183,11 +260,18 @@ class Options
         $searchQuery = $request->getQueryParam('searchQuery', null);
         $searchByField = $request->getQueryParam('searchByField', null);
         $date = $request->getQueryParam('date', null);
+        //<>
         $searchByColumn = array();
+        $tableName = $searchRepository->changeTableNameToExtended($tableName);
+        //#
+        // $groupByColumn = array();
+        //&
+        // $sumByColumn = array();
         foreach (array_keys($request->getQueryParams()) as $ke) {
             $val = $request->getQueryParam($ke, null);
             if (str_starts_with($ke, "<") && str_ends_with($ke, ">") && $val) {
                 $key = substr($ke, 1, -1);
+
 
                 if (Helpers::isJson($val)) {
                     $json =  (Helpers::jsonDecode($val));
@@ -196,14 +280,59 @@ class Options
                     } else {
                         // if (array_search($key, $this->staticSearchByColumnRequests)) {
                         // }
-                        $searchByColumn[$key] = $json;
+                        if ($this->validate($tableName, $key, $json)) {
+                            $searchByColumn[$key] = $json;
+                        }
                     }
                 } else {
-                    $searchByColumn[$key] = $val;
+                    if ($this->validate($tableName, $key, $val)) {
+                        $searchByColumn[$key] = $val;
+                    }
+                }
+            }
+            if (str_starts_with($ke, "&") && str_ends_with($ke, "&")) {
+                $key = substr($ke, 1, -1);
+
+                if (Helpers::isJson($val)) {
+                    throw new Exception("val is not supported");
+                    $json =  (Helpers::jsonDecode($val));
+                    if (!Helpers::isArray($json)) {
+                        throw new Exception("val is not array");
+                    } else {
+                        // if (array_search($key, $this->staticSearchByColumnRequests)) {
+                        // }
+
+                        // $this->withStaticSelect($json);
+                    }
+                } else {
+                    if ($this->validate($tableName, $key, $val)) {
+                        $this->addStaticSumSelect($val ? "SUM($key) as $val" : "SUM($key) ");
+                    }
+                }
+            }
+            if (str_starts_with($ke, "#") && str_ends_with($ke, "#")) {
+                $key = substr($ke, 1, -1);
+
+                if (Helpers::isJson($val)) {
+                    throw new Exception("val is not supported");
+                    $json =  (Helpers::jsonDecode($val));
+                    if (!Helpers::isArray($json)) {
+                        throw new Exception("val is not array");
+                    } else {
+                        // if (array_search($key, $this->staticSearchByColumnRequests)) {
+                        // }
+
+                        // $this->withGroupByArray($json);
+                    }
+                } else {
+                    if ($this->validate($tableName, $key, $val)) {
+                        $this->addGroupBy($key);
+                        $this->addStaticGroupSelect($key);
+                    }
                 }
             }
         }
-        // print_r($searchByColumn);
+
 
 
         $asc = $request->getQueryParam('ASC', null);
@@ -233,11 +362,24 @@ class Options
         $this->requireParent = true;
         $this->addForginsObject = $this->checkRequestForginValue($request->getQueryParam("forginObject", null));
         $this->addForginsList =  $this->checkRequestForginValue($request->getQueryParam("forginList", null));
-        // echo "\nlist -->------>-> " . $this->addForginsList . "  " . $this->isRequestedForginList() . "\n";
-        // echo "objects -->--->->-> " . $this->addForginsObject . "  " .   $this->isRequestedForginObjects()  . "\n";
     }
 
 
+    public function validate($tableName = null, $key = null, $value = null)
+    {
+        if (!$tableName) return;
+        $tableColumns = $this->searchRepository->getCachedTableColumns($tableName);
+        $tableColumns = array_values($tableColumns);
+
+        $res = Helpers::searchInArray($key, $tableColumns);
+        if (!$res) {
+            $this->notFoundedColumns->set($key, $value);
+            if ($this?->throwExceptionOnColumnNotFound ?? true) {
+                throw new \Exception("$key  not Found in column");
+            }
+        }
+        return $res;
+    }
 
     public function isRequireParent()
     {
@@ -266,10 +408,11 @@ class Options
     }
     public function getQuery(string $tableName, ?string $replaceTableNameInWhereClouser = null): string
     {
+
         $limitQuery = $this->getLimitOrPageCountOffset();
         $sortQuery = $this->sortOption?->getQuery();
         $dateQuery = $this->date?->getQuery($tableName);
-        $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request);
+        $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request, $this);
         $statics = null;
         $groupBy = null;
 
@@ -452,7 +595,8 @@ class SearchOption
         public ?string $searchByField = null,
         public array $searchByColumn = []
     ) {}
-    public function getQuery(string $tableName, SearchRepository $repo, ?string $replaceTableNameInWhereClouser = null, ?Request $request): string
+
+    public function getQuery(string $tableName, SearchRepository $repo, ?string $replaceTableNameInWhereClouser = null, ?Request $request = null, ?Options $option = null): string
     {
         $searchWhere = array();
 
@@ -465,8 +609,8 @@ class SearchOption
             $searchWhere[] = $generatedSearchQuery;
         }
         if ($this->searchByColumn) {
-            print_r($this->searchByColumn);
-            $searchWhere[] = $repo->getSearchByColumnQuery($this->searchByColumn, $tableName, $replaceTableNameInWhereClouser);
+            // print_r($this->searchByColumn);
+            $searchWhere[] = $repo->getSearchByColumnQuery($this->searchByColumn, $tableName, $replaceTableNameInWhereClouser, null, $option);
         }
         // print_r($this->searchByColumn);
         // die;

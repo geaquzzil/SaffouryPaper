@@ -11,13 +11,18 @@ use Slim\Container;
 use Slim\Http\Response;
 use Slim\Http\Request;
 
-abstract class BaseController
+abstract class BaseController implements BaseControllerInterface
 {
 
 
     protected string $tableName;
     protected Options $options;
     protected  $auth = null;
+
+    protected  $list = null;
+    protected  $view = null;
+    protected  $edit = null;
+    protected  $add = null;
     public function __construct(protected Container $container) {}
 
 
@@ -79,12 +84,28 @@ abstract class BaseController
     {
         return filter_var($_SERVER['REDIS_ENABLED'], FILTER_VALIDATE_BOOLEAN);
     }
+    public function getOptions(Request $request): Options
+    {
+        return new Options($request, $this->tableName, $this->getSearchRepo());
+    }
+    public function getSearchRepo()
+    {
+        return $this->container->get("search_repository");
+    }
 
     protected function init(Request $request)
     {
         $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
-        $this->options = new Options($request);
-        $this->options->searchRepository = $this->container->get("search_repository");
+        $this->options = $this->getOptions($request);
         $this->auth  = $request->getAttribute('Auth', null);
+
+        $this->add  = $request->getAttribute('AddPermission', null);
+        $this->list  = $request->getAttribute('ListPermission', null);
+        $this->view  = $request->getAttribute('ViewPermission', null);
+        $this->edit  = $request->getAttribute('EditPermission', null);
     }
+}
+interface BaseControllerInterface
+{
+    public function getOptions(Request $request): Options;
 }

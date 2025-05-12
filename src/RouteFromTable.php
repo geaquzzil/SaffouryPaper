@@ -47,6 +47,7 @@ class RouteFromTable
                 $app->post('', Create::class)->add(new AddPermission($permissionRep));
                 $app->put(self::ID_REQUIRED, Update::class)->add(new EditPermission($permissionRep));
                 $app->delete(self::ID_REQUIRED, Delete::class)->add(new DeletePermission($permissionRep));
+                $app->get('/changed_records[/]', 'Etq\Restful\Controller\DefaultController:getChangedRecords')->add(new ListPermission($permissionRep));
                 $app->group(
                     "/not_used",
                     function () use ($app): void {

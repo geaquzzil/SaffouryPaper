@@ -235,6 +235,7 @@ function hasCustomSearchQueryReturnListOfID($object, $objectName, &$hasCustomFun
 	}
 	return null;
 }
+
 function canSearchInCustomSearchQuery($object, $parentTableName, $tableName)
 {
 	if (in_array($parentTableName, array_keys($GLOBALS["CAN_SEARCH_IN_STRING_QUERY"]))) {
@@ -446,6 +447,7 @@ $API_ACTIONS["token"] = function () {
 		}
 	}
 };
+
 //data is 
 //tableName = credits
 //ids=[1,2,3,4]
@@ -852,9 +854,6 @@ $API_ACTIONS["list_not_used_records"] = function () {
 	returnResponse($response);
 };
 $API_ACTIONS["list_changes_records_table"] = function () {
-	$permission = getUserPermissionTable();
-	$table = getRequestValue('table');
-	//getNotUsedRecords($table);
 	$fieldToGroupBy = getRequestValue('fieldToGroupBy');
 	$fieldToSumBy = null;
 	if (checkRequestValue('fieldToSumBy')) {
@@ -951,17 +950,6 @@ function getValueToCalculateChangesRecord($tableName)
 			return null;
 	}
 }
-$API_ACTIONS["list_reduce_size"] = function () {
-	$table = getRequestValue('table');
-	$column = getRequestValue('<fieldToSelectList>');
-	checkPermissionAction($table);
-	$forgins = getTableColumns($table);
-	// print_r($forgins);
-	if ((($i = array_search((string)$column, $forgins)) === FALSE)) {
-		returnResponseErrorMessage("Bad field non founded request ");
-	}
-	returnResponse(getFetshAllTableWithQuery("SELECT iD,$column FROM `$table`"));
-};
 $API_ACTIONS["list_dashboard_single_item"] = function () {
 	$DateOrMonth;
 	$IsDate;
@@ -1080,17 +1068,6 @@ function changeToExtendedTableDashboard($tableName)
 			return "equality_" . $tableName;
 	}
 }
-$API_ACTIONS["list_dashboard_orders_overdues"] = function () {
-	checkPermissionAction(ORDR);
-	//   $DateOrMonth;
-	//	$IsDate;
-	//	checkDateRequest($DateOrMonth,$IsDate);
-
-	//	$FROM = date("Y-m-d",strtotime($DateOrMonth['from']));
-	//	$TO = date("Y-m-d",strtotime($DateOrMonth['to']));
-	//	$E_FROM= date('Y-m-d',(strtotime ( '-1 day' , strtotime ( $TO) ) ));
-	returnResponse(invoicesOverduesAndDesposited($FROM, $TO));
-};
 $API_ACTIONS["list_dashboard"] = function () {
 	if (checkRequestValue('interval')) {
 		$interval = getRequestValue('interval');

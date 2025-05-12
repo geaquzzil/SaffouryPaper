@@ -16,6 +16,14 @@ final class DefaultController extends BaseController
     private const API_VERSION = '2.23.0';
 
 
+
+    public function getChangedRecords(Request $request, Response $response)
+    {
+        $this->init($request);
+        $this->options->disableThrowExceptionOnNonFoundColumns();
+        $result = $this->container['repository']->getChangedRecords($this->tableName, $this->list, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
     public function getServerDataByTable(Request $request, Response $response)
     {
         $this->init($request);

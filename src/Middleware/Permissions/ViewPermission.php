@@ -16,6 +16,7 @@ class ViewPermission extends BasePermission
         Route $next
     ): ResponseInterface {
         parent::invoke($request, $response, $next);
+        $request = $request->withAttribute('ViewPermission', $this);
         return   $next($request, $response);
     }
 

@@ -15,10 +15,10 @@ use Slim\Container;
 abstract class BaseDataBaseFunction
 {
     protected $DB_NAME = "";
-    private $cacheForginObjects = [];
-    private $cacheForginList = [];
-    protected $cacheTableColumns = [];
-    private $cacheColumnType = [];
+    private static $cacheForginObjects = [];
+    private static $cacheForginList = [];
+    protected static $cacheTableColumns = [];
+    private static $cacheColumnType = [];
 
     public function __construct(protected \PDO $database, protected Container $container)
     {
@@ -28,42 +28,42 @@ abstract class BaseDataBaseFunction
     public function getCachedColumnType($tableName)
     {
 
-        if (key_exists($tableName, $this->cacheColumnType)) {
+        if (key_exists($tableName, self::$cacheColumnType)) {
 
-            return $this->cacheColumnType[$tableName];
+            return self::$cacheColumnType[$tableName];
         } else {
-            $this->cacheColumnType[$tableName] = $this->getObjcetColumnType($tableName);
-            return $this->cacheColumnType[$tableName];
+            self::$cacheColumnType[$tableName] = $this->getObjcetColumnType($tableName);
+            return self::$cacheColumnType[$tableName];
         }
     }
     public function getCachedForginList($tableName)
     {
-        if (key_exists($tableName, $this->cacheForginList)) {
+        if (key_exists($tableName, self::$cacheForginList)) {
 
-            return $this->cacheForginList[$tableName];
+            return self::$cacheForginList[$tableName];
         } else {
-            $this->cacheForginList[$tableName] = $this->getArrayForginKeys($tableName);
-            return $this->cacheForginList[$tableName];
+            self::$cacheForginList[$tableName] = $this->getArrayForginKeys($tableName);
+            return self::$cacheForginList[$tableName];
         }
     }
     public function getCachedForginObject($tableName)
     {
-        if (key_exists($tableName, $this->cacheForginObjects)) {
+        if (key_exists($tableName, self::$cacheForginObjects)) {
 
-            return $this->cacheForginObjects[$tableName];
+            return self::$cacheForginObjects[$tableName];
         } else {
-            $this->cacheForginObjects[$tableName] = $this->getObjectForginKeys($tableName);
-            return  $this->cacheForginObjects[$tableName];
+            self::$cacheForginObjects[$tableName] = $this->getObjectForginKeys($tableName);
+            return  self::$cacheForginObjects[$tableName];
         }
     }
     public function getCachedTableColumns($tableName)
     {
-        if (key_exists($tableName, $this->cacheForginList)) {
+        if (key_exists($tableName, self::$cacheTableColumns)) {
 
-            return $this->cacheTableColumns[$tableName];
+            return self::$cacheTableColumns[$tableName];
         } else {
-            $this->cacheTableColumns[$tableName] = $this->getTableColumns($tableName);
-            return $this->cacheTableColumns[$tableName];
+            self::$cacheTableColumns[$tableName] = $this->getTableColumns($tableName);
+            return self::$cacheTableColumns[$tableName];
         }
     }
     public function getSearchRepository()
