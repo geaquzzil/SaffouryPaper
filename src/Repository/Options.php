@@ -3,6 +3,7 @@
 namespace Etq\Restful\Repository;
 
 use Slim\Http\Request;
+use Etq\Restful\Middleware\Permissions\BasePermission;
 use Etq\Restful\Helpers;
 use Exception;
 use Slim\Collection;
@@ -14,6 +15,9 @@ class Options
     // ];
 
     public $validateNullValue = true;
+
+
+    public ?BasePermission $auth = null;
 
     public Collection $notFoundedColumns;
 
@@ -29,6 +33,9 @@ class Options
 
     public ?SearchOption $searchOption = null;
     public ?SortOption $sortOption = null;
+
+
+
 
 
     public  $listObjects;
@@ -54,6 +61,8 @@ class Options
     private array $staticSumSelect = [];
 
     private array $staticGroupBySelect = [];
+
+    private array $joins = [];
 
 
 
@@ -84,9 +93,11 @@ class Options
         $this->date = null;
         return $this;
     }
-    public function getClone()
+    public function getClone(?Options $old = null)
     {
-        return clone $this;
+        $instance = clone $this;
+        $instance->auth = $old?->auth;
+        return $instance;
     }
     public function removeDate()
     {
@@ -102,6 +113,11 @@ class Options
                 $this->sortOption->addField($orderBy);
             }
         }
+        return $this;
+    }
+    public function withJoins(Joins $joins)
+    {
+        $this->joins[] = $joins;
         return $this;
     }
     public function withStaticSelect($staticQuery)
@@ -124,7 +140,12 @@ class Options
         $this->groupBy[] = $groupBy;
         return $this;
     }
+    public function addJoin(Joins $field)
+    {
 
+        $this->joins[] = $field;
+        return $this;
+    }
     public function addStaticSelect(?string $field = null)
     {
         if ($field) {
@@ -191,9 +212,11 @@ class Options
         $this->addForginsObject = $arr ?? true;
         return $this;
     }
-    public static function getInstance()
+    public static function getInstance(?Options $old = null)
     {
-        return new self();
+        $instance = new self();
+        $instance->auth = $old?->auth;
+        return $instance;
     }
 
     public static function withStaticWhereQuery(?string $query = null)
@@ -248,12 +271,20 @@ class Options
     }
     public function __construct(
         protected ?Request $request = null,
-        $tableName = null,
+        public $tableName = null,
         public ?SearchRepository $searchRepository = null,
-        public bool $throwExceptionOnColumnNotFound = true
+        public bool $throwExceptionOnColumnNotFound = true,
+
     ) {
         $this->notFoundedColumns = new Collection();
+
         if (!$request) return;
+        $this->auth = $request->getAttribute("Auth", null);
+        $bool = is_null(($this->auth)) ? "is null" : "not null";
+        echo "\n" . $bool . " \n";
+
+        // $this->auths=$request->attrib
+
         $requestPage = $request->getQueryParam('page', null);
         $requestCountPerPage = $request->getQueryParam('countPerPage', null);
         $requestLimit = $request->getQueryParam('limit', null);
@@ -415,7 +446,14 @@ class Options
         $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request, $this);
         $statics = null;
         $groupBy = null;
-
+        $joins = null;
+        if (!empty($this->joins)) {
+            $joinArr = [];
+            foreach ($this->joins as $j) {
+                $joinArr[] = $j->getQuery();
+            }
+            $joins = implode(" ", $joinArr);
+        }
         if (!empty($this->staticQuery)) {
             //TODO STATIC QUERY IMPOLDE SHOULD BE AND
             $statics = "WHERE " . implode(" AND ", $this->staticQuery);
@@ -425,10 +463,13 @@ class Options
             $groupBy = "GROUP BY " . implode(",", $this->groupBy)  . "  " . $having;
         }
 
-        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics && !$groupBy) {
+        if (!$limitQuery && !$sortQuery && !$dateQuery && !$searchQuery && !$statics && !$groupBy && !$joins) {
             return "";
         }
         $whereQuery = "";
+        if ($joins) {
+            $whereQuery = $whereQuery . $joins;
+        }
         if ($statics) {
             $whereQuery = $whereQuery . $statics;
         }
@@ -451,10 +492,7 @@ class Options
         if ($limitQuery) {
             $whereQuery = $whereQuery . " $limitQuery\n";
         }
-        //TODO 
-        //     if(isset($option["CUSTOM_JOIN"])){
-        //         $newQuery=$newQuery." ".$option["CUSTOM_JOIN"];
-        //     }
+
 
         return $whereQuery;
     }
@@ -667,4 +705,31 @@ enum SortType
 {
     case ASC;
     case DESC;
+}
+enum JoinType
+{
+    case RIGHT;
+    case LEFT;
+}
+class Joins
+{
+    public function __construct(public string $tableName, public string $onTableName, public string $onField, public JoinType $joinType) {}
+    private function getJoinType()
+    {
+        switch ($this->joinType) {
+            case JoinType::LEFT:
+                return "LEFT JOIN";
+            case JoinType::RIGHT:
+                return "RIGHT JOIN";
+            default:
+                return "JOIN";
+        }
+    }
+    // RIGHT JOIN `products_search_view` ON `products_search_view`.`iD` =`products`.`iD`
+    public function getQuery()
+    {
+        $join = $this->getJoinType();
+
+        return  "$join `$this->tableName` ON `$this->tableName`.`$this->onField` = `$this->onTableName`.`$this->onField` ";
+    }
 }

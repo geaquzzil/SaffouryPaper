@@ -16,12 +16,9 @@ class ListPermission extends BasePermission
         Route $next
     ): ResponseInterface {
         parent::invoke($request, $response, $next);
-        $request = $request->withAttribute('ListPermission', $this);
+        $request = $request->withAttribute('Auth', $this);
         $respo =   $next($request, $response);
-
         $this->checkToSendNotification($request, $respo);
-
-
         return $respo;
     }
 

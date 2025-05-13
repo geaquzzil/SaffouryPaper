@@ -233,6 +233,7 @@ abstract class BasePermission implements ServerActionInterface
             return 2;
         }
     }
+    
     public function invoke(
         Request $request,
         Response $response,

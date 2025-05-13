@@ -15,7 +15,7 @@ class PrintPermission extends BasePermission
         Route $next
     ): ResponseInterface {
         parent::invoke($request, $response, $next);
-        $request = $request->withAttribute('PrintPermission', $this);
+        $request = $request->withAttribute('Auth', $this);
         return   $next($request, $response);
     }
 

@@ -167,6 +167,60 @@ class Helpers
     {
         return array_diff($arr1, $arr2);
     }
+
+    public static function removeDuplicatesAndAdd($array, $key, $keyToAdd)
+    {
+        $filtered = array();
+        $sa = array_column($array, $key, null);
+        $dup = Helpers::getDuplicates(($sa));
+        if (empty($dup)) return $array;
+        $foundedInt = [];
+        foreach ($sa as $i => $v) {
+            if (Helpers::searchInArray($i, $foundedInt)) {
+                echo "\nFounded before\n";
+                continue;
+            }
+            foreach ($sa as $j => $v2) {
+                if ($v == $v2 && $i != $j) {
+                    $foundedInt[] = $j;
+                    echo "\nfounded i $i j $j\n";
+
+                    $arrToF =
+                        array_merge(array_values($array[$i][$keyToAdd]), array_values($array[$j][$keyToAdd]));
+                    $filtered[$i] = $array[$i];
+                    $array[$i][$keyToAdd] = $arrToF;
+                } else {
+                    $filtered[$i] = $array[$i];
+                }
+            }
+        }
+        // print_r($filtered);
+        // $arr =  array_values(array_column($array, null, ID));
+        return $filtered;
+    }
+
+    //     function remove_duplicates($playlist){
+    //     $filtered = [];
+    //     foreach($playlist as $music){
+    //         $array_exist = array_filter($filtered, function($val) use ($music) {
+    //             return ($val['ARTIST'] === $music['ARTIST']) && 
+    //                    ($val['TITLE'] === $music['TITLE']);
+    //         });
+
+    //         if( empty($array_exist) ){
+    //             $filtered[] = $music;
+    //         }else{
+    //             foreach($array_exist as $index => $arr){
+    //                 $filtered[$index]['REPEAT'] += 1;
+    //             }
+    //         }
+    //     }
+    //     return $filtered;
+    // }
+    public static function getDuplicates($array)
+    {
+        return array_diff_key($array, array_unique($array));
+    }
     public static function removeAllNonFoundInTowArray($arr1, $arr2, ?bool $getArrayByValues = true, &$removedItmes = [])
     {
         $arr = (
@@ -189,6 +243,15 @@ class Helpers
         $index = array_search($search,  array_column($array, $column_key));
         if ($index !== FALSE) {
             return Helpers::getKeyValueFromObj($array, $index);
+        }
+        return null;
+    }
+    public static function searchInArrayGetIndex($search, $array, $column_key = null)
+    {
+        // print_r($array);
+        $index = array_search($search, $column_key ?   array_column($array, $column_key) : $array);
+        if ($index !== FALSE) {
+            return $index;
         }
         return null;
     }

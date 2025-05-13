@@ -21,8 +21,10 @@ define("PRINT", "print");
 
 define("BEFORE", "before");
 define("AFTER", "after");
+define("ONFEH", "on_before_for_each");
 define("SEARCH", "search");
 define("SENS", "senstive");
+define("AT", "allowed_request_attribute");
 
 
 define('IMAGES_PATH', "saffoury.com/SaffouryPaper2/Images");
@@ -62,6 +64,8 @@ define('PH', "phones");
 define('PR', "products");
 define('PR_SEARCH', "products_search_view");
 define('PR_INV', "inventory_products");
+define('PR_INV_NEW', "new_inventory_products");
+
 
 define('PR_INPUT', "products_inputs");
 define('PR_INPUT_D', "products_inputs_details");

@@ -575,14 +575,6 @@ $API_ACTIONS["list_products_movements"] = function () {
 	returnResponse($response);
 };
 
-$API_ACTIONS["list_customers_terms"] = function () {
-	checkPermissionAction("list_customers");
-	$iD = null;
-	if (checkRequestValueInt('iD')) {
-		$iD = getRequestValue('iD');
-	}
-	returnResponse(customersTerms($iD));
-};
 $API_ACTIONS["list_customers_balances"] = function () {
 	checkPermissionAction("list_customers");
 	$requireTerms = false;
@@ -636,63 +628,6 @@ $API_ACTIONS["list_customers_balances"] = function () {
 		$response["nextPaymentCount"] = $nextPaymentCount;
 	}
 	returnResponse($response);
-};
-$API_ACTIONS["list_search_by_barcode"] = function () {
-	if (!checkRequestValue('<barcode>')) {
-		returnBadRequest("barcode is empty");
-	}
-	$Barcode = getRequestValue('<barcode>');
-	$ZeroBarcode = "0" . $Barcode;
-	$option = array();
-	$option["WHERE_EXTENSION"] = "`barcode` IS NOT NULL AND `barcode` <> '' AND (  `barcode` = '$Barcode' OR `barcode` = '$ZeroBarcode' ) ";
-	//$result= depthSearch(null,PR,1,null,[PR,SIZE,CUSTOMS,GSM,TYPE,CMC,GD,QUA],$option);
-	$result = depthSearch(null, PR, 1, getRequireArrayTables(), getRequireObjectTable(), $option);
-	if (empty($result) || is_null($result)) {
-		$res['similarBarcode'] = false;
-		$option = array();
-		$option["WHERE_EXTENSION"] = "`barcode` IS NOT NULL AND `barcode` <> '' AND CHAR_LENGTH(`barcode`)>4 AND ( 
-			SUBSTRING(`barcode`,1,(CHAR_LENGTH(`barcode`)-4))
-			=
-			SUBSTRING('$Barcode',1, (CHAR_LENGTH('$Barcode')-4))
-			OR 
-			SUBSTRING(`barcode`,1,(CHAR_LENGTH(`barcode`)-4))
-			=
-			SUBSTRING('$ZeroBarcode',1,(CHAR_LENGTH('$ZeroBarcode')-4))
-			)";
-		//$secResult=depthSearch(null,PR,1,null,[PR,SIZE,CUSTOMS,GSM,TYPE,CMC,GD,QUA],$option);
-		$secResult = depthSearch(null, PR, 1, getRequireArrayTables(), getRequireObjectTable(), $option);
-		if (!empty($secResult)) {
-			$singleSecResult = $secResult[0];
-			$singleSecResult["similarBarcode"] = true;
-			$res = $singleSecResult;
-		}
-		$res['iD'] = -1;
-		$res['barcode'] = $Barcode;
-		returnResponse($res);
-	} else {
-		returnResponse($result[0]);
-	}
-};
-$API_ACTIONS["list_search_customers"] = function () {
-	checkPermissionAction("list_customers");
-	$response = getSearchDataFromProductsOrCustomers(false);
-	$Query = $response['Query'];
-	$SearchQuery = $response['SearchQuery'];
-	//echo $Query;
-	$pdo = setupDatabase();
-	$stmt = $pdo->prepare("SELECT iD FROM `" . CUST . "` $Query");
-	$stmt->bindParam(':search_query', $SearchQuery, PDO::PARAM_STR);
-	$stmt->execute();
-	$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-	if (!empty($results) || !is_null($results)) {
-		$results = array_map(function ($tmp) {
-			return $tmp['iD'];
-		}, $results);
-		returnResponse(depthSearch(($results), CUST, 0, null, null, null));
-	} else {
-		// no content
-	}
 };
 // iD the customer iD  data is notification message
 $API_ACTIONS["action_notification"] = function () {

@@ -109,7 +109,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         // die;
         foreach ($result as $res) {
 
-            $product = $this->view(PR, $res['iD'], null, Options::getInstance()->requireObjects());
+            $product = $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects());
             Helpers::setKeyValueFromObj($product, "orders_details", $res);
             array_push($response, $product);
         }
@@ -140,7 +140,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
 
         foreach ($result as $res) {
 
-            $product = $this->view(PR, $res['iD'], null, Options::getInstance()->requireObjects());
+            $product = $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects());
             Helpers::setKeyValueFromObj($product, "orders_details", $res);
             array_push($response, $product);
         }
@@ -176,7 +176,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         if ($monthNumber) {
             foreach ($result as $res) {
                 if ($res['month'] == (int)$monthNumber) {
-                    array_push($response, $this->view(PR, $res['iD'], null, Options::getInstance()->requireObjects()));
+                    array_push($response, $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects()));
                     // echo "\n" . $res['iD'];
                 }
             }

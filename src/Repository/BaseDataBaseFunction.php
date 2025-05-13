@@ -66,6 +66,10 @@ abstract class BaseDataBaseFunction
             return self::$cacheTableColumns[$tableName];
         }
     }
+    public function getDashbaordRepository(): DashboardRepository
+    {
+        return $this->container->get("dashboard_repository");
+    }
     public function getSearchRepository()
     {
         return $this->container->get("search_repository");
@@ -423,10 +427,25 @@ abstract class BaseDataBaseFunction
             }
         }
     }
-    protected function after($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
+    protected function onBeforeForEach($tableName, &$arr, ?Options &$option, BaseRepository $repo)
     {
         if ($this->container->offsetExists($tableName)) {
-            echo "\n after $tableName\n";
+
+            $list =    $this->container->get($tableName);
+            $key = ONFEH;
+            if (key_exists($key, $list)) {
+                $list[$key]($arr, $option, $repo);
+            }
+        }
+    }
+    protected function after($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
+    {
+        echo "\nafter $tableName \n";
+        $bool = is_null(($option->auth)) ? " $tableName is auth null\n" : " $tableName not auth null\n";
+        echo "\n" . $bool . " \n";
+
+        if ($this->container->offsetExists($tableName)) {
+
             $list =    $this->container->get($tableName);
             $key = AFTER . $this->getServerActionString($action);
             if (key_exists($key, $list)) {

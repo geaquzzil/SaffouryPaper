@@ -1,47 +1,4 @@
 <?php
-$OBJECT_ACTIONS[ORDR_R] = function (&$object) {
-  //  print_r($object);
-  $option = array();
-  $iD = $object["OrderID"];
-  $option["WHERE_EXTENSION"] = "`OrderID` = '$iD'";
-
-  $details = depthSearch(null, ORDR_D, 1, [], [PR, WARE], $option);
-  if (count((is_countable($object[ORDR_R_D]) ? $object[ORDR_R_D] : [])) > 0)
-    foreach ($object[ORDR_R_D] as &$ord) {
-      $ord["orders_orders_details"] =  $details;
-    }
-};
-$OBJECT_ACTIONS[CUT_RESULT] = function (&$object) {
-  // return;
-
-
-  $option = array();
-  $iD = $object["ProductInputID"];
-  $option["WHERE_EXTENSION"] = "`ProductInputID` = '$iD'";
-  $details = depthSearch(null, PR_INPUT_D, 1, [], true, $option);
-  $object[PR_INPUT][PR_INPUT_D] = $details;
-
-
-  $iD = $object["ProductOutputID"];
-  $option["WHERE_EXTENSION"] = "`ProductOutputID` = '$iD'";
-  $details = depthSearch(null, PR_OUTPUT_D, 1, [], true, $option);
-  $object[PR_OUTPUT][PR_OUTPUT_D] = $details;
-
-
-  if (isActionTableIs(CUT_RESULT)) {
-    $iD = $object[CUT]['iD'];
-    $option["WHERE_EXTENSION"] = "`PCRID` = '$iD'";
-    $object[CUT][SIZE_CUT] = depthSearch(null, SIZE_CUT, 1, [], [SIZE], $option);
-
-    $iD = $object[CUT][PR]['iD'];
-    $object[CUT][PR] = depthSearch($iD, PR, 1, [PR], true, null);
-  }
-
-  //    $object["products_outputs"]=depthSearch($object["ProductOutputID"],PR_OUTPUT,0,true,true,null);
-  if (isActionTableIs(CUT)) {
-    //  depth()
-  }
-};
 $OBJECT_ACTIONS[TYPE] = function (&$object) {
   if (isCustomer() || isGuest()) {
     if (!checkPermissionActionWAR('text_prices_for_customer')) {
@@ -66,15 +23,7 @@ $OBJECT_ACTIONS[TYPE] = function (&$object) {
   // }
 
 };
-$OBJECT_ACTIONS[HOME_ADS] = function (&$object) {
-  if (!isEmptyString($object['image'])) {
-    $object['image'] = IMAGES_PATH . substr($object["image"], strripos($object["image"], "/"));
-  }
-};
-$OBJECT_ACTIONS[ORDR] = function (&$object) {
-  if (isActionIsView()) {
-  }
-};
+
 $OBJECT_ACTIONS[SP] = function (&$object) {
   if (isSetKeyAndNotNullFromObj($object, 'isDirect') && isTableIs(SP)) {
     setKeyValueFromObj(
@@ -133,40 +82,6 @@ $OBJECT_ACTIONS[DEBT] = function (&$object) {
   if (isActionIsView() && checkPermissionActionWAR("list_customers_balances")) {
     setKeyValueFromObj($object, 'balance', getBalanceDue($object[KCUST])["balance"]);
   }
-};
-$OBJECT_ACTIONS[CUSTOMS_IMAGES] = function (&$object) {
-  if (!isEmptyString($object['image'])) {
-    $object['image'] = IMAGES_PATH . substr($object["image"], strripos($object["image"], "/"));
-  }
-};
-$OBJECT_ACTIONS[CUST] = function (&$object) {
-  // return;
-  //	$object["isSupplier"]=$object[PURCH."_count"]>0;
-  if (!isCustomer() && !checkPermissionActionWAR('text_customers_password')) {
-    unset($object['password']);
-  }
-  $balanceResult = isCustomer() || checkPermissionActionWAR('list_customers_balances') ? getBalanceDue($object['iD']) : null;
-  if (empty($balanceResult) || is_null($balanceResult)) {
-    $object["balance"] = 0;
-    $object["totalCredits"] = 0;
-    $object["totalDebits"] = 0;
-    $object["totalOrders"] = 0;
-    $object["totalPurchases"] = 0;
-  } else {
-    $object["balance"] = $balanceResult["balance"];
-    $object["totalCredits"] = $balanceResult["sumPay"];
-    $object["totalDebits"] = $balanceResult["Sum_eq"];
-    $object["totalOrders"] = $balanceResult["Sum_ExtendedPrice"];
-    $object["totalPurchases"] = $balanceResult["Sum_sumPurchuses"];
-  }
-  if (isActionIsView() && (isCustomer() || checkPermissionActionWAR('list_customers'))) {
-    $object["customerTerms"] = customersTerms($object['iD']);
-  }
-};
-$OBJECT_ACTIONS[PR_INV] = function (&$object) {
-  $object[WARE] = depthSearch($object['WarehouseID'], WARE, 0, [], [], null);
-  unset($object['iD']);
-  unset($object['ProductID']);
 };
 $OBJECT_ACTIONS[PR] = function (&$object) {
 
@@ -269,38 +184,6 @@ $OBJECT_ACTIONS[PR] = function (&$object) {
     unset($object['comments']);
   }
 };
-$OBJECT_ACTIONS[EMP] = function (&$object) {
-  if (!isAdmin()) {
-    unset($object['password']);
-    unset($object['profile']);
-    // 		unset($object['password']);
-  }
-  if (isEmployee()) {
-    //   if(!is_null($object[PARENTID])){
-    //    	$parentID=$object[PARENTID];
-    //        $option=array();
-    //       $option["WHERE_EXTENSION"]= "`iD` = '$parentID'";
-    //       if(isSetKeyFromObj($object,"parents")){
-    //   echo "IS SET PARENT";
-    //           array_push($object["parents"],depthSearch(null,EMP,1,[],[],$option));
-    //       }else{
-    //  echo "SETTING PARENT";
-    //	        $object["parents"]=depthSearch(null,EMP,1,[],[],$option);
-    //      }
-    //  }
-  }
-};
-$OBJECT_ACTIONS[TR] = function (&$object) {
-  //   echo " im in object exten \n ";
-  unSetKeyFromObj($object, "warehouse");
-  $object["fromWarehouse"] = depthSearch($object["fromWarehouse"], WARE, 1, [], [], null);
-  $object["toWarehouse"] = depthSearch($object["toWarehouse"], WARE, 1, [], [], null);
-};
-
-$BEFORE_SEND_RESPONSE[PR] = function (&$object) {
-  //todo check inventory  echo "\n im in \n ";
-  return $object;
-};
 
 $CUSTOM_SEARCH_QUERY[SIZE] = function ($object) {
 
@@ -334,41 +217,12 @@ $CUSTOM_SEARCH_QUERY[SIZE] = function ($object) {
 
   return null;
 };
-$CUSTOM_JOIN[PR] = function () {
-  if (checkRequestValue("requireInventory")) {
-    return "RIGHT JOIN `products_search_view` ON `products_search_view`.`iD` =`products`.`iD`  ";
-  }
-  return null;
-};
 $CAN_SEARCH_IN_STRING_QUERY[CRED] = function ($searchQuery, $tableName) {
   if (is_numeric($searchQuery)) {
     // echo ("   ".($tableName===SIZE)."  ".($tableName===GSM)." ".($tableName===CUSTOMS));
     return false;
   } else {
     return $tableName === EMP || $tableName === CUST;
-  }
-
-  return true;
-};
-$CAN_SEARCH_IN_STRING_QUERY[ORDR] = function ($searchQuery, $tableName) {
-  if (is_numeric($searchQuery)) {
-    // echo ("   ".($tableName===SIZE)."  ".($tableName===GSM)." ".($tableName===CUSTOMS));
-    return false;
-  } else {
-    return $tableName === EMP || $tableName === CUST;
-  }
-
-  return true;
-};
-$CAN_SEARCH_IN_STRING_QUERY[PR] = function ($searchQuery, $tableName) {
-  if (is_numeric($searchQuery)) {
-    //  if(checkRequestValue("<unit>")){
-    //      return  $tableName==GSM || $tableName===GSM;
-    //  }
-    // echo ("   ".($tableName===SIZE)."  ".($tableName===GSM)." ".($tableName===CUSTOMS));
-    return $tableName === SIZE || $tableName === GSM || $tableName == SIZE || $tableName == GSM;
-  } else {
-    return $tableName === TYPE || $tableName == TYPE;
   }
 
   return true;

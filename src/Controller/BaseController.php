@@ -18,11 +18,6 @@ abstract class BaseController implements BaseControllerInterface
     protected string $tableName;
     protected Options $options;
     protected  $auth = null;
-
-    protected  $list = null;
-    protected  $view = null;
-    protected  $edit = null;
-    protected  $add = null;
     public function __construct(protected Container $container) {}
 
 
@@ -98,11 +93,6 @@ abstract class BaseController implements BaseControllerInterface
         $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
         $this->options = $this->getOptions($request);
         $this->auth  = $request->getAttribute('Auth', null);
-
-        $this->add  = $request->getAttribute('AddPermission', null);
-        $this->list  = $request->getAttribute('ListPermission', null);
-        $this->view  = $request->getAttribute('ViewPermission', null);
-        $this->edit  = $request->getAttribute('EditPermission', null);
     }
 }
 interface BaseControllerInterface

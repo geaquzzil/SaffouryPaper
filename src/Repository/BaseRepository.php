@@ -24,6 +24,8 @@ abstract class BaseRepository extends BaseDataBaseFunction
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
         $forgins = $this->getCachedForginObject($tableName);
+        // echo " addforginKeys $tableName";
+        // print_r($forgins);
         if (!empty($forgins)) {
             foreach ($forgins as $forgin) {
                 $forginTableName = QueryHelpers::getJsonKeyFromForginObject($forgin);
@@ -38,7 +40,12 @@ abstract class BaseRepository extends BaseDataBaseFunction
                     Helpers::setKeyValueFromObj(
                         $obj,
                         $forginTableName,
-                        $this->view($forginTableName, QueryHelpers::getKeyValue($obj, $forgin), $tableName, $this->getOptionWithRequired(null, true))
+                        $this->view(
+                            $forginTableName,
+                            QueryHelpers::getKeyValue($obj, $forgin),
+                            $tableName,
+                            Options::getInstance($option)->requireObjects()
+                        )
                     );
                 } else {
                     Helpers::setKeyValueFromObj($obj, $forginTableName, null);
@@ -68,7 +75,11 @@ abstract class BaseRepository extends BaseDataBaseFunction
                     Helpers::setKeyValueFromObj(
                         $obj,
                         $valueKey,
-                        $this->list($forginTableName, $tableName, $this->getOptionWithRequired("`$where` = '$iD'", true))
+                        $this->list(
+                            $forginTableName,
+                            $tableName,
+                            Options::getInstance($option)->addStaticQuery("`$where` = '$iD'")->requireObjects()
+                        )
                     );
                 } else {
                     Helpers::setKeyValueFromObj(
@@ -100,6 +111,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             }
             $this->after($tableName, $queryResult, ServerAction::VIEW, $option, $this);
         } else {
+            $this->onBeforeForEach($tableName, $queryResult, $option, $this);
             foreach ($queryResult as &$res) {
                 $isIn = true;
                 if ($option?->isRequestedForginObjects()) {
@@ -157,7 +169,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 $masterTableName,
                 $iD,
                 null,
-                Options::getInstance()->withDate($option?->date)->requireObjects()
+                Options::getInstance($option)->withDate($option?->date)->requireObjects()
             );
             if (!$res) {
                 continue;
@@ -176,9 +188,14 @@ abstract class BaseRepository extends BaseDataBaseFunction
     public function view(string $tableName, int $iD, ?string $parentTableName = null, ?Options $option = null)
     {
         if (!$option) {
+            echo "\nnew Options\n";
             $option = Options::withStaticWhereQuery("iD = '$iD'");
         } else {
-            $option = $option->getClone()->addStaticQuery("iD = '$iD'");
+
+            echo "\n clone Options\n";
+            $bool = is_null(($option->auth)) ? "is sauth null" : "not auth null";
+            echo "\n" . $bool . " \n";
+            $option = $option->getClone($option)->addStaticQuery("iD = '$iD'");
         }
 
         $query = $this->getQuery($tableName, ServerAction::VIEW,  $option, $parentTableName);
@@ -316,7 +333,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             if (!$option) {
                 $option = Options::withStaticWhereQuery("iD = '$iD'");
             } else {
-                $option = $option->getClone()->addStaticQuery("iD = '$iD'");
+                $option = $option->getClone($option)->addStaticQuery("iD = '$iD'");
             }
         }
         $this->before($tableName, $iD, ServerAction::DELETE, $option, $this);
@@ -463,22 +480,6 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $statement->execute($params);
 
         return (array) $statement->fetchAll();
-    }
-
-
-    private function getOptionWithRequired(?string $staticWhere = null, ?bool $requireObjects = null, ?bool $requireLists = null)
-    {
-        $obj = new Options();
-        if (!is_null($staticWhere)) {
-            $obj = $obj->addStaticQuery($staticWhere);
-        }
-        if (!is_null($requireObjects)) {
-            $obj = $obj->requireObjects();
-        }
-        if (!is_null($requireLists)) {
-            $obj = $obj->requireDetails();
-        }
-        return $obj;
     }
 
 
