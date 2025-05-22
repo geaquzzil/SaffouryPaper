@@ -5,9 +5,13 @@ namespace Etq\Restful\Repository;
 use Etq\Restful\Repository\Options;
 use Etq\Restful\Helpers;
 use Etq\Restful\QueryHelpers;
+use Exception;
+use Illuminate\Support\Arr;
 
 class SearchRepository extends BaseRepository
 {
+
+    private function changeImagePathFromJson($object) {}
     private function getSearchKeyValueWhereClouser($tableName, $key, $value, bool $addPercent = false,  ?string $replaceTableNameInWhereClouser = null)
     {
 
@@ -25,11 +29,52 @@ class SearchRepository extends BaseRepository
         $addPercentQuery = $addPercent ? "%" : "";
         return "$keyToFind LIKE '$addPercentQuery" . $value . "$addPercentQuery'";
     }
-    public function getSearchQueryMasterStringValue($object, $tableName)
+    private function getSearchBetweenValue($key, $value)
     {
-        $res = $this->getSearchObjectStringValue($object, $tableName);
-        return ($res);
+        if (Helpers::isArrayByJson($value)) {
+            $between = array();
+            foreach ($value as $v) {
+                $between[] = $this->getSearchBetweenValue($key, $v);
+            }
+            return implode(" AND ", $between);
+        }
+        $from = Helpers::isSetKeyFromObjReturnValue($value, "from");
+        $to = Helpers::isSetKeyFromObjReturnValue($value, "to");
+        if (!$from  || !$to) {
+            throw new Exception("u have to set from and to");
+        }
+        return  "$key BETWEEN  $from AND $to";
     }
+
+    ///
+    ///@param $betweenArray is has key : SizeID value of width:{from: , to:} or list
+    public function getSearchQueryBetween($betweenArray, $tableName)
+    {
+        // $this->getFor
+        /// @param key is ColumnName in TableName
+        // @param b is the value 
+
+        $queryR = array();
+        foreach ($betweenArray as $columnInParent => $b) {
+            $between = array();
+            $childTableName = $this->getCachedForginObjectTableName($tableName, $columnInParent);
+            foreach ($b as $columnInChild => $value) {
+                if ($this->validate($childTableName, $columnInChild)) {
+                    $between[] = "(" . $this->getSearchBetweenValue($columnInChild, $value) . ")";
+                }
+            }
+            $impolded = implode(" AND ", $between);
+            $query = "SELECT " . addslashes($childTableName) . ".`iD` FROM "
+                . addslashes($childTableName) . " WHERE " . $impolded;
+            echo "\n" . $query . "\n";
+            $result = $this->getFetshALLTableWithQuery($query);
+            $ids = ((array_column($result, ID)));
+            // $queryR[$columnInParent] = $ids;
+            $queryR[] = $this->getSearchKeyValueWhereClouser($tableName, $columnInParent, $ids);
+        }
+        return implode(" AND ", $queryR);
+    }
+
     public function getSearchByColumnQuery(
         $searchByColumns,
         $tableName,
@@ -41,7 +86,6 @@ class SearchRepository extends BaseRepository
         $tableColumns = array_values($tableColumns);
         $whereQuery = array();
         $searchByColumns = $getFromObject ?? $searchByColumns;
-        $isNullGetFromObject = $getFromObject ? true : false;
         foreach ($searchByColumns as $key => $value) {
 
             if (Helpers::searchInArray($key, $tableColumns)) {
@@ -93,6 +137,8 @@ class SearchRepository extends BaseRepository
         }
         return $this->getSearchQueryAttributesOrDontUnSetID($objectToCheck, $tableName);
     }
+
+
     public  function getSearchQueryAttributesOrDontUnSetID($object, $tableName)
     {
         //unSetKeyFromObj($object,'iD');
@@ -106,15 +152,6 @@ class SearchRepository extends BaseRepository
     }
     public function searchObjectDetailStringValue($object, $tableName)
     {
-        $hasCustomFunctionFounded = false;
-        $searchQuery = null;  //TODO hasCustomSearchQueryReturnListOfID($object, $tableName, $hasCustomFunctionFounded);
-        if (!is_null($searchQuery)) {
-            return $searchQuery;
-        }
-        if ($hasCustomFunctionFounded) {
-            return null;
-        }
-
         $searchQuery = $this->getSearchObjectStringValue($object, $tableName);
 
         if (Helpers::isEmptyString($searchQuery)) {

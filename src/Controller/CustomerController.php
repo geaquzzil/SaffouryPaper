@@ -25,6 +25,16 @@ final class CustomerController extends BaseController
         $val = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
         $this->iD = $val ? (int)$val : null;
     }
+
+    public function transfer(Request $request, Response $response, array $args)
+    {
+
+        $this->initi($request, $args);
+        $from = (int)Helpers::isSetKeyFromObjReturnValue($args, "from");
+        $to = (int)Helpers::isSetKeyFromObjReturnValue($args, "to");
+        $result = $this->container['customer_repository']->transfer($from, $to, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
     //TODO bad performance
     public function getProfits(Request $request, Response $response, array $args): Response
     {
@@ -43,6 +53,17 @@ final class CustomerController extends BaseController
     {
         $this->initi($request, $args);
         $result = $this->container['customer_repository']->getBalance($this->iD, $this->options->date);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+
+
+    public function getOverDueReservationInvoice(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+
+        $date = $this->options?->date;
+
+        $result = $this->container['customer_repository']->getOverDueReservationInvoice($this->iD, $date, false, true);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
     public function getOverDueCustomers(Request $request, Response $response, array $args): Response
@@ -69,6 +90,27 @@ final class CustomerController extends BaseController
         $result = $this->container['customer_repository']->getNextAndOverDuePayment($this->iD, $date, true);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
+    public function updateToken(Request $request, Response $response)
+    {
+        $this->initi($request, []);
+        $input = (array) $request->getParsedBody();
+        if (!$input) {
+            throw new \Exception("you dont have any body");
+        }
+        if (!Helpers::isSetKeyFromObj($input, "token")) {
+            throw new \Exception("you dont have token");
+        }
+
+        return $this->jsonResponse(
+            $response,
+            'success',
+            $this->container
+                ->get("user_repository")
+                ->updateToken(Helpers::getKeyValueFromObj($input, "token"), $this->options),
+            200
+        );
+    }
+
 
     // public function getTearms(Request $request, Response $response, array $args): Response
     // {

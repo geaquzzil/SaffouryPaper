@@ -27,7 +27,6 @@ final class NotificationController extends BaseController
             throw new Exception('notification service is disable contact admin to enable it ');
         }
         if ($isIDSet) {
-
             echo " is Set $isIDSet";
         } else {
             echo "IS not set";

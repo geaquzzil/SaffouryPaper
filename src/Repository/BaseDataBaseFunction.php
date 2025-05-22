@@ -56,6 +56,17 @@ abstract class BaseDataBaseFunction
             return  self::$cacheForginObjects[$tableName];
         }
     }
+
+    public function getCachedForginObjectTableName($tableName, $columnName)
+    {
+        $forgins = $this->getCachedForginObject($tableName);
+        foreach ($forgins as $f) {
+            if (Helpers::isEqualsString($f[cn], $columnName)) {
+                return $f[rtn];
+            }
+        }
+        return null;
+    }
     public function getCachedTableColumns($tableName)
     {
         if (key_exists($tableName, self::$cacheTableColumns)) {
@@ -74,12 +85,7 @@ abstract class BaseDataBaseFunction
     {
         return $this->container->get("search_repository");
     }
-    public function getFetshALLTableWithQuery($query)
-    {
-        $statement = $this->database->prepare($query);
-        $statement->execute();
-        return (array) $statement->fetchAll();
-    }
+
     public function getCount($obj, $foreing)
     {
         return
@@ -93,6 +99,48 @@ abstract class BaseDataBaseFunction
         $statement = $this->database->prepare($query);
         $statement->execute();
         return  $statement->fetchObject();
+    }
+    public function getFetshALLTableWithQuery($query)
+    {
+        $statement = $this->database->prepare($query);
+        $statement->execute();
+        return (array) $statement->fetchAll();
+    }
+
+    public function validate($tableName, $column)
+    {
+        if (!$tableName) return;
+        $tableColumns = $this->getCachedTableColumns($tableName);
+        $tableColumns = array_values($tableColumns);
+
+        $res = Helpers::searchInArray($column, $tableColumns);
+        if (!$res) {
+            throw new \Exception("validate $column  not Found in column");
+        }
+        return $res;
+    }
+
+    public function getUpdateTableWithQuery($query)
+    {
+        // try {
+        $statement = $this->database->prepare($query);
+        $statement->execute();
+        return $statement->rowCount();
+        // } catch (PDOException $e) {
+        //     if ($e->errorInfo[1] == 1062) {
+        //         http_response_code(401);
+        //         return returnResponseErrorMessage($e->getMessage() . " Query  =>$query ");
+        //     } else {
+        //         http_response_code(401);
+        //         return returnResponseErrorMessage($e->getMessage() . " Query  =>$query ");
+        //     }
+        // }
+    }
+    public function getInsertTableWithQuery($query)
+    {
+        $statement = $this->database->prepare($query);
+        $statement->execute();
+        return  $this->database->lastInsertId();
     }
     public function getDeleteTableWithQuery($query)
     {
@@ -108,6 +156,8 @@ abstract class BaseDataBaseFunction
     {
         return $this->database;
     }
+
+
     public function getInsertQuery($tableName, $object, ?int $iD = null)
     {
         $action = (!$iD ? "INSERT INTO " : " UPDATE ");
@@ -122,7 +172,11 @@ abstract class BaseDataBaseFunction
             $query = "UPDATE `" . addslashes($tableName) . "` SET ";
             $sep = '';
             foreach ($object as $key => $value) {
-                $query .= $sep . "`" . $key . "` = '" . $value . "'";
+                if (empty($value)) {
+                    $value = null;
+                }
+                $value = $value ? "'$value'" : "null";
+                $query .= $sep . " `$key` = $value";
                 $sep = ',';
             }
             //	 echo "\n $query WHERE iD=$iD \n";
@@ -471,7 +525,16 @@ abstract class BaseDataBaseFunction
         }
     }
 
-
+    public function getTransferKeys($columnKey)
+    {
+        return $this->getFetshALLTableWithQuery("
+        SELECT
+            TABLE_NAME,COLUMN_NAME 
+	    FROM
+            INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+        WHERE
+            COLUMN_NAME='$columnKey' AND REFERENCED_TABLE_NAME IS NOT NULL AND TABLE_SCHEMA ='" . $this->DB_NAME . "'");
+    }
     public function getArrayForginKeys($tableName)
     {
         return $this->getFetshALLTableWithQuery("

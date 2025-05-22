@@ -19,6 +19,8 @@ use Etq\Restful\Controller\Default\GetOne;
 use Etq\Restful\Controller\Default\Update;
 use Etq\Restful\Controller\ExchangeRateController;
 use Etq\Restful\Controller\NotificationController;
+use Etq\Restful\Controller\BlockController;
+use Etq\Restful\Controller\CustomerController;
 use Etq\Restful\Database\DBBackupAndRestore;
 use Etq\Restful\Middleware\Auth;
 use Etq\Restful\Middleware\Permissions\UserType;
@@ -57,62 +59,36 @@ class RouteFromTable
 
                 );
                 $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerDataByTable')->add(new Auth(UserType::GUEST));
-                // echo " sad";
-
                 $r->addExtensionTableUrl($table, $app);
             });
         }
-        // $this->getRouters($app);
-        // $app->group('/token', function () use ($app): void {
-        //     $app->post('/{iD:[0-9]+', '');
-        //     $app->put('/{iD:[0-9]+', '');
-        // });
-
         $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerData')->add(new Auth(UserType::GUEST));
-        $app->group('/database', function () use ($app): void {
-
-            $res = array();
-            // print_r($res);
-            $res['Content-Description'] = 'File Transfer';
-            $res['Content-Type'] = 'application/octet-stream';
-            // $res['Content-Disposition'] = 'attachment; filename=' . basename($zipname);
-            $res['Content-Transfer-Encoding'] = 'binary';
-            $res['Expires'] = '0';
-            $res['Cache-Control'] = 'must-revalidate';
-            $res['Pragma'] = 'public';
-            // $res['Content-Length'] = filesize($zipname);
-            $app->post('/backup[/]',    DatabaseController::class);
-            $app->post('/restore[/]', DatabaseController::class);
-        })->add(new Auth(UserType::ADMIN));
-
+        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTables')->add(new Auth(UserType::ADMIN));
+        $app->get('/exchange_rate[/]', ExchangeRateController::class)
+            ->add(new StaticPermission("action_exchange_rate", $permissionRep));
         $app->group('/notification', function () use ($app): void {
             $app->get('[/]', NotificationController::class);
-            $app->get('/' . CUST . '[/[{iD:\d+}]]', NotificationController::class);
-
-            $app->get('/' . EMP . '[/[{iD:\d+}]]', NotificationController::class);
+            $app->get('/' . CUST  . self::ID_OPTIONAL, NotificationController::class);
+            $app->get('/' . EMP . self::ID_OPTIONAL, NotificationController::class);
         })->add(new StaticPermission("action_notification", $permissionRep));
 
+        $app->put('/block[/{tableName:[A-Za-z]+}[/{iD:\d+}]]', BlockController::class)
+            ->add(new StaticPermission("action_block", $permissionRep));
 
-        $app->group('/block', function () use ($app): void {
-            $app->get('[/]', BlockController::class);
-            $app->get('/' . CUST . '[/[{iD:\d+}]]', BlockController::class);
 
-            $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        })->add(new StaticPermission("action_block", $permissionRep));
+        $app->put('/unblock[/{tableName:[A-Za-z]+}[/{iD:\d+}]]', BlockController::class . ":unblock")
+            ->add(new StaticPermission("action_block", $permissionRep));
+
+
 
         $app->group('/transfer', function () use ($app): void {
-            //TODO args from & to
-            $app->get('/' . CUST, TransferController::class);
-            //TODO money or account
 
-            // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
+            $app->get('/' . CUST, TransferController::class);
         })->add(new StaticPermission("action_transfer_account", $permissionRep));
 
 
 
         $app->group('/dashboard', function () use ($app): void {
-            //TODO args from & to
-
             $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
             // $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
 
@@ -128,9 +104,24 @@ class RouteFromTable
         //     // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
         // })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
 
-        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTables')->add(new Auth(UserType::ADMIN));
-        $app->get('/exchange_rate[/]', ExchangeRateController::class)
-            ->add(new StaticPermission("action_exchange_rate", $permissionRep));
+
+
+
+        $app->group('/database', function () use ($app): void {
+
+            $res = array();
+            // print_r($res);
+            $res['Content-Description'] = 'File Transfer';
+            $res['Content-Type'] = 'application/octet-stream';
+            // $res['Content-Disposition'] = 'attachment; filename=' . basename($zipname);
+            $res['Content-Transfer-Encoding'] = 'binary';
+            $res['Expires'] = '0';
+            $res['Cache-Control'] = 'must-revalidate';
+            $res['Pragma'] = 'public';
+            // $res['Content-Length'] = filesize($zipname);
+            $app->post('/backup[/]',    DatabaseController::class);
+            $app->post('/restore[/]', DatabaseController::class);
+        })->add(new Auth(UserType::ADMIN));
     }
     private function addExtensionTableUrl(string $tableName, &$app)
     {
@@ -140,9 +131,29 @@ class RouteFromTable
             foreach ($route as $router) {
                 $hasPermission = $router[3];
                 if ($hasPermission) {
-                    $app->{$router[2]}($router[0], $router[1])->add(
-                        new StaticPermission($hasPermission, $app->getContainer()['permission_repository'])
-                    );
+                    switch ($router[4]) {
+                        case ExtenstionPermissionType::BY_STATIC:
+                            $app->{$router[2]}($router[0], $router[1])->add(
+                                new StaticPermission($hasPermission, $app->getContainer()['permission_repository'])
+                            );
+                            break;
+                        case ExtenstionPermissionType::BY_AUTH:
+                            $allowHigherPerm = false;
+                            if (is_array($hasPermission)) {
+                                $allowHigherPerm = $hasPermission[1];
+                                $hasPermission = $hasPermission[0];
+                            }
+                            $app->{$router[2]}($router[0], $router[1])->add(
+                                new Auth($hasPermission, $allowHigherPerm)
+                            );
+                            break;
+                        case ExtenstionPermissionType::BY_TABLE:
+
+                            $app->{$router[2]}($router[0], $router[1])->add(
+                                new StaticPermission($hasPermission, $app->getContainer()['permission_repository'])
+                            );
+                            break;
+                    }
                 } else {
                     $app->{$router[2]}($router[0], $router[1]);
                 }
@@ -153,26 +164,39 @@ class RouteFromTable
     private $getExtessionTableUrl =
 
     [
-        //todo this permssion should by user  not talbe 
+        RI => [
+            [
+                '/overdue[/]',
+                'Etq\Restful\Controller\CustomerController:getOverDueReservationInvoice',
+                'get',
+                RI // new ViewPermission($app->getContainer()['permission_repository'])
+                ,
+                ExtenstionPermissionType::BY_STATIC
+
+            ],
+        ],
         ORDR => [
             [
                 '/overdue[/]',
                 'Etq\Restful\Controller\CustomerController:getOverDueCustomers',
                 'get',
                 ORDR // new ViewPermission($app->getContainer()['permission_repository'])
-
+                ,
+                ExtenstionPermissionType::BY_STATIC
             ],
             [
                 '/nextPayment[/]',
                 'Etq\Restful\Controller\CustomerController:getNextPayment',
                 'get',
-                ORDR
+                ORDR,
+                ExtenstionPermissionType::BY_STATIC
             ],
             [
                 '/currentDayPayment[/]',
                 'Etq\Restful\Controller\CustomerController:getCurrentDayPayment',
                 'get',
-                ORDR
+                ORDR,
+                ExtenstionPermissionType::BY_STATIC
             ],
 
 
@@ -180,48 +204,98 @@ class RouteFromTable
                 '/profits[/]',
                 'Etq\Restful\Controller\CustomerController:getProfits',
                 'get',
-                ORDR
+                ORDR,
+                ExtenstionPermissionType::BY_STATIC
             ],
         ],
         PR => [
-            ['/most_popular[/]', 'Etq\Restful\Controller\ProductController:getMostPopularProducts', 'get', PR],
-            ['/bestSelling[/]', 'Etq\Restful\Controller\ProductController:getBestSellingProducts', 'get', PR],
-            ['/expectedToBuy[/]', 'Etq\Restful\Controller\ProductController:getExpectedProductsToBuy', 'get', PR],
-            ['/movement' . self::ID_REQUIRED, 'Etq\Restful\Controller\ProductController:getMovement', 'get', PR],
+            [
+                '/most_popular[/]',
+                'Etq\Restful\Controller\ProductController:getMostPopularProducts',
+                'get',
+                PR,
+                ExtenstionPermissionType::BY_STATIC
+            ],
+            [
+                '/bestSelling[/]',
+                'Etq\Restful\Controller\ProductController:getBestSellingProducts',
+                'get',
+                PR,
+                ExtenstionPermissionType::BY_STATIC
+            ],
+            [
+                '/expectedToBuy[/]',
+                'Etq\Restful\Controller\ProductController:getExpectedProductsToBuy',
+                'get',
+                PR,
+                ExtenstionPermissionType::BY_STATIC
+            ],
+            [
+                '/movement' . self::ID_REQUIRED,
+                'Etq\Restful\Controller\ProductController:getMovement',
+                'get',
+                PR,
+                ExtenstionPermissionType::BY_STATIC
+            ],
         ],
-        //     //TODO should i deprecated
-        //     ['search', 'Etq\Restful\Controller\ProductController:searchForProduct', 'get', null],
-        //     ['similar/{iD:\d+}', 'Etq\Restful\Controller\ProductController:getSimilar', 'get', null],
-        // ],
         // TYPE => [
         //     // ['availability', 'Etq\Restful\Controller\ProductController:getProductTypeAvailability', 'get', null],
 
         // ],
-        // EMP => [
-        //     // ['token/{iD:\d+}', 'Etq\Restful\Controller\EmployeeController:createToken', 'post', null],
-        //     // ['token/{iD:\d+}', 'Etq\Restful\Controller\EmployeeController:updateToken', 'put', null],
-        // ],
+        EMP => [
+            [
+                '/token[/]',
+                'Etq\Restful\Controller\CustomerController:updateToken',
+                'put',
+                [UserType::EMPLOYEE, true],
+                ExtenstionPermissionType::BY_AUTH
+            ],
+        ],
         CUST => [
-            // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:createToken', 'post', null],
-            // ['token/{iD:\d+}', 'Etq\Restful\Controller\CustomerController:updateToken', 'put', null],
+            [
+                '/token[/]',
+                'Etq\Restful\Controller\CustomerController:updateToken',
+                'put',
+                UserType::CUSTOMER,
+                ExtenstionPermissionType::BY_AUTH
+            ],
             [
                 '/overdue'     . self::ID_OPTIONAL,
                 'Etq\Restful\Controller\CustomerController:getOverDueCustomers',
                 'get',
                 CUST // new ViewPermission($app->getContainer()['permission_repository'])
+                ,
+                ExtenstionPermissionType::BY_STATIC
+            ],
+            [
+                '/transfer/{from:\d+}/{to:\d+}',
+                CustomerController::class . ":transfer",
+                'put',
+                "action_transfer_account",
+                ExtenstionPermissionType::BY_STATIC
+            ],
 
+            [
+                '/overdue_reservation'     . self::ID_OPTIONAL,
+                'Etq\Restful\Controller\CustomerController:getOverDueReservationInvoice',
+                'get',
+                CUST // new ViewPermission($app->getContainer()['permission_repository'])
+                ,
+                ExtenstionPermissionType::BY_STATIC
             ],
             [
                 '/nextPayment' . self::ID_OPTIONAL,
                 'Etq\Restful\Controller\CustomerController:getNextPayment',
                 'get',
-                CUST
+                CUST,
+                ExtenstionPermissionType::BY_STATIC
             ],
             [
                 '/currentDayPayment' . self::ID_OPTIONAL,
                 'Etq\Restful\Controller\CustomerController:getCurrentDayPayment',
                 'get',
-                CUST
+                CUST,
+                ExtenstionPermissionType::BY_STATIC
             ],
 
 
@@ -229,24 +303,33 @@ class RouteFromTable
                 '/profits'     . self::ID_OPTIONAL,
                 'Etq\Restful\Controller\CustomerController:getProfits',
                 'get',
-                CUST
+                CUST,
+                ExtenstionPermissionType::BY_STATIC
             ],
 
             [
                 '/balance'     . self::ID_OPTIONAL,
                 'Etq\Restful\Controller\CustomerController:getBalance',
                 'get',
-                CUST
+                CUST,
+                ExtenstionPermissionType::BY_STATIC
             ],
             [
                 '/statement'   . self::ID_REQUIRED,
                 'Etq\Restful\Controller\CustomerController:getStatement',
                 'get',
-                CUST
+                CUST,
+                ExtenstionPermissionType::BY_STATIC
             ],
         ],
 
         // CUT => []
 
     ];
+}
+enum ExtenstionPermissionType
+{
+    case BY_AUTH;
+    case BY_STATIC;
+    case BY_TABLE;
 }

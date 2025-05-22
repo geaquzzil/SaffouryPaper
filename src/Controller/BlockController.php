@@ -18,43 +18,37 @@ use Slim\Http\Response;
 
 final class BlockController extends BaseController
 {
+
+
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         parent::init($request);
         $isIDSet = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
-        $isDisabled = $this->container['notification_repository']->isNotificationDisabled();
-        if ($isDisabled) {
-            throw new Exception('notification service is disable contact admin to enable it ');
+        $isIDSet = $isIDSet ? (int)$isIDSet : null;
+        $table = Helpers::isSetKeyFromObjReturnValue($args, 'tableName');
+        if ($table) {
+            if (strcmp($table, CUST) != 0 && strcmp($table, EMP) != 0) {
+                throw new Exception("$table not supported");
+            }
         }
-        if ($isIDSet) {
+        $result = $this->container['user_repository']->block($table, true, $isIDSet, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
 
-            echo " is Set $isIDSet";
-        } else {
-            echo "IS not set";
+    public function unblock(Request $request, Response $response, array $args)
+    {
+        parent::init($request);
+
+        $isIDSet = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
+        $isIDSet = $isIDSet ? (int)$isIDSet : null;
+        $table = (string)Helpers::isSetKeyFromObjReturnValue($args, 'tableName');
+        $int = strcmp($table, CUST);
+        if ($table) {
+            if (strcmp($table, CUST) != 0 && strcmp($table, EMP) != 0) {
+                throw new Exception("$table not supported");
+            }
         }
-
-        return $this->textResponse($response, "Notification");
-
-
-
-        // if (
-        //     !checkRequestValueInt('iD')  ||
-        //     !checkRequestValue('tableName') || !checkRequestValue('blockValue')
-        // ) {
-        //     returnBadRequest("Not set iD or tableName");
-        // }
-        // $Action = getRequestValue('tableName');
-        // if ($Action == EMP) {
-        //     returnResponseMessage(block(getRequestValue('iD'), false, getRequestValue('blockValue')));
-        // }
-        // if ($Action == CUST) {
-        //     returnResponseMessage(block(getRequestValue('iD'), true, getRequestValue('blockValue')));
-        // }
-        // if ($Action == "ALL") {
-        //     returnResponseMessage(blockALL(true));
-        // }
-        // if ($Action == "NONE") {
-        //     returnResponseMessage(blockALL(false));
-        // }
+        $result = $this->container['user_repository']->block($table, false, $isIDSet, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

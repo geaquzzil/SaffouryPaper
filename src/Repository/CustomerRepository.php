@@ -12,6 +12,24 @@ use Illuminate\Support\Arr;
 class CustomerRepository extends SharedDashboardAndCustomerRepo
 {
 
+    public function transfer(int $from, int $to, ?Options $option = null)
+    {
+        $count = 0;
+        $results = $this->getTransferKeys(KCUST);
+        if (!empty($results)) {
+            foreach ($results as $res) {
+                $updateQuery = "UPDATE `" . $res["TABLE_NAME"] .
+                    "` SET `" . KCUST . "` ='$to' WHERE `" . KCUST . "` ='$from'";
+                //echo $updateQuery;
+                $count = $count + $this->getUpdateTableWithQuery($updateQuery);
+            }
+        }
+        $response = array();
+        $response["count"] = $count;
+        $response["serverStatus"] = true;
+        return $response;
+    }
+
     public function getStatement(int $iD, ?Date $date = null, bool $withAnalsis = false, bool $mobileVersion = false)
     {
         $customer = $this->view(CUST, $iD, null, Options::getInstance()->requireObjects());

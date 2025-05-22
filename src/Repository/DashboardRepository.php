@@ -23,8 +23,6 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
         $isEmployee = $auth->isEmployee();
 
 
-
-
         $iD = $auth->getUserID();
         $tableName = $isCustomer ? CUST : EMP;
         $parentTableName = $isCustomer ? CUST : ($requireOnlyEmployeeRecords ? EMP : null);

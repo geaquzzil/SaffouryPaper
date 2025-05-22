@@ -41,17 +41,3 @@ $DELETE_OBJ[HOME_ADS] = function (&$object) {
 		unlinkFile(getKeyValueFromObj($object, "image"));
 	}
 };
-$DELETE_OBJ[CUT_RESULT] = function (&$object) {
-	$iD = getKeyValueFromObj($object, 'ProductInputID');
-	deleteObject($iD, PR_INPUT, false);
-
-	$iD = getKeyValueFromObj($object, 'ProductOutputID');
-	deleteObject($iD, PR_OUTPUT, false);
-
-	try {
-		$iD = getKeyValueFromObj($object, 'CutRequestID');
-		$query =  " UPDATE `" . CUT . "` Set `cut_requests`.`cut_status` = 'PROCESSING' WHERE `iD` = '$iD'";
-		getUpdateTableWithQuery($query);
-	} catch (Exception $e) {
-	}
-};

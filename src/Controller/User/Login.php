@@ -7,6 +7,7 @@ use Etq\Restful\Controller\BaseController;
 use Exception;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Etq\Restful\Helpers;
 use Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
 
@@ -32,9 +33,9 @@ final class Login extends BaseController
             'iat' => time(),
             'exp' => time() + (7 * 24 * 60 * 60),
             'data' => [ # Data related to the signer user
-                'iD'   => $user['iD'],
-                'phone' => $user['phone'],
-                'userlevelid' => $user['userlevelid']
+                'iD'   => Helpers::isSetKeyFromObjReturnValue($user, 'iD'),
+                'phone' => Helpers::isSetKeyFromObjReturnValue($user, 'phone'),
+                'userlevelid' => Helpers::isSetKeyFromObjReturnValue($user, 'userlevelid'),
                 # userid from the users table
             ],
 

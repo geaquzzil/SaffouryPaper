@@ -64,6 +64,11 @@ class Options
 
     private array $joins = [];
 
+    public array $between = [];
+
+
+
+
 
 
     private ?string $whereHavingQuery = null;
@@ -300,6 +305,17 @@ class Options
         // $sumByColumn = array();
         foreach (array_keys($request->getQueryParams()) as $ke) {
             $val = $request->getQueryParam($ke, null);
+            if (str_starts_with($ke, ">") && str_ends_with($ke, "<") && $val) {
+                $key = substr($ke, 1, -1);
+                if (Helpers::isJson($val)) {
+                    $json =  (Helpers::jsonDecode($val));
+                    if ($this->validate($tableName, $key, $json)) {
+                        $this->between[$key] = $json;
+                    }
+                } else {
+                    throw new Exception("val should be json from to");
+                }
+            }
             if (str_starts_with($ke, "<") && str_ends_with($ke, ">") && $val) {
                 $key = substr($ke, 1, -1);
 
@@ -377,7 +393,7 @@ class Options
             $this->date = Date::fromJson(json_decode($date, true));
         }
 
-        if ($searchQuery || $searchByColumn || $searchByField) {
+        if ($searchQuery || $searchByColumn || $searchByField || !empty($this->between)) {
             // echo " has searchQuery";
             $this->searchOption =  new SearchOption($searchQuery, $searchByField, $searchByColumn);
             // $option->searchOption =   $searchQuery;
@@ -640,7 +656,15 @@ class SearchOption
 
         if ($this->searchQuery) {
             $starttime = microtime(true);
-            $generatedSearchQuery = $repo->getSearchQueryMasterStringValue($this->searchQuery, $tableName);
+            $generatedSearchQuery = $repo->getSearchObjectStringValue($this->searchQuery, $tableName);
+            $endtime = microtime(true);
+            $duration = $endtime - $starttime;
+            echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";
+            $searchWhere[] = $generatedSearchQuery;
+        }
+        if ($option->between) {
+            $starttime = microtime(true);
+            $generatedSearchQuery = $repo->getSearchQueryBetween($option->between, $tableName);
             $endtime = microtime(true);
             $duration = $endtime - $starttime;
             echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";

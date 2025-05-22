@@ -55,6 +55,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         //     //json_decode(getRequestValue('data'),false)
         // };
     }
+    
     public function getMovement(int $iD, Options $options)
     {
         $object = $this->view(PR, $iD, null, $options->getClone()->removeDate());

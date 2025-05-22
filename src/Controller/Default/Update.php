@@ -20,16 +20,16 @@ final class Update extends BaseController
     ): Response {
         parent::init($request);
         $input = (array) $request->getParsedBody();
-
-
         if (!$input) {
             throw new \Exception("you dont have any body");
         }
         $iD = (int)$args['iD'];
-        // $userIdLogged = $this->getAndValidateUserId($input);
-        // $this->checkUserPermissions($id, $userIdLogged);
-        // $user = $this->getUpdateUserService()->update($input, $id);
 
-        return $this->textResponse($response, "Update");
+
+        $result = $this->container['repository']->edit($this->tableName, $iD, $input, $this->options);
+
+        // $users = $this->getFindUserService()
+        //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

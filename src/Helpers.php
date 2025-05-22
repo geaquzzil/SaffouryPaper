@@ -73,18 +73,16 @@ class Helpers
         $boo = $keyValue == null || ($keyValue != null && $keyValue == -1);
         return $boo;
     }
-    public static function explodeURIGetTableName($url)
+    public static function explodeURIGetTableName($url, int $pos = 2)
     {
+
+        if (count(explode('/', $url)) < $pos) {
+            return "";
+        }
         $arr = explode('/', $url);
-        //todo this not working if api/v1/product/221 it returns 221
-        return $arr[2];
+        return $arr[$pos];
     }
-    public static function explodeURIGetID($url)
-    {
-        $arr = explode('/', $url);
-        //todo this not working if api/v1/product/221 it returns 221
-        return $arr[3];
-    }
+
     public static function isSetKeyFromObj($object, $key)
     {
         if (self::isObject($object)) {
@@ -154,6 +152,11 @@ class Helpers
     {
         return gettype($object) === "object";
     }
+    public static function isArrayByJson($object)
+    {
+        $object = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', json_encode($object)));
+        return self::isArray($object);
+    }
     public static  function isArray($object)
     {
         return gettype($object) === "array";
@@ -166,6 +169,20 @@ class Helpers
     public static function setValuesThatNotFoundInTowArray($arr1, $arr2)
     {
         return array_diff($arr1, $arr2);
+    }
+    public static function setImage(&$object)
+    {
+        if (self::isBase64(
+            self::isSetKeyAndNotNullFromObj($object, "image")
+        )) {
+            self::unSetKeyFromObj($object, "delete");
+            $filename_path = md5(time() . uniqid()) . ".jpg";
+            $base64_string = str_replace('data:image/png;base64,', '', $object->image);
+            $base64_string = str_replace(' ', '+', $object->image);
+            $decoded = base64_decode($base64_string);
+            file_put_contents("Images/" . $filename_path, $decoded);
+            self::setKeyValueFromObj($object, "image", $filename_path);
+        }
     }
 
     public static function removeDuplicatesAndAdd($array, $key, $keyToAdd)
@@ -220,6 +237,11 @@ class Helpers
     public static function getDuplicates($array)
     {
         return array_diff_key($array, array_unique($array));
+    }
+
+    public  static function isEqualsString($string1, $string2)
+    {
+        return strcmp($string1, $string2) == 0;
     }
     public static function removeAllNonFoundInTowArray($arr1, $arr2, ?bool $getArrayByValues = true, &$removedItmes = [])
     {

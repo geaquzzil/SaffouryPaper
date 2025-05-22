@@ -26,7 +26,7 @@ final class ApiError extends \Slim\Handlers\Error
         ];
         $body = json_encode($data,  JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         $response->getBody()->write((string) $body);
-        print_r($data);
+        // print_r($data);
         return $response
             ->withStatus($statusCode)
             ->withHeader('Content-type', 'application/problem+json');

@@ -10,6 +10,7 @@ use Slim\Http\Response;
 use Slim\Route;
 use Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
+use Psr\Http\Message\StreamInterface;
 
 abstract class BasePermission implements ServerActionInterface
 {
@@ -74,6 +75,7 @@ abstract class BasePermission implements ServerActionInterface
     {
 
         $level = $this->repo->getPermission($levelID, $tableName);
+        // print_r($level);
         // $found_key = array_search('blue', array_column($people, 'fav_color'));
         if (empty($level) || is_null($level)) {
             return $this->shouldBeSignedInWhenNoLevelFound;
@@ -85,10 +87,7 @@ abstract class BasePermission implements ServerActionInterface
     {
         return Helpers::explodeURIGetTableName($request->getUri()->getPath());
     }
-    protected function getID($request)
-    {
-        return Helpers::explodeURIGetID($request->getUri()->getPath());
-    }
+
     public function checkForPermissionBoolean($tableName)
     {
         return  $this->checkPermissionTableAccess($this->currentID, $tableName, $this->getAction());
@@ -137,11 +136,19 @@ abstract class BasePermission implements ServerActionInterface
         return $decoded;
     }
 
-    protected function checkToSendNotification($request, $response)
+    protected function checkToSendNotification(Request $request, Response $response)
     {
         //todo
         $tableName = $this->getTableName($request);
         $action = $this->getAction();
+        echo "  \nim in checkToSend Notificaiton\n :tableNAme $tableName, Action is : $action \n";
+
+        $originalObject = (array)$request->getParsedBody();
+        // StreamInterface $s; 
+        $responseObjcet = Helpers::jsonDecode((string)$response->getBody());
+
+        // print_r($originalObject);
+        // print_r($responseObjcet);
         //check for if notification system is enable
 
     }
@@ -233,7 +240,7 @@ abstract class BasePermission implements ServerActionInterface
             return 2;
         }
     }
-    
+
     public function invoke(
         Request $request,
         Response $response,

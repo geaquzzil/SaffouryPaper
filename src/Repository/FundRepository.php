@@ -13,6 +13,24 @@ class FundRepository extends BaseRepository
 {
 
 
+    public function transfer(int $from, int $to, ?Options $option = null)
+    {
+        $count = 0;
+        $results = $this->getTransferKeys("CashBoxID");
+        if (!empty($results)) {
+            foreach ($results as $res) {
+                $updateQuery = "UPDATE `" . $res["TABLE_NAME"] .
+                    "` SET `CashBoxID` ='$to' WHERE `CashBoxID` ='$from'";
+                //echo $updateQuery;
+                $count = $count + $this->getUpdateTableWithQuery($updateQuery);
+            }
+        }
+        $response = array();
+        $response["count"] = $count;
+        $response["serverStatus"] = true;
+        return $response;
+    }
+
     private function getJournalTableNameFromExisting($object)
     {
         $journalID = Helpers::getKeyValueFromObj($object, "isDirect");
@@ -106,7 +124,7 @@ class FundRepository extends BaseRepository
         if (Helpers::isNewRecord($object) && Helpers::isSetKeyAndNotNullFromObj($object, JO)) {
             // echo "  OBJECT IS JOURNAL $tableName  ";
 
-            addJournalFromObject($object, $tableName);
+            $this->addJournalFromObject($object, $tableName);
             return;
         }
         if (!Helpers::isNewRecord($object)) {

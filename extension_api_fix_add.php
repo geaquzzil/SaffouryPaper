@@ -250,36 +250,3 @@ $FIX_ADD_OBJECT[TYPE] = function (&$object) {
 		$object->image = ROOT . "Images/" . $filename_path;
 	}
 };
-
-$FIX_ADD_OBJECT[TR] = function (&$object) {
-	// setKeyValueFromObj($object,)
-	//  setKeyValueFromObj($object,"fromWarehouse",getKeyValueFromObj(getKeyValueFromObj($object,"fromWarehouse"),"iD"));
-	//   setKeyValueFromObj($object,"toWarehouse",getKeyValueFromObj(getKeyValueFromObj($object,"toWarehouse"),"iD"));
-	// $object->fromWarehouse=  $object->fromWarehouse->iD;
-	//  $object->toWarehouse=$object->toWarehouse->iD ;
-	//    print_r($object);
-	//   die;
-};
-$FIX_ADD_OBJECT[CUT_RESULT] = function (&$object) {
-	// if(!isNewRecord($object)){
-	//       doDelete($object,PR_INPUT,false);
-	//  }
-
-	// setKeyValueFromObj($object,)
-	// $object->fromWarehouse=  $object->fromWarehouse->iD;
-	// $object->toWarehouse=$object->toWarehouse->iD ;
-	// print_r($object);
-	// die;
-};
-$FIX_BEFORE_ADD_OBJECT[TR] = function ($originalObject, &$object) {
-	//   print_r($originalObject);
-	//  $object->fromWarehouse=$originalObject->fromWarehouse->iD;
-	//   $object->toWarehouse=$originalObject->toWarehouse->iD ;
-	//     print_r($object);
-	//   die;
-
-	setKeyValueFromObj($object, "fromWarehouse", getKeyValueFromObj(getKeyValueFromObj($originalObject, "fromWarehouse"), "iD"));
-	setKeyValueFromObj($object, "toWarehouse", getKeyValueFromObj(getKeyValueFromObj($originalObject, "toWarehouse"), "iD"));
-	// print_r($object);
-	//    die;
-};

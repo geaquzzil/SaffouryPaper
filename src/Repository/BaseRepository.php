@@ -214,16 +214,32 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
         return $result;
     }
-    public function edit(string $tableName, int $iD, $object, ?Options $option = null)
+    public function edit(string $tableName, int $iD, $object, ?Options $option = null, $validate = true)
     {
         $origianlObject = Helpers::cloneByJson($object);
         $this->before($tableName, $object, ServerAction::EDIT, $option, $this);
         Helpers::convertToObject($object);
-        $this->validateObjectAndAdd($tableName, $object, $this);
-        echo $this->getInsertQuery($tableName, (array)$object, $iD);
+        if ($validate) {
+            $this->validateObjectAndAdd($tableName, $object, $this);
+        }
+        $query =  $this->getInsertQuery(
+            $tableName,
+            (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true),
+            $iD
+        );
+        echo "\n$query\n";
+        $rowCount = $this->getUpdateTableWithQuery(
+            $query
+        );
 
+        if ($rowCount == 0) {
+            throw new Exception("no records were edited");
+        }
+        echo "\nAfter edit $rowCount\n";
+        $this->after($tableName, $object, ServerAction::EDIT, $option, $this);
         return $this->view($tableName, $iD, null, $option);
     }
+
     public function add(string $tableName, $object, ?Options $option = null, bool $isAlreadyValidated = false, bool $isSearchedBefore = false, $type = ForginCheckType::NONE)
     {
         $origianlObject = Helpers::cloneByJson($object);
@@ -259,9 +275,9 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
         Helpers::setKeyValueFromObj($object, "iD", null);
 
-        $insertID = $this->getLastIncrementID($tableName);
-        echo $this->getInsertQuery($tableName, (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true)) . " withID: $insertID";
-
+        $query = $this->getInsertQuery($tableName, (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true));
+        echo "\n $query \n";
+        $insertID = $this->getInsertTableWithQuery($query);
         Helpers::setKeyValueFromObj($object, "iD", $insertID);
         // print_r($object);
         if (!empty($resultsForingList)) {

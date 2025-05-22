@@ -14,8 +14,15 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
     protected $cachedCustomerBalances = [];
 
 
-
-
+    
+    public function getOverDueReservationInvoice(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
+    {
+        $result = array();
+        $response = array();
+        $Query = $this->getTermsQuery($iD, $date, $requiresEqualsSign, $isOverDue, "extended_" . RI);
+        $result = $this->getFetshALLTableWithQuery($Query);
+        return $result;
+    }
     ///if date is null then current date is execution
     ///if 
     public function getNextAndOverDuePayment(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
@@ -160,22 +167,22 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
 
         return $this->getFetshALLTableWithQuery($query);
     }
-    public function getTermsQuery(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
+    public function getTermsQuery(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false, $tableName = "extended_order_refund")
     {
         $sign = $isOverDue ? "<=" : ">=";
-        $dateQuery = $date ? $date->getQuery("extended_order_refund", "termsDate", $requiresEqualsSign)
-            : "Date(extended_order_refund.termsDate) $sign Date(NOW())";
+        $dateQuery = $date ? $date->getQuery("$tableName", "termsDate", $requiresEqualsSign)
+            : "Date($tableName.termsDate) $sign Date(NOW())";
 
         $Query = "
     SELECT 
-        extended_order_refund.iD AS OrderID,
+        $tableName.iD AS OrderID,
         customers.iD,
         customers.name,
-        extended_order_refund.termsDate AS termsDate
+        $tableName.termsDate AS termsDate
     FROM
         customers
     INNER JOIN
-        extended_order_refund ON customers.iD = extended_order_refund.CustomerID  
+        $tableName ON customers.iD = $tableName.CustomerID  
     WHERE
         $dateQuery";
         $Query = !$iD ?  $Query : $Query . " AND customers.iD='$iD'";

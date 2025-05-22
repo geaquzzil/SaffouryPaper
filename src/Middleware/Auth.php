@@ -15,13 +15,16 @@ class Auth extends BasePermission
     private $adminID = -1;
 
 
-    public function __construct(protected UserType $requiredType, protected bool $allowHigherPermission = true) {}
+    public function __construct(protected  $requiredType, protected bool $allowHigherPermission = true) {}
     public function __invoke(
         Request $request,
         Response $response,
         Route $next
     ): ResponseInterface {
-
+        // echo "\n so  '$this->requiredType'\n";
+        // print_r($this->requiredType);
+        $this->requiredType = is_int($this->requiredType) ? UserType::tryFrom($this->requiredType) : $this->requiredType;
+        // print_r($this->requiredType);
         $token = $this->getToken($request);
 
         if (!is_null($token)) {
@@ -34,7 +37,7 @@ class Auth extends BasePermission
         }
 
         $request = $request->withAttribute('Auth', $this);
-
+        
 
         return $next($request, $response);
     }
@@ -51,6 +54,7 @@ class Auth extends BasePermission
         $currentUserType = $this->checkForUserType();
         $requiredPriority = $this->getPermissionProiority($this->requiredType->value);
         $currentProiority = $this->getPermissionProiority($levelID);
+
         if ($this->allowHigherPermission) {
             return $currentProiority >= $requiredPriority;
         } else {
