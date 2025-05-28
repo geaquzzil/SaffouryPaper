@@ -20,7 +20,14 @@ abstract class BaseController implements BaseControllerInterface
     protected  $auth = null;
     public function __construct(protected Container $container) {}
 
-
+    protected function checkForBody(Request $request)
+    {
+        $input = (array) $request->getParsedBody();
+        if (!$input) {
+            throw new Exception("you dont have any body");
+        }
+        return $input;
+    }
     protected function checkForOptionalID(array $args)
     {
         if (!isset($args["iD"])) {

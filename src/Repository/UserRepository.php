@@ -17,7 +17,7 @@ class UserRepository extends BaseRepository
                      iD,phone , password, userlevelid from employees WHERE phone = :phone 
                 UNION all 
                 SELECT
-                    iD,phone , password, userlevelid from customers WHERE phone = :phone
+                    iD,phone , password, userlevelid from customers WHERE phone = :phone2
             ";
     }
 
@@ -77,12 +77,11 @@ class UserRepository extends BaseRepository
         );
     }
 
-    private function checkToLogin(string  $phone)
+    private function checkToLogin(string $phone)
     {
         $query = $this->getQueryLoginUser();
         $statement = $this->database->prepare($query);
-        // $statement->bindParam('phone', "32q3");
-        $statement->execute(['phone' => $phone]);
+        $statement->execute(array(':phone' => $phone, ':phone2' => $phone));
         $user = $statement->fetch();
         return $user;
     }

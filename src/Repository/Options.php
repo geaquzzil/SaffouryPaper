@@ -81,6 +81,10 @@ class Options
         $this->whereHavingQuery = $whereHavingQuery;
         return $this;
     }
+    public function hasNotFoundedColumn($key)
+    {
+        return $this->notFoundedColumns->get($key, null);
+    }
     public function disableThrowExceptionOnNonFoundColumns()
     {
         $this->throwExceptionOnColumnNotFound = false;
@@ -632,10 +636,10 @@ class SortOption
     {
         switch ($this->sortType) {
             case SortType::ASC:
-                return  " ORDER BY `" .  implode(",", $this->fields) . "` ASC ";
+                return  " ORDER BY " .  implode(",", $this->fields) . " ASC ";
 
             case SortType::DESC:
-                return  " ORDER BY `" .  implode(",", $this->fields) . "` DESC ";
+                return  " ORDER BY " .  implode(",", $this->fields) . " DESC ";
         }
         return "";
     }

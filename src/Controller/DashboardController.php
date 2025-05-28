@@ -20,6 +20,11 @@ use Slim\Http\Response;
 final class DashboardController extends BaseController
 {
     private ?int $iD = null;
+    public function getOptions(Request $request): Options
+    {
+        return new Options($request, $this->tableName, $this->getSearchRepo(), false);
+    }
+
     private function initi(Request $request, array $args)
     {
         parent::init($request);
@@ -31,17 +36,34 @@ final class DashboardController extends BaseController
     {
         $this->initi($request, $args);
 
-        $date = $this->options?->date?->unsetFrom();
+        // $date = $this->options?->date?->unsetFrom();
 
         $auth =   $request->getAttribute('Auth');
-        $val = $auth->isEmployee() ? "True" : "false";
-        $iD = $auth->getUserID();
-        $result = $this->container['dashboard_repository']->getDashboard($auth, $this->options->date, true, true);
+        // $val = $auth->isEmployee() ? "True" : "false";
+        // $iD = $auth->getUserID();
+        $result = $this->container['dashboard_repository']->getDashboard($this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+    public function getMoneyDashboard(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+
+        // $date = $this->options?->date?->unsetFrom();
+
+        $auth =   $request->getAttribute('Auth');
+        // $val = $auth->isEmployee() ? "True" : "false";
+        // $iD = $auth->getUserID();
+        $result = $this->container['dashboard_repository']->getMoneyDashboard($this->options);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
 
-
-
+    //equalivnt of list_dashboard_single_item
+    public function dashIT(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+        $result = $this->container['dashboard_repository']->dashIT($this->tableName, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
     public function getNotUsedRecords(Request $request, Response $response, array $args): Response
     {
         $this->initi($request, $args);

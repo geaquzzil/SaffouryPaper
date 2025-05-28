@@ -5,6 +5,7 @@ namespace Etq\Restful\Middleware;
 
 use Etq\Restful\Middleware\Permissions\BasePermission;
 use Etq\Restful\Middleware\Permissions\UserType;
+use Etq\Restful\Repository\PermissionRepository;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -14,8 +15,10 @@ class Auth extends BasePermission
 {
     private $adminID = -1;
 
-
-    public function __construct(protected  $requiredType, protected bool $allowHigherPermission = true) {}
+    public function __construct(protected  $requiredType, private PermissionRepository $respo, protected bool $allowHigherPermission = true)
+    {
+        parent::__construct($respo);
+    }
     public function __invoke(
         Request $request,
         Response $response,
@@ -37,7 +40,7 @@ class Auth extends BasePermission
         }
 
         $request = $request->withAttribute('Auth', $this);
-        
+
 
         return $next($request, $response);
     }

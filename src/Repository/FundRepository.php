@@ -12,7 +12,7 @@ use Etq\Restful\Repository\BaseRepository;
 class FundRepository extends BaseRepository
 {
 
-
+    
     public function transfer(int $from, int $to, ?Options $option = null)
     {
         $count = 0;

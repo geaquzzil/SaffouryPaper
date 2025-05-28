@@ -17,10 +17,7 @@ final class Login extends BaseController
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $input = (array) $request->getParsedBody();
-
-
-
+        $input = $this->checkForBody($request);
         $data = json_decode((string) json_encode($input), false);
         if (! isset($data->phone)) {
             throw new Exception('The field "phone" is required.', 400);

@@ -93,10 +93,7 @@ final class CustomerController extends BaseController
     public function updateToken(Request $request, Response $response)
     {
         $this->initi($request, []);
-        $input = (array) $request->getParsedBody();
-        if (!$input) {
-            throw new \Exception("you dont have any body");
-        }
+        $input = $this->checkForBody($request);
         if (!Helpers::isSetKeyFromObj($input, "token")) {
             throw new \Exception("you dont have token");
         }

@@ -19,13 +19,8 @@ final class Update extends BaseController
         array $args
     ): Response {
         parent::init($request);
-        $input = (array) $request->getParsedBody();
-        if (!$input) {
-            throw new \Exception("you dont have any body");
-        }
+        $input = $this->checkForBody($request);
         $iD = (int)$args['iD'];
-
-
         $result = $this->container['repository']->edit($this->tableName, $iD, $input, $this->options);
 
         // $users = $this->getFindUserService()

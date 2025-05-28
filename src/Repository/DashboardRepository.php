@@ -14,25 +14,83 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
 {
 
 
+
+    private function setEmployeeOrCustomer(Options &$option, bool $requireOnlyEmployeeRecords = false)
+    {
+        $iD = $this->getUserID($option);
+        $isCustomer = $this->isCustomer($option);
+        $hasKey = $isCustomer ? "CustomerID ='$iD'" : ($requireOnlyEmployeeRecords ? "EmployeeID ='$iD'" : null);
+        $option = $hasKey ? $option->withStaticWhereQuery($hasKey) : $option;
+        return $hasKey ? true : false;
+    }
+    public function dashIT(string $tableName, Options $option)
+    {
+        $response = array();
+        $withInterval = $option->hasNotFoundedColumn("interval") ? true : false;
+        $isSet = $this->setEmployeeOrCustomer($option);
+
+        Helpers::setKeyValueFromObj(
+            $response,
+            "responseListAnalysis",
+            $this->getGrowthRate($tableName, null, $option, false, $withInterval)
+        );
+        $response['date'] = $option->date;
+        if ($isSet) {
+            $response['userID'] = $this->getUserID($option);
+        }
+        return $response;
+    }
+
+    public function getFundDashboard(Options $options, $requireOnlyEmployeeRecords = false)
+    {
+        $date = $options->date;
+        $iD = $this->getUserID($options);
+        $isCustomer = $this->isCustomer($options);
+        $isEmployee = $this->isEmployee($options);
+        $tableName = $isCustomer ? CUST : EMP;
+        $parentTableName = $isCustomer ? CUST : ($requireOnlyEmployeeRecords ? EMP : null);
+        $withInterval = $options->hasNotFoundedColumn("interval") ? true : false;
+        $withAnalysis = $options->hasNotFoundedColumn("withAnalysis") ? true : false;
+        $hasKey = $isCustomer ? "CustomerID ='$iD'" : ($requireOnlyEmployeeRecords ? "EmployeeID ='$iD'" : null);
+        $user = $this->view($tableName, $iD, null, Options::getInstance($options)->requireObjects());
+        $option = Options::getInstance($options);
+        $this->setEmployeeOrCustomer($option);
+        $option =
+            $option
+            ->withDate($date)
+            ->requireObjects()
+            ->requireDetails([
+                ORDR_D,
+                ORDR_R_D,
+                PURCH_D,
+                PURCH_R_D,
+                PR_INPUT_D,
+                PR_OUTPUT_D,
+                TR_D,
+                RI_D,
+                CRS_D,
+                CUT_RESULT
+            ]);
+    }
     //todo customer
     //todo or employee that see every thing 
     //todo employee only sees his crdits
-    public function getDashboard(Auth $auth, ?Date $date = null, bool $withAnalsis = false, $requireOnlyEmployeeRecords = false)
+    public function getDashboard(Options $options, $requireOnlyEmployeeRecords = false)
     {
-        $isCustomer = $auth->isCustomer();
-        $isEmployee = $auth->isEmployee();
-
-
-        $iD = $auth->getUserID();
+        $date = $options->date;
+        $iD = $this->getUserID($options);
+        $isCustomer = $this->isCustomer($options);
+        $isEmployee = $this->isEmployee($options);
         $tableName = $isCustomer ? CUST : EMP;
         $parentTableName = $isCustomer ? CUST : ($requireOnlyEmployeeRecords ? EMP : null);
-
-
-        $user = $this->view($tableName, $iD, null, Options::getInstance()->requireObjects());
+        $withInterval = $options->hasNotFoundedColumn("interval") ? true : false;
+        $withAnalysis = $options->hasNotFoundedColumn("withAnalysis") ? true : false;
         $hasKey = $isCustomer ? "CustomerID ='$iD'" : ($requireOnlyEmployeeRecords ? "EmployeeID ='$iD'" : null);
-        $option =
-            $hasKey ?
-            Options::withStaticWhereQuery($hasKey) :  Options::getInstance();
+
+        $user = $this->view($tableName, $iD, null, Options::getInstance($options)->requireObjects());
+        $option = Options::getInstance($options);
+        $this->setEmployeeOrCustomer($option);
+
         $option =
             $option
             ->withDate($date)
@@ -54,20 +112,20 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
 
         // $this->setLists($customer, ORDR, "OrderID", ORDR_R, ORDR_R_D,  $option, $parentTableName, $withAnalsis);
         // $this->setLists($customer, PURCH, "PurchaseID", PURCH_R, PURCH_R_D,  $option, $parentTableName, $withAnalsis);
-        $this->setListsWithAnalysis($user, CRED, $option, $parentTableName, $withAnalsis);
-        $this->setListsWithAnalysis($user, DEBT, $option, $parentTableName, $withAnalsis);
+        $this->setListsWithAnalysis($user, CRED, $option, $parentTableName, $withAnalysis);
+        $this->setListsWithAnalysis($user, DEBT, $option, $parentTableName, $withAnalysis);
 
 
         if ($isEmployee) {
-            $this->setListsWithAnalysis($user, INC, $option, $parentTableName, $withAnalsis);
-            $this->setListsWithAnalysis($user, SP, $option, $parentTableName, $withAnalsis);
-            $this->setListsWithAnalysis($user, PR_INPUT, $option, $parentTableName, $withAnalsis);
-            $this->setListsWithAnalysis($user, PR_OUTPUT, $option, $parentTableName, $withAnalsis);
-            $this->setListsWithAnalysis($user, TR, $option, $parentTableName, $withAnalsis);
+            $this->setListsWithAnalysis($user, INC, $option, $parentTableName, $withAnalysis);
+            $this->setListsWithAnalysis($user, SP, $option, $parentTableName, $withAnalysis);
+            $this->setListsWithAnalysis($user, PR_INPUT, $option, $parentTableName, $withAnalysis);
+            $this->setListsWithAnalysis($user, PR_OUTPUT, $option, $parentTableName, $withAnalysis);
+            $this->setListsWithAnalysis($user, TR, $option, $parentTableName, $withAnalysis);
         }
-        $this->setListsWithAnalysis($user, RI,  $option, $parentTableName, $withAnalsis);
+        $this->setListsWithAnalysis($user, RI,  $option, $parentTableName, $withAnalysis);
         $this->setListsWithAnalysis($user, CRS,  $option, $parentTableName, false);
-        $this->setListsWithAnalysis($user, CUT,  $option, $parentTableName, $withAnalsis);
+        $this->setListsWithAnalysis($user, CUT,  $option, $parentTableName, $withAnalysis);
 
         $dateDue = $option?->date?->unsetFrom();
         $previousDate = Date::getInstance()->getPreviousTo($date?->from);

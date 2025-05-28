@@ -506,58 +506,6 @@ function getValueToCalculateChangesRecord($tableName)
 			return null;
 	}
 }
-$API_ACTIONS["list_dashboard_single_item"] = function () {
-	$DateOrMonth;
-	$IsDate;
-	checkDateRequest($DateOrMonth, $IsDate);
-
-	$FROM = date("Y-m-d", strtotime($DateOrMonth['from']));
-	$TO = date("Y-m-d", strtotime($DateOrMonth['to']));
-	$E_FROM = date('Y-m-d', (strtotime('-1 day', strtotime($E_FROM))));
-	$permission = getUserPermissionTable();
-	$table = getRequestValue('table');
-	// 	jsonDecode(getRequestValue('date'));
-	$interval = getRequestValue('interval');
-	$customAction = jsonDecode(getRequestValue('customAction'));
-	if (($i = array_search($table, getAllTablesString())) !== FALSE) {
-	} else {
-		http_response_code(400);
-		returnResponseErrorMessage("Bad request");
-	}
-	$permission = checkPermissionForActionTableResultAndAction($permission, $table, "list");
-	if (!$permission) {
-		returnPermissionResponse($table, 0);
-	}
-	$response = array();
-
-	$currentYear = date("Y");
-	$currentYear = $currentYear . "-01-01";
-	$option = array();
-
-	if (isCustomer()) {
-		$option["WHERE_EXTENSION"] = " `CustomerID`='" . getUserID() . " AND Date(`date`) >= '$FROM' AND Date(`date`) <= '$TO' ORDER BY `date` DESC ";
-	} else {
-		$option["WHERE_EXTENSION"] = " Date(`date`) >= '$FROM' AND Date(`date`) <= '$TO' ORDER BY `date` DESC ";
-	}
-	//	$response["responseList"]=depthSearch(null,$table,1,getRequireArrayTables(),true,$option);
-	$customQuery = $customAction == null ? null : getQueryFromJson($customAction);
-	if ($interval === "daily") {
-		if (is_null($customQuery)) {
-			$response["responseListAnalysis"] = getGrowthRateAfterAndBeforeDaysInterval(changeToExtendedTableDashboard($table), getValueToCalculateGrowthRate($table), $FROM, $TO);
-		} else {
-			$response["responseListAnalysis"] = getGrowthRateAfterAndBeforeDaysIntervalWithWhereQuery(changeToExtendedTableDashboard($table), getValueToCalculateGrowthRate($table), $FROM, $TO, $customQuery);
-		}
-	} else {
-		if (is_null($customQuery)) {
-			$response["responseListAnalysis"] = getGrowthRateAfterAndBefore(changeToExtendedTableDashboard($table), getValueToCalculateGrowthRate($table), $FROM, $TO);
-		} else {
-			$response["responseListAnalysis"] = getGrowthRateAfterAndBeforeWithWhereQuery(changeToExtendedTableDashboard($table), getValueToCalculateGrowthRate($table), $FROM, $TO, $customQuery);
-		}
-	}
-	$response["date"] = $DateOrMonth;
-	$response["enteryInteval"] = $interval;
-	returnResponse($response);
-};
 function getQueryFromJson($customAction)
 {
 	$query = "";

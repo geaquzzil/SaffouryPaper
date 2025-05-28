@@ -55,12 +55,9 @@ abstract class BasePermission implements ServerActionInterface
     private $adminID = -2;
     protected $currentID = 0;
     protected $currentUserID = -1;
-    protected PermissionRepository $repo;
 
-    public function __construct(PermissionRepository $repo)
-    {
-        $this->repo = $repo;
-    }
+
+    public function __construct(protected PermissionRepository $repo) {}
     public function  getUserID()
     {
         if ($this->currentUserID == -1) {
@@ -135,6 +132,7 @@ abstract class BasePermission implements ServerActionInterface
         $decoded = $this->checkToken($jwt[1]);
         return $decoded;
     }
+
 
     protected function checkToSendNotification(Request $request, Response $response)
     {

@@ -14,17 +14,8 @@ final class Create  extends BaseController
     public function __invoke(Request $request, Response $response): Response
     {
         parent::init($request);
-        $input = (array) $request->getParsedBody();
-        if (!$input) {
-            throw new Exception("you dont have any body");
-        }
-        // $user = $this->getCreateUserService()->create($input);
-
-
+        $input = $this->checkForBody($request);
         $result = $this->container['repository']->add($this->tableName, $input, $this->options);
-
-        // $users = $this->getFindUserService()
-        //     ->getUsersByPage((int) $page, (int) $perPage, $name, $email);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

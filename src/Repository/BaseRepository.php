@@ -11,15 +11,18 @@ use Slim\Container;
 
 abstract class BaseRepository extends BaseDataBaseFunction
 {
-
-
-
-
-
-
-
-
-
+    public function isEmployee(Options $option)
+    {
+        return $option->auth->isEmployee();
+    }
+    public function isCustomer(Options $option)
+    {
+        return $option->auth->isCustomer();
+    }
+    public function getUserID(Options $option)
+    {
+        return $option->auth->getUserID();
+    }
 
     private function addforginKeys(string $tableName, &$obj, ?Options $option = null, ?string $parentTableName = null)
     {
@@ -694,8 +697,8 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
             ]
         )->withASCArray([
-            "`year`",
-            "`month`"
+            "year",
+            "month"
 
         ]);
         if ($requireDayInterval) {

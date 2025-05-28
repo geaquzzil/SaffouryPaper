@@ -24,6 +24,7 @@ use Etq\Restful\Controller\CustomerController;
 use Etq\Restful\Database\DBBackupAndRestore;
 use Etq\Restful\Middleware\Auth;
 use Etq\Restful\Middleware\Permissions\UserType;
+use Etq\Restful\Repository\DashboardRepository;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -49,28 +50,33 @@ class RouteFromTable
                 $app->post('', Create::class)->add(new AddPermission($permissionRep));
                 $app->put(self::ID_REQUIRED, Update::class)->add(new EditPermission($permissionRep));
                 $app->delete(self::ID_REQUIRED, Delete::class)->add(new DeletePermission($permissionRep));
+                $app->get('/dashit[/]', 'Etq\Restful\Controller\DashboardController:dashIT')->add(new ListPermission($permissionRep));
                 $app->get('/changed_records[/]', 'Etq\Restful\Controller\DefaultController:getChangedRecords')->add(new ListPermission($permissionRep));
                 $app->group(
                     "/not_used",
-                    function () use ($app): void {
-                        $app->delete('[/]', 'Etq\Restful\Controller\DashboardController:deleteNotUsedRecords')->add(new Auth(UserType::ADMIN));
-                        $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getNotUsedRecords')->add(new Auth(UserType::EMPLOYEE));
+                    function () use ($app, $permissionRep): void {
+                        $app->delete('[/]', 'Etq\Restful\Controller\DashboardController:deleteNotUsedRecords')->add(new Auth(UserType::ADMIN, $permissionRep));
+                        $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getNotUsedRecords')->add(new Auth(UserType::EMPLOYEE, $permissionRep));
                     }
 
                 );
-                $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerDataByTable')->add(new Auth(UserType::GUEST));
+                $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerDataByTable')->add(new Auth(UserType::GUEST, $permissionRep));
                 $r->addExtensionTableUrl($table, $app);
             });
         }
-        $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerData')->add(new Auth(UserType::GUEST));
-        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTables')->add(new Auth(UserType::ADMIN));
+        $app->post('/resetPassword', '');
+        // $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
+        $app->get('/action_transfer_account', 'Etq\Restful\Controller\ExtensionController:transferAccount');
+
+        $app->post('/login', \Etq\Restful\Controller\User\Login::class);
+        $app->get('/status', 'Etq\Restful\Controller\DefaultController:getStatus')->add(new Auth(UserType::ADMIN, $permissionRep));
+        $app->get('/ping', 'Etq\Restful\Controller\DefaultController:getPing');
+        $app->get('/', 'Etq\Restful\Controller\DefaultController:getHelp');
+
+        $app->get('/server_data[/]', 'Etq\Restful\Controller\DefaultController:getServerData')->add(new Auth(UserType::GUEST, $permissionRep));
+        $app->get('/tables[/]', 'Etq\Restful\Controller\DefaultController:getTables')->add(new Auth(UserType::ADMIN, $permissionRep));
         $app->get('/exchange_rate[/]', ExchangeRateController::class)
             ->add(new StaticPermission("action_exchange_rate", $permissionRep));
-        $app->group('/notification', function () use ($app): void {
-            $app->get('[/]', NotificationController::class);
-            $app->get('/' . CUST  . self::ID_OPTIONAL, NotificationController::class);
-            $app->get('/' . EMP . self::ID_OPTIONAL, NotificationController::class);
-        })->add(new StaticPermission("action_notification", $permissionRep));
 
         $app->put('/block[/{tableName:[A-Za-z]+}[/{iD:\d+}]]', BlockController::class)
             ->add(new StaticPermission("action_block", $permissionRep));
@@ -79,30 +85,17 @@ class RouteFromTable
         $app->put('/unblock[/{tableName:[A-Za-z]+}[/{iD:\d+}]]', BlockController::class . ":unblock")
             ->add(new StaticPermission("action_block", $permissionRep));
 
+        $app->group('/notification', function () use ($app): void {
+            $app->post('[/{tableName:[A-Za-z]+}[/{iD:\d+}]]', NotificationController::class . ":send");
+            $app->post('/topic/{topicName}', NotificationController::class . ":sendToTopic");
+        })->add(new StaticPermission("action_notification", $permissionRep));
 
-
-        $app->group('/transfer', function () use ($app): void {
-
-            $app->get('/' . CUST, TransferController::class);
-        })->add(new StaticPermission("action_transfer_account", $permissionRep));
-
-
-
-        $app->group('/dashboard', function () use ($app): void {
-            $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
+        $app->group('/dashboard', function () use ($app, $permissionRep): void {
+            $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard')->add(new Auth(UserType::CUSTOMER, $permissionRep));
+            $app->get('/fund[/]', 'Etq\Restful\Controller\DashboardController:getFundDashboard');
             // $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
-
             // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        })->add(new Auth(UserType::CUSTOMER));
-
-
-        // $app->group('/transfer', function () use ($app): void {
-        //     //TODO args from & to
-        //     $app->get('/customer_account', TransferController::class);
-        //     $app->get('/money', TransferController::class);
-
-        //     // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
-        // })->add(new StaticPermission("action_transfer_account", $app->getContainer()['permission_repository']));
+        });
 
 
 
@@ -121,7 +114,7 @@ class RouteFromTable
             // $res['Content-Length'] = filesize($zipname);
             $app->post('/backup[/]',    DatabaseController::class);
             $app->post('/restore[/]', DatabaseController::class);
-        })->add(new Auth(UserType::ADMIN));
+        })->add(new Auth(UserType::ADMIN, $permissionRep));
     }
     private function addExtensionTableUrl(string $tableName, &$app)
     {
@@ -144,7 +137,7 @@ class RouteFromTable
                                 $hasPermission = $hasPermission[0];
                             }
                             $app->{$router[2]}($router[0], $router[1])->add(
-                                new Auth($hasPermission, $allowHigherPerm)
+                                new Auth($hasPermission, $app->getContainer()['permission_repository'], $allowHigherPerm)
                             );
                             break;
                         case ExtenstionPermissionType::BY_TABLE:
@@ -250,8 +243,23 @@ class RouteFromTable
                 [UserType::EMPLOYEE, true],
                 ExtenstionPermissionType::BY_AUTH
             ],
+            // [
+            //     '/notification' . self::ID_OPTIONAL,
+            //     NotificationController::class . ":send",
+            //     'post',
+            //     "action_notification",
+            //     ExtenstionPermissionType::BY_STATIC
+            // ],
+
         ],
         CUST => [
+            // [
+            //     '/notification' . self::ID_OPTIONAL,
+            //     NotificationController::class . ":send",
+            //     'post',
+            //     "action_notification",
+            //     ExtenstionPermissionType::BY_STATIC
+            // ],
             [
                 '/token[/]',
                 'Etq\Restful\Controller\CustomerController:updateToken',
