@@ -100,7 +100,7 @@ class NotificationRepository extends BaseRepository
         try {
             $credential = new ServiceAccountCredentials(
                 "https://www.googleapis.com/auth/firebase.messaging",
-                json_decode(file_get_contents(__DIR__ . "/../../pvKey.json"), true)
+                json_decode($_SERVER["FIRE_BASE"], true)
             );
 
             $token = $credential->fetchAuthToken(HttpHandlerFactory::build());
