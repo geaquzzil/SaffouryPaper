@@ -25,7 +25,7 @@ final class ProductController extends BaseController
         $val = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
         $this->iD = $val ? (int)$val : null;
     }
-   
+
     //TODO bad performance
     public function getMovement(Request $request, Response $response, array $args): Response
     {
@@ -50,6 +50,12 @@ final class ProductController extends BaseController
     {
         $this->initi($request, $args);
         $result = $this->container['product_repository']->getExpectedProductsToBuy($this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+    public function getProductTypeAvailability(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+        $result = $this->container['product_repository']->getProductTypeAvailability($this->iD, $this->options);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

@@ -41,6 +41,93 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
         return $response;
     }
 
+    public function getSalesDashboard(Options $options, $requireOnlyEmployeeRecords = false)
+    {
+        $response = array();
+        $orderOption = $options->getClone($options);
+        Helpers::setKeyValueFromObj(
+            $response,
+            ORDR . "_offline_count",
+            $this->getGrowthRate(ORDR, null, $orderOption->addStaticQuery("status = 'NONE'"), true)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            ORDR . "_online_count",
+            $this->getGrowthRate(ORDR, null, $orderOption->addStaticQuery("status != 'NONE'"), true)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            CUST . "_count",
+            $this->getGrowthRate(CUST, null, $options, true)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            PR . "_count",
+            $this->getGrowthRate(PR, null, $options, true)
+        );
+
+
+        Helpers::setKeyValueFromObj(
+            $response,
+            "totalSalesQuantity",
+            $this->getGrowthRate(ORDR, "quantity", $options)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            "totalReturnsQuantity",
+            $this->getGrowthRate(ORDR, "refundQuantity", $options)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            "totalNetSalesQuantity",
+            $this->getGrowthRate(ORDR, "extendedNetQuantity", $options)
+        );
+
+        Helpers::setKeyValueFromObj(
+            $response,
+            "totalSalesPrice",
+            $this->getGrowthRate(ORDR, "extendedPrice", $options)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            "totalReturnsPrice",
+            $this->getGrowthRate(ORDR, "extendedRefundPrice", $options)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            "totalNetSalesPrice",
+            $this->getGrowthRate(ORDR, "extendedNetPrice", $options)
+        );
+
+
+        Helpers::setKeyValueFromObj(
+            $response,
+            "profitsByOrder",
+            $this->getGrowthRate("profits_orders", "total", $options)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            "profitsByCutRequests",
+            $this->getGrowthRate("profits_cut_requests_products", "totalPrice", $options)
+        );
+        Helpers::setKeyValueFromObj(
+            $response,
+            "wastesByCutRequests",
+            $this->getGrowthRate("wasted_cut_requests_products", "total", $options)
+        );
+        $this->setListsWithAnalysis($response, INC, $options, null, true);
+        $this->setListsWithAnalysis($response, SP, $options, null, true);
+        // $isSet = $this->setPreviousAndTodayDate($response, null, true, $options, false);
+
+        Helpers::setKeyValueFromObj(
+            $user,
+            "dateObject",
+            $options->date
+        );
+
+        return $response;
+    }
+
     public function getFundDashboard(Options $options, $requireOnlyEmployeeRecords = false)
     {
         $date = $options->date;
@@ -54,28 +141,70 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
         $hasKey = $isCustomer ? "CustomerID ='$iD'" : ($requireOnlyEmployeeRecords ? "EmployeeID ='$iD'" : null);
         $user = $this->view($tableName, $iD, null, Options::getInstance($options)->requireObjects());
         $option = Options::getInstance($options);
-        $this->setEmployeeOrCustomer($option);
+        $isSet = $this->setEmployeeOrCustomer($option);
         $option =
             $option
             ->withDate($date)
-            ->requireObjects()
-            ->requireDetails([
-                ORDR_D,
-                ORDR_R_D,
-                PURCH_D,
-                PURCH_R_D,
-                PR_INPUT_D,
-                PR_OUTPUT_D,
-                TR_D,
-                RI_D,
-                CRS_D,
-                CUT_RESULT
-            ]);
+            ->requireObjects();
+
+        $this->setListsWithAnalysis($user, CRED, $option, $parentTableName, $withAnalysis);
+        $this->setListsWithAnalysis($user, DEBT, $option, $parentTableName, $withAnalysis);
+
+
+        if ($isEmployee) {
+            $this->setListsWithAnalysis($user, INC, $option, $parentTableName, $withAnalysis);
+            $this->setListsWithAnalysis($user, SP, $option, $parentTableName, $withAnalysis);
+        }
+        $this->setPreviousAndTodayDate($user, $hasKey, $isEmployee, $option);
+        if ($isSet) {
+            Helpers::setKeyValueFromObj(
+                $user,
+                "userID",
+                $this->getUserID($option)
+            );
+        }
+        Helpers::setKeyValueFromObj(
+            $user,
+            "dateObject",
+            $option->date
+        );
+        return $user;
+    }
+    private function setPreviousAndTodayDate(&$user, $hasKey, $isEmployee, Options $option, bool $setCreditAndDebit = true)
+    {
+        $date = $option->date;
+        $dateDue = $option?->date?->unsetFrom();
+        $previousDate = Date::getInstance()->getPreviousTo($date?->from);
+        $preString = "previous";
+
+        if ($setCreditAndDebit) {
+            $date ? $this->setDue($user, DEBT, $hasKey, $previousDate, $option, $preString) : null;
+            $date ? $this->setDue($user, CRED, $hasKey, $previousDate, $option, $preString) : null;
+
+            $this->setDue($user, CRED, $hasKey, $date, $option,  null, "BalanceToday");
+            $this->setDue($user, DEBT, $hasKey, $date, $option,  null, "BalanceToday");
+
+            $this->setDue($user, CRED, $hasKey, $date ? $dateDue : null, $option);
+            $this->setDue($user, DEBT, $hasKey, $date ? $dateDue : null, $option);
+        }
+
+
+        if ($isEmployee) {
+            $date ? $this->setDue($user, SP, $hasKey, $previousDate, $option, $preString) : null;
+            $date ? $this->setDue($user, INC, $hasKey, $previousDate, $option, $preString) : null;
+
+            $this->setDue($user, SP, $hasKey, $date,  $option, null, "BalanceToday");
+            $this->setDue($user, INC, $hasKey, $date,  $option, null, "BalanceToday");
+
+            $this->setDue($user, SP, $hasKey, $date ? $dateDue : null, $option);
+            $this->setDue($user, INC, $hasKey, $date ? $dateDue : null, $option);
+        }
     }
     //todo customer
     //todo or employee that see every thing 
     //todo employee only sees his crdits
-    public function getDashboard(Options $options, $requireOnlyEmployeeRecords = false)
+    //todo pending reservation and overdue and pending cut request not payed and overdue customers
+    public function getDashboard(Options $options, $requireOnlyEmployeeRecords = true)
     {
         $date = $options->date;
         $iD = $this->getUserID($options);
@@ -89,7 +218,8 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
 
         $user = $this->view($tableName, $iD, null, Options::getInstance($options)->requireObjects());
         $option = Options::getInstance($options);
-        $this->setEmployeeOrCustomer($option);
+
+        $isSet = $this->setEmployeeOrCustomer($option, $requireOnlyEmployeeRecords);
 
         $option =
             $option
@@ -127,103 +257,19 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
         $this->setListsWithAnalysis($user, CRS,  $option, $parentTableName, false);
         $this->setListsWithAnalysis($user, CUT,  $option, $parentTableName, $withAnalysis);
 
-        $dateDue = $option?->date?->unsetFrom();
-        $previousDate = Date::getInstance()->getPreviousTo($date?->from);
-        $preString = "previous";
-        $date ? $this->setDue($user, DEBT, $hasKey, $previousDate, $preString) : null;
-        $date ? $this->setDue($user, CRED, $hasKey, $previousDate, $preString) : null;
+        $this->setPreviousAndTodayDate($user, $hasKey, $isEmployee, $option);
 
-        $this->setDue($user, CRED, $hasKey, $date,  null, "BalanceToday");
-        $this->setDue($user, DEBT, $hasKey, $date,  null, "BalanceToday");
-
-        $this->setDue($user, CRED, $hasKey, $date ? $dateDue : null);
-        $this->setDue($user, DEBT, $hasKey, $date ? $dateDue : null);
-
-
-
-        if ($isEmployee) {
-            $date ? $this->setDue($user, SP, $hasKey, $previousDate, $preString) : null;
-            $date ? $this->setDue($user, INC, $hasKey, $previousDate, $preString) : null;
-
-            $this->setDue($user, SP, $hasKey, $date,  null, "BalanceToday");
-            $this->setDue($user, INC, $hasKey, $date,  null, "BalanceToday");
-
-            $this->setDue($user, SP, $hasKey, $date ? $dateDue : null);
-            $this->setDue($user, INC, $hasKey, $date ? $dateDue : null);
+        if ($isSet) {
+            Helpers::setKeyValueFromObj(
+                $user,
+                "userID",
+                $this->getUserID($option)
+            );
         }
-
-
-        // if ($date) {
-        //     $this->setDue($user, DEBT, $hasKey, $previousDate, $preString);
-        //     $this->setDue($user, CRED, $hasKey, $previousDate, $preString);
-        //     if (!$isCustomer) {
-        //     }
-        // }
-
-        // if ($isCustomer) {
-
-
-        //     $this->setDue($user, DEBT, $hasKey, $dateDue);
-        //     $this->setDue($user, CRED, $hasKey, $dateDue);
-        //     if ($date) {
-        //     }
-        // } else {
-
-        //     $this->setDue($user, DEBT, $hasKey, $dateDue);
-        //     $this->setDue($user, CRED, $hasKey, $dateDue);
-        //     $this->setDue($user, INC, $hasKey, $dateDue);
-        //     $this->setDue($user, SP, $hasKey, $dateDue);
-
-        //     if ($date) {
-
-
-
-        //         $this->setDue($user, DEBT, $hasKey, $previousDate, $preString);
-        //         $this->setDue($user, CRED, $hasKey, $previousDate, $preString);
-        //         $this->setDue($user, INC, $hasKey, $previousDate, $preString);
-        //         $this->setDue($user, SP, $hasKey, $previousDate, $preString);
-
-
-        //         $this->setDue($user, DEBT, $hasKey, $date, null, "BalanceToday");
-        //         $this->setDue($user, CRED, $hasKey, $date,  null, "BalanceToday");
-        //         $this->setDue($user, INC, $hasKey, $date,  null, "BalanceToday");
-        //         $this->setDue($user, SP, $hasKey, $date,  null, "BalanceToday");
-        //     }
-        // }
-
-
-
-        // $response[DEBT . "Due"] = balanceDue(DEBT, $TO);
-        // 	$response[CRED . "Due"] = balanceDue(CRED, $TO);
-        // 	$response[INC . "Due"] = balanceDue(INC, $TO);
-        // 	$response[SP . "Due"] = balanceDue(SP, $TO);
-
-
-        // 	$response[DEBT . "BalanceToday"] = balanceDueFromTo(DEBT, $FROM, $TO);
-        // 	$response[CRED . "BalanceToday"] = balanceDueFromTo(CRED, $FROM, $TO);
-        // 	$response[INC . "BalanceToday"] = balanceDueFromTo(INC, $FROM, $TO);
-        // 	$response[SP . "BalanceToday"] = balanceDueFromTo(SP, $FROM, $TO);
-
-
-        // 	if ($IsDate) {
-        // 		$response["previous" . DEBT . "Due"] = balanceDuePrevious(DEBT, $FROM);
-        // 		$response["previous" . CRED . "Due"] = balanceDuePrevious(CRED, $FROM);
-        // 		$response["previous" . INC . "Due"] = balanceDuePrevious(INC, $FROM);
-        // 		$response["previous" . SP . "Due"] = balanceDuePrevious(SP, $FROM);
-        // 	}
-        // $this->setListsWithAnalysis($user, DEBT, $parentTableName, $withAnalsis, $option);
-
-        // $this->setLists($user, ORDR, "OrderID", ORDR_R, ORDR_R_D, $withAnalsis, $option);
-        // $this->setLists($user, PURCH, "PurchaseID", PURCH_R, PURCH_R_D, $withAnalsis, $option);
-
-        // $this->setListsWithAnalysis($user, RI, $parentTableName, $withAnalsis, $option);
-        // $this->setListsWithAnalysis($user, CRS, $parentTableName, false, $option);
-        // $this->setListsWithAnalysis($user, CUT, $parentTableName, $withAnalsis, $option);
-
         Helpers::setKeyValueFromObj(
-            $customer,
+            $user,
             "dateObject",
-            $user
+            $option->date
         );
         return $user;
     }

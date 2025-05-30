@@ -152,6 +152,16 @@ class Helpers
     {
         return gettype($object) === "object";
     }
+    public static function getIDSImpolde($array, $keyToFind, $getValueFromArray = false)
+    {
+        if ($getValueFromArray) {
+            $array = array_map(function ($tmp) {
+                return $tmp['iD'];
+            }, $array);
+        }
+        $ids = implode("','", $array);
+        return "$keyToFind IN ( '" . $ids . "' )";
+    }
     public static function isArrayByJson($object)
     {
         $object = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', json_encode($object)));

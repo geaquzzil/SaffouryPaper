@@ -26,8 +26,9 @@ class StaticPermission extends BasePermission
     ) {
 
         parent::invoke($request, $response, $next);
-        $response =  $next($request, $response);
         $request = $request->withAttribute('Auth', $this);
+        $response =  $next($request, $response);
+
         return $response;
     }
 

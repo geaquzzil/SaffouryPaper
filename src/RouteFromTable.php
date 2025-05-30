@@ -92,9 +92,8 @@ class RouteFromTable
 
         $app->group('/dashboard', function () use ($app, $permissionRep): void {
             $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard')->add(new Auth(UserType::CUSTOMER, $permissionRep));
-            $app->get('/fund[/]', 'Etq\Restful\Controller\DashboardController:getFundDashboard');
-            // $app->get('[/]', 'Etq\Restful\Controller\DashboardController:getDashboard');
-            // $app->get('/' . EMP . '[/[{iD:\d+}]]', BlockController::class);
+            $app->get('/fund[/]', 'Etq\Restful\Controller\DashboardController:getFundDashboard')->add(new Auth(UserType::CUSTOMER, $permissionRep));
+            $app->get('/sales[/]', 'Etq\Restful\Controller\DashboardController:getSalesDashboard')->add(new Auth(UserType::EMPLOYEE, $permissionRep));
         });
 
 
@@ -231,10 +230,16 @@ class RouteFromTable
                 ExtenstionPermissionType::BY_STATIC
             ],
         ],
-        // TYPE => [
-        //     // ['availability', 'Etq\Restful\Controller\ProductController:getProductTypeAvailability', 'get', null],
+        TYPE => [
+            [
+                '/availability',
+                'Etq\Restful\Controller\ProductController:getProductTypeAvailability',
+                'get',
+                TYPE,
+                ExtenstionPermissionType::BY_STATIC
+            ],
 
-        // ],
+        ],
         EMP => [
             [
                 '/token[/]',

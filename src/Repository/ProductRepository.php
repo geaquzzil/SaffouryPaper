@@ -6,11 +6,23 @@ namespace Etq\Restful\Repository;
 
 use Etq\Restful\Helpers;
 use Etq\Restful\Repository\BaseRepository;
+use Etq\Restful\Repository\Options;
 
 
 
 class ProductRepository extends SharedDashboardAndCustomerRepo
 {
+    public function getProductTypeAvailability(?int $iD = null, Options $option)
+    {
+
+        $results = $this->getFetshALLTableWithQuery("SELECT DISTINCT  `ProductTypeID` AS iD FROM `" . PR_SEARCH . "`");
+        if (!empty($results) || !is_null($results)) {
+            return $this->list(TYPE, null, $option->addStaticQuery(Helpers::getIDSImpolde($results, "iD", true)));
+        } else {
+            return array();
+            // no content
+        }
+    }
     public function setCustomsDeclaration()
     {
         // $API_ACTIONS["set_customs_declarations"] = function () {
@@ -55,7 +67,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         //     //json_decode(getRequestValue('data'),false)
         // };
     }
-    
+
     public function getMovement(int $iD, Options $options)
     {
         $object = $this->view(PR, $iD, null, $options->getClone()->removeDate());

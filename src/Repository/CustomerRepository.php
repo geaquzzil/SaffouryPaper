@@ -30,10 +30,10 @@ class CustomerRepository extends SharedDashboardAndCustomerRepo
         return $response;
     }
 
-    public function getStatement(int $iD, ?Date $date = null, bool $withAnalsis = false, bool $mobileVersion = false)
+    public function getStatement(int $iD, ?Options $option = null, bool $withAnalsis = false, bool $mobileVersion = false)
     {
         $customer = $this->view(CUST, $iD, null, Options::getInstance()->requireObjects());
-        $option = Options::withStaticWhereQuery("CustomerID ='$iD'")->withDate($date)
+        $option = Options::getInstance($option)->withStaticWhereQuery("CustomerID ='$iD'")
             ->requireObjects()
             ->requireDetails([ORDR_D, ORDR_R_D, PURCH_D, PURCH_R_D, RI_D, CRS_D, CUT_RESULT]);
 
@@ -50,12 +50,12 @@ class CustomerRepository extends SharedDashboardAndCustomerRepo
         Helpers::setKeyValueFromObj(
             $customer,
             "previousBalance",
-            $date ? $this->getBalance($iD, Date::getInstance()->getPreviousTo($date?->from)) : null
+            $option->date ? $this->getBalance($iD, Date::getInstance()->getPreviousTo($option->date?->from)) : null
         );
         Helpers::setKeyValueFromObj(
             $customer,
             "dateObject",
-            $date
+            $option->date
         );
 
         //TODO Balance

@@ -15,7 +15,7 @@ class Auth extends BasePermission
 {
     private $adminID = -1;
 
-    public function __construct(protected  $requiredType, private PermissionRepository $respo, protected bool $allowHigherPermission = true)
+    public function __construct(protected  $requiredType, PermissionRepository $respo, protected bool $allowHigherPermission = true)
     {
         parent::__construct($respo);
     }

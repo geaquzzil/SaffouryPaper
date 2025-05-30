@@ -2,7 +2,7 @@
 //Firebase
 define('CONTENT_TYPE', 'Content-Type: application/json');
 define('FB_AUTH', 'Authorization:key=AAAALy4dvOs:APA91bHTtKwlwqV3DBRbPK6uU7WRZFZarxmwWkgB4srZ75mmfMhm_M0rgAVOd2-ViZcA55amDClZ_HjL_7IeH2NozYtF0hcYEAPP1_MpAdV4mUjO5aNUvZzBJiNEfLSjhPBgfDpKWWy7');
-define('FB_URL', 'https://fcm.googleapis.com/v1/projects/falconpaper-c7f81/messages:send');
+
 
 define('FB_GENERAL_NOTIFCATION', 'FB_GENERAL_NOTIFCATION');
 define('FB_NEW_PRODUCT', 'FB_NEW_PRODUCT');

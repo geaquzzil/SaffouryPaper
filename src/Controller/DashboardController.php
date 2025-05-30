@@ -35,25 +35,19 @@ final class DashboardController extends BaseController
     public function getDashboard(Request $request, Response $response, array $args): Response
     {
         $this->initi($request, $args);
-
-        // $date = $this->options?->date?->unsetFrom();
-
-        $auth =   $request->getAttribute('Auth');
-        // $val = $auth->isEmployee() ? "True" : "false";
-        // $iD = $auth->getUserID();
         $result = $this->container['dashboard_repository']->getDashboard($this->options);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
-    public function getMoneyDashboard(Request $request, Response $response, array $args): Response
+    public function getSalesDashboard(Request $request, Response $response, array $args)
     {
         $this->initi($request, $args);
-
-        // $date = $this->options?->date?->unsetFrom();
-
-        $auth =   $request->getAttribute('Auth');
-        // $val = $auth->isEmployee() ? "True" : "false";
-        // $iD = $auth->getUserID();
-        $result = $this->container['dashboard_repository']->getMoneyDashboard($this->options);
+        $result = $this->container['dashboard_repository']->getSalesDashboard($this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
+    }
+    public function getFundDashboard(Request $request, Response $response, array $args): Response
+    {
+        $this->initi($request, $args);
+        $result = $this->container['dashboard_repository']->getFundDashboard($this->options);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
 

@@ -1,5 +1,8 @@
 
 <?php
+
+define('FB_URL', 'https://fcm.googleapis.com/v1/projects/falconpaper-c7f81/messages:send');
+
 /*
  * All database connection variables
  */

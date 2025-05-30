@@ -192,7 +192,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
     {
         if (!$option) {
             echo "\nnew Options\n";
-            $option = Options::withStaticWhereQuery("iD = '$iD'");
+            $option = Options::getInstance($option)->withStaticWhereQuery("iD = '$iD'");
         } else {
 
             echo "\n clone Options\n";
@@ -350,7 +350,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         }
         if ($iD) {
             if (!$option) {
-                $option = Options::withStaticWhereQuery("iD = '$iD'");
+                $option = Options::getInstance($option)->withStaticWhereQuery("iD = '$iD'");
             } else {
                 $option = $option->getClone($option)->addStaticQuery("iD = '$iD'");
             }

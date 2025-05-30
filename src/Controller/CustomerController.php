@@ -46,7 +46,7 @@ final class CustomerController extends BaseController
     public function getStatement(Request $request, Response $response, array $args): Response
     {
         $this->initi($request, $args);
-        $result = $this->container['customer_repository']->getStatement($this->iD, $this->options->date, true);
+        $result = $this->container['customer_repository']->getStatement($this->iD, $this->options, true);
         return $this->jsonResponse($response, 'success', $result, 200);
     }
     public function getBalance(Request $request, Response $response, array $args): Response

@@ -131,17 +131,17 @@ class Options
     }
     public function withStaticSelect($staticQuery)
     {
-        $this->staticSelect[] = $staticQuery;
+        $this->staticSelect = $staticQuery;
         return $this;
     }
     public function withStaticSumSelect($staticQuery)
     {
-        $this->staticSumSelect[] = $staticQuery;
+        $this->staticSumSelect = $staticQuery;
         return $this;
     }
     public function withStaticGroupBySelect($staticQuery)
     {
-        $this->staticGroupBySelect[] = $staticQuery;
+        $this->staticGroupBySelect = $staticQuery;
         return $this;
     }
     public function addGroupBy($groupBy)
@@ -206,7 +206,7 @@ class Options
             if (!empty($this->staticSumSelect)) {
                 $arr = array_merge($arr, $this->staticSumSelect);
             }
-
+            print_r($arr);
 
             return implode(",", $arr);
         }
@@ -228,11 +228,11 @@ class Options
         return $instance;
     }
 
-    public static function withStaticWhereQuery(?string $query = null)
+    public function withStaticWhereQuery(?string $query = null)
     {
-        $instance = new self();
-        $instance->addStaticQuery($query);
-        return $instance;
+        $this->addStaticQuery($query);
+
+        return $this;
     }
     public  function withDate(?Date $date = null)
     {
@@ -289,7 +289,7 @@ class Options
 
         if (!$request) return;
         $this->auth = $request->getAttribute("Auth", null);
-        $bool = is_null(($this->auth)) ? "is null" : "not null";
+        $bool = is_null(($this->auth)) ? "is auth null" : "not auth null";
         echo "\n" . $bool . " \n";
 
         // $this->auths=$request->attrib

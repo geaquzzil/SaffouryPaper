@@ -14,7 +14,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
     protected $cachedCustomerBalances = [];
 
 
-    
+
     public function getOverDueReservationInvoice(?int $iD = null, ?Date $date = null, $requiresEqualsSign = false, $isOverDue = false)
     {
         $result = array();
@@ -140,9 +140,9 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         }
         return $this->getFetshTableWithQuery($Query);
     }
-    public function getBalanceFund($tableName, ?string  $staticWhere = null, ?Date $date = null)
+    public function getBalanceFund($tableName, ?string  $staticWhere = null, Options $option, ?Date $date = null)
     {
-        $option = Options::getInstance()
+        $option = Options::getInstance($option)
             ->withStaticWhereQuery($staticWhere)
             ->addStaticQuery("(isDirect is NULL OR isDirect=0)")
             ->addStaticQuery("(FromBox is NULL OR FromBox=0)")
@@ -203,6 +203,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         $tableName,
         ?string $staticWhere = null,
         ?Date $date = null,
+        ?Options $option = null,
         ?string $preString = null,
         string $postString = "Due",
     ) {
@@ -210,7 +211,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         Helpers::setKeyValueFromObj(
             $object,
             $key,
-            $this->getBalanceFund($tableName, $staticWhere, $date)
+            $this->getBalanceFund($tableName, $staticWhere, $option, $date)
         );
     }
     public function setLists(
@@ -243,7 +244,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
                 );
             }
             $ids = implode("','", $results);
-            $detailOption = Options::withStaticWhereQuery("$forginID IN ('$ids')")
+            $detailOption = Options::getInstance($option)->withStaticWhereQuery("$forginID IN ('$ids')")
                 ->requireObjects()
                 ->requireDetails([$detailTableNameDetail]);
             Helpers::setKeyValueFromObj(

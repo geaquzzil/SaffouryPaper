@@ -51,7 +51,7 @@ class NotificationRepository extends BaseRepository
         }
         $isGeneralToAll =  !$tableName && !$iD;
         $option = Options::getInstance();
-        $option = $option->addStaticSelect("token")->addStaticQuery("(token is not null or token <> '' )")->addStaticQuery(ACTIVATION_FIELD . "=1");
+        $option = $option->withStaticSelect(["token", "name"])->addStaticQuery("(token is not null or token <> '' )")->addStaticQuery(ACTIVATION_FIELD . "=1");
         echo "notification is send to all ?  $isGeneralToAll ";
         $response = array();
         $results = array();
@@ -70,7 +70,7 @@ class NotificationRepository extends BaseRepository
         if ($isToSpecificUser) {
             $results = $this->list($tableName, null, $option->addStaticQuery("iD = '$iD'"));
         }
-        print_r($results);
+
         if (!empty($results)) {
             if ($topic) {
                 $response = $this->sendNotification($notificationObject, null, $topic);
@@ -90,47 +90,69 @@ class NotificationRepository extends BaseRepository
     public function getNotificationObject($obj)
     {
         return [
-            'title' => $obj->title,
-            'body' => $obj->body,
+            'title' => Helpers::getKeyValueFromObj($obj, "title"),
+            'body' => Helpers::getKeyValueFromObj($obj, "body"),
         ];
     }
 
     public function sendNotification($obj, ?string $tokenID = null, ?string $topic = null)
     {
-        $credential = new ServiceAccountCredentials(
-            "https://www.googleapis.com/auth/firebase.messaging",
-            json_decode(file_get_contents(__DIR__ . "/../../pvKey.json"), true)
-        );
+        try {
+            $credential = new ServiceAccountCredentials(
+                "https://www.googleapis.com/auth/firebase.messaging",
+                json_decode(file_get_contents(__DIR__ . "/../../pvKey.json"), true)
+            );
 
-        $token = $credential->fetchAuthToken(HttpHandlerFactory::build());
+            $token = $credential->fetchAuthToken(HttpHandlerFactory::build());
 
-        $ch = curl_init(FB_URL);
+            $ch = curl_init(FB_URL);
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $token['access_token']
-        ]);
-        $to = array();
-        if ($topic) {
-            $to = ["topic" => $topic];
-        } else {
-            $to = ["token" => $tokenID];
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $token['access_token']
+            ]);
+            $fcmNotification = array();
+            if ($topic) {
+
+
+                $fcmNotification = [
+                    'message' => [
+                        "topic" => $topic,
+                        'notification' => $this->getNotificationObject($obj),
+                    ],
+                ];
+            } else {
+                $fcmNotification = [
+                    'message' => [
+                        "token" => $tokenID,
+                        'notification' => $this->getNotificationObject($obj),
+                    ],
+                ];
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "post");
+
+            $response = curl_exec($ch);
+
+            curl_close($ch);
+            echo "ssososososos";
+            if ($response) {
+
+                return json_decode($response);
+            } else {
+                return ["error" => [
+                    "code" => 503,
+                    "message" => "unknown error",
+                ]];
+            }
+        } catch (\Exception $e) {
+
+            return ["error" => [
+                "code" => 503,
+                "message" =>
+                $e->getMessage(),
+            ]];
         }
-
-        $fcmNotification = [
-            'message' => [
-                $to,
-                'notification' => $this->getNotificationObject($obj),
-            ],
-        ];
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
-
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "post");
-
-        $response = curl_exec($ch);
-
-        curl_close($ch);
-
-        return $response;
     }
 }
