@@ -302,7 +302,6 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
     }
     public function getProfits(Options $option)
     {
-
         return $this->getGrowthRate("profits_orders", "total", $option);
     }
 }

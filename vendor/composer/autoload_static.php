@@ -46,6 +46,10 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
             'Predis\\' => 7,
             'PhpOption\\' => 10,
         ),
+        'N' => 
+        array (
+            'NumberToWords\\' => 14,
+        ),
         'M' => 
         array (
             'Monolog\\' => 8,
@@ -147,6 +151,10 @@ class ComposerStaticInit43c43a01c7335350cbbdbb77a20f1ce6
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'NumberToWords\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/kwn/number-to-words/src',
         ),
         'Monolog\\' => 
         array (
