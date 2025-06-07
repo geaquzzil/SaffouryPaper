@@ -106,6 +106,7 @@ class Options
     {
         $instance = clone $this;
         $instance->auth = $old?->auth;
+        $instance->tableName = $old->tableName;
         return $instance;
     }
     public function removeDate()
@@ -225,6 +226,7 @@ class Options
     {
         $instance = new self();
         $instance->auth = $old?->auth;
+        $instance->tableName = $old?->tableName;
         return $instance;
     }
 

@@ -86,6 +86,11 @@ abstract class BaseDataBaseFunction
         return $this->container->get("search_repository");
     }
 
+    public function getFundRepository()
+    {
+        return $this->container->get("fund_repository");
+    }
+
     public function getCount($obj, $foreing)
     {
         return
@@ -160,13 +165,17 @@ abstract class BaseDataBaseFunction
 
     public function getInsertQuery($tableName, $object, ?int $iD = null)
     {
+
         $action = (!$iD ? "INSERT INTO " : " UPDATE ");
         $insert = $iD ? false : true;
         if ($insert) {
+            $array = array_map(function ($value) {
+                return "NULLIF('$value','')";
+            }, array_values($object));
             $query = $action . addslashes($tableName) .
                 " (`" . implode('`,`',  array_keys(($object))) .
-                "`) VALUES ('" . implode("','", array_values(($object))) . "')";
-            //   echo "\n $query \n";
+                "`) VALUES (" . implode(",", (($array))) . ")";
+            echo "\n $query \n";
             return $query;
         } else {
             $query = "UPDATE `" . addslashes($tableName) . "` SET ";
@@ -329,7 +338,9 @@ abstract class BaseDataBaseFunction
     {
         $type = ForginCheckType::NONE;
         if (is_array($typeArray)) {
+            echo "\ngetValueToCheckForeing is array for $currentForeingTableName \n";
             if (key_exists($currentForeingTableName, $typeArray)) {
+
                 $type = $typeArray[$currentForeingTableName];
             }
         }
@@ -358,14 +369,16 @@ abstract class BaseDataBaseFunction
     }
     private function addForginObjectsFromObject($tableName, &$object, BaseRepository $baseRepository, $type = ForginCheckType::NONE, ?string $parentTableName = null)
     {
+        echo "\nstarting addForginObjectsFromObject for table $tableName with type\n ";
+        print_r($type);
+        // $originalType =clone $type;
         $forginsObjectsOriginal = $this->getCachedForginObject($tableName);
         foreach ($forginsObjectsOriginal as $fo) {
             $childTableName = $fo[rtn];
             $forginIDInParent = $fo[cn];
             $ob = $fo[rtn]; //tablename
 
-            echo "\ntableName $tableName\n";
-            $val = $this->getValueToCheckForeing($object, $fo, $type, $childTableName, $type);
+            $val = $this->getValueToCheckForeing($object, $fo, $type, $childTableName, $otherType);
 
             if ($childTableName == $parentTableName) {
                 Helpers::setKeyValueFromObj($object, $forginIDInParent, $val);
@@ -373,11 +386,11 @@ abstract class BaseDataBaseFunction
                 unset($object->$childTableName);
                 continue;
             }
-            if ($type != ForginCheckType::NONE) {
+            if ($otherType != ForginCheckType::NONE) {
                 $array = ["iD" => $val];
                 if (Helpers::isNewRecord($array)) {
                     echo "\n addingForginOBjectsFromOBject is new record ";
-                    $val = $this->getValueToCheckForeing($object, $fo,  ForginCheckType::NONE, $childTableName, $type);
+                    $val = $this->getValueToCheckForeing($object, $fo,  ForginCheckType::NONE, $childTableName, $otherType);
                 } else {
                     echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and set $forginIDInParent: $val ";
                     Helpers::setKeyValueFromObj($object, $forginIDInParent, $val);
@@ -391,7 +404,7 @@ abstract class BaseDataBaseFunction
                 Helpers::setKeyValueFromObj(
                     $object,
                     $ob,
-                    $this->validateObjectAndAdd($ob, $object->$ob, $baseRepository, $type)
+                    $this->validateObjectAndAdd($ob, $object->$ob, $baseRepository, $otherType)
                 );
                 $res =
                     ($baseRepository)->search(
@@ -424,19 +437,28 @@ abstract class BaseDataBaseFunction
     protected function addForginListFromObject($tableName, &$object,  BaseRepository $baseRepository, $resultsForingList)
     {
         $type = [$tableName => ForginCheckType::BY_ID_IN_VALUE];
+        print_r($type);
         $forginsLists = $this->getCachedForginList($tableName);
-        $iD = Helpers::getKeyValueFromObj($object, 'iD');
+        $iD = Helpers::getKeyValueFromObj($object, ID);
         foreach ($resultsForingList as $fo) {
             $objectValueArray = Helpers::isSetKeyFromObjReturnValue($object, $fo);
+            if (!Helpers::isArray($objectValueArray)) {
+                throw new \Exception("forgin list must be array not objcet");
+            }
             // print_r($objectValueArray);
+            // die;
             foreach ((array)$objectValueArray as &$item) {
 
                 // echo "\naddForginListFromObject getting $fo from $tableName\n";
                 $res =  array_search($fo, array_column($forginsLists, TABLE_NAME));
                 $res = $forginsLists[$res];
+                // print_r($item);
                 Helpers::convertToObject($item);
                 Helpers::setKeyValueFromObj($item, $res[cn], $iD);
+
                 Helpers::setKeyValueFromObj($item, $tableName, $object);
+                echo "\nforing list item to be added \n";
+                print_r($item);
                 // echo "\nstarting adding foring list for $fo\n\n\n";
                 if ($fo == "childs") {
                     // echo "\nis childs chnging to $tableName \n";
@@ -495,7 +517,7 @@ abstract class BaseDataBaseFunction
     protected function after($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
     {
         echo "\nafter $tableName \n";
-        $bool = is_null(($option->auth)) ? " $tableName is auth null\n" : " $tableName not auth null\n";
+        $bool = is_null(($option?->auth)) ? " $tableName is auth null\n" : " $tableName not auth null\n";
         echo "\n" . $bool . " \n";
 
         if ($this->container->offsetExists($tableName)) {

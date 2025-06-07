@@ -2,6 +2,7 @@
 
 use Etq\Restful\Repository\CustomerRepository;
 use Etq\Restful\Repository\DashboardRepository;
+use Etq\Restful\Repository\FundRepository;
 use Etq\Restful\Repository\Repository;
 use Etq\Restful\Repository\UserRepository;
 use Etq\Restful\Repository\PermissionRepository;
@@ -14,6 +15,9 @@ $container['repository'] = static fn(
     ContainerInterface $container
 ): Repository => new Repository($container->get('db'), $container);
 
+$container['fund_repository'] = static fn(
+    ContainerInterface $container
+): FundRepository => new FundRepository($container->get('db'), $container);
 $container['user_repository'] = static fn(
     ContainerInterface $container
 ): UserRepository => new UserRepository($container->get('db'), $container);

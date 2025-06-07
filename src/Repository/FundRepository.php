@@ -12,7 +12,7 @@ use Etq\Restful\Repository\BaseRepository;
 class FundRepository extends BaseRepository
 {
 
-    
+
     public function transfer(int $from, int $to, ?Options $option = null)
     {
         $count = 0;
@@ -31,7 +31,7 @@ class FundRepository extends BaseRepository
         return $response;
     }
 
-    private function getJournalTableNameFromExisting($object)
+    private function getJournalTableNameFromExisting($object, &$journalRecord)
     {
         $journalID = Helpers::getKeyValueFromObj($object, "isDirect");
         if ($journalID != 0) {
@@ -46,17 +46,31 @@ class FundRepository extends BaseRepository
             }
         }
     }
-    public function checkToDeleteJournal(&$object)
+    public function checkToDeleteJournal(&$iD, Options $option)
     {
-        if (!$this->isJournalRecord($object)) return;
-        $journalTable = $this->getJournalTableNameFromExisting($object);
-        deleteObject(Helpers::getKeyValueFromObj($object, JO), $journalTable, false);
-        Helpers::setKeyValueFromObj($journal, "iD", Helpers::getKeyValueFromObj($object, "isDirect"));
-        deleteObject($journal, JO, false);
+        $tableName = $option->tableName;
+        $obj = $this->view($tableName, $iD, null, Options::getInstance($option)->requireObjects([JO]));
+        // print_r($obj);
+        $journalRecord = $this->isJournalRecord($obj);
+        if (is_null($journalRecord)) return;
+        $journalID = Helpers::getKeyValueFromObj($journalRecord, ID);
+        $journalTable = Helpers::getKeyValueFromObj($journalRecord, "transaction");
+        $journalTable = explode("_", $journalTable);
+        if ($iD == Helpers::getKeyValueFromObj($journalRecord, "fromAccount")) {
+            $journalTable = $journalTable[1];
+        } else {
+            $journalTable = $journalTable[0];
+        }
+        $journalOtherObjcet = Helpers::getKeyValueFromObj($journalRecord, JO);
+        // print_r($journalOtherObjcet);
+        $journaOtherObjcetID = Helpers::getKeyValueFromObj($journalOtherObjcet, ID);
+        // echo "\njournal table is $journalTable with ID =$journaOtherObjcetID JOURNAL ID $journalID \n";
+        $this->delete($journalTable, $journaOtherObjcetID);
+        $this->delete(JO, $journalID);
     }
     private function isJournalRecord($object)
     {
-        return Helpers::isSetKeyAndNotNullFromObj($object, 'isDirect');
+        return Helpers::isSetKeyFromObjReturnValue($object, JO);
     }
     private function checkToSetJournal(&$item)
     {

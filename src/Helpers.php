@@ -87,15 +87,16 @@ class Helpers
     {
         if (self::isObject($object)) {
             return
-                property_exists($object, $key) && isset($object->{$key});
+                property_exists($object, $key);
         } else {
-            return isset($object[$key]);
+            return array_key_exists($key, $object);
         }
     }
     public static function unSetKeyFromObj(&$object, $key)
     {
+        echo "\checking set $key\n";
         if (self::isSetKeyFromObj($object, $key)) {
-
+            echo "\nis set $key\n";
             if (self::isObject($object)) {
                 unset($object->$key);
             } else {

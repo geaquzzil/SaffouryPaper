@@ -145,29 +145,6 @@ $FIX_ADD_OBJECT[CRED] = function (&$object) {
 $FIX_ADD_OBJECT[DEBT] = function (&$object) {
 	checkToAddRemoveJournal($object, DEBT);
 };
-$FIX_ADD_OBJECT[CUSTOMS_IMAGES] = function (&$object) {
-	if (isBase64($object->image)) {
-		unset($object->delete);
-		$filename_path = md5(time() . uniqid()) . ".jpg";
-		$base64_string = str_replace('data:image/png;base64,', '', $object->image);
-		$base64_string = str_replace(' ', '+', $object->image);
-		$decoded = base64_decode($base64_string);
-		file_put_contents("Images/" . $filename_path, $decoded);
-		$object->image = ROOT . "Images/" . $filename_path;
-	}
-};
-
-$FIX_ADD_OBJECT[HOME_ADS] = function (&$object) {
-	if (isBase64($object->image)) {
-		unset($object->delete);
-		$filename_path = md5(time() . uniqid()) . ".jpg";
-		$base64_string = str_replace('data:image/png;base64,', '', $object->image);
-		$base64_string = str_replace(' ', '+', $object->image);
-		$decoded = base64_decode($base64_string);
-		file_put_contents("Images/" . $filename_path, $decoded);
-		$object->image = ROOT . "Images/" . $filename_path;
-	}
-};
 
 $FIX_ADD_OBJECT[PR] = function (&$object) {
 	if (property_exists($object, 'status') && isset($object->status)) {

@@ -2,11 +2,34 @@
 
 use Etq\Restful\Helpers;
 use Etq\Restful\Repository\BaseRepository;
+use Etq\Restful\Repository\FundRepository;
 use Etq\Restful\Repository\Joins;
 use Etq\Restful\Repository\JoinType;
 use Etq\Restful\Repository\Options;
 
 
+function setImage(&$object)
+{
+    $image = Helpers::isSetKeyFromObjReturnValue($object, "image");
+    if (Helpers::isBase64($image)) {
+        Helpers::unSetKeyFromObj($object, "delete");
+        $filename_path = md5(time() . uniqid()) . ".jpg";
+        $base64_string = str_replace('data:image/png;base64,', '', $image);
+        $base64_string = str_replace(' ', '+', $image);
+        $decoded = base64_decode($base64_string);
+        file_put_contents("Images/" . $filename_path, $decoded);
+        Helpers::setKeyValueFromObj($object, "image", $filename_path);
+    }
+}
+function unlinkImage($object)
+{
+    $image = Helpers::isSetKeyFromObjReturnValue($object, "image");
+    if ($image) {
+        $image =  ROOT . "Images/" . $image;
+        echo "unlinking $image";
+        Helpers::unlinkFile($image);
+    }
+}
 function setImagePath(&$object)
 {
     $image = Helpers::isSetKeyFromObjReturnValue($object, "image");
@@ -18,39 +41,6 @@ function setImagePath(&$object)
         );
     }
 }
-//  "journal_voucher": {
-//                 "iD": 72,
-//                 "fromAccount": 187,
-//                 "toAccount": 26,
-//                 "transaction": "credits_debits"
-//             },
-$container[JO] = [
-    AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $rep) {
-        $transaction = Helpers::isSetKeyFromObjReturnValue($object, "transaction");
-        if ($transaction) {
-            $str_arr = explode("_", $transaction);
-            $fromAccount = Helpers::isSetKeyFromObjReturnValue($object, "fromAccount");
-            $toAccount = Helpers::isSetKeyFromObjReturnValue($object, "toAccount");
-            for ($i = 0; $i < count($str_arr); $i++) {
-                $table = $str_arr[$i];
-                if (!Helpers::isEqualsString($table, $option->tableName)) {
-                    Helpers::setKeyValueFromObj(
-                        $object,
-                        JO,
-                        $rep->view(
-                            $table,
-                            $i == 0 ? $fromAccount : $toAccount,
-                            JO,
-                            Options::getInstance($option)->requireObjects([EMP, CUST, WARE, AC_NAME])
-                        )
-                    );
-                }
-                # code...
-            }
-        }
-    }
-];
-
 $container[EMP] = [
     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $rep) {
         Helpers::unSetKeyFromObj($object, "password");
@@ -120,13 +110,34 @@ $container[TR] = [
     }
 ];
 
-// $container[CUSTOMS_IMAGES] = [
-//     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
-//         setImagePath($object);
-//     }
-// ];
-// $container[HOME_ADS] = $container[CUSTOMS_IMAGES];
-// $container[TYPE] = $container[CUSTOMS_IMAGES];
+$container[CUSTOMS_IMAGES] = [
+    BEFORE . EDIT => function (&$object, ?Options &$option, BaseRepository $reo) {
+        setImage($object);
+    },
+    BEFORE . ADD => function (&$object, ?Options &$option, BaseRepository $reo) {
+        setImage($object);
+    },
+    BEFORE . DELETE => function (&$object, ?Options &$option, BaseRepository $reo) {
+        unlinkImage($object);
+    }
+];
+$container[CUSTOMS] = [
+    BEFORE . DELETE => function (&$object, ?Options &$option, BaseRepository $reo) {
+        $images = Helpers::isSetKeyFromObjReturnValue($object, CUSTOMS_IMAGES);
+        if (!$images || is_null($images) || empty($images)) {
+            $iD = Helpers::getKeyValueFromObj($object, "iD");
+            $images = $reo->list(CUSTOMS_IMAGES, null, Options::getInstance()->withStaticSelect("CustomsDeclarationID=''$iD"));
+        }
+        if (!empty($images)) {
+            foreach ($images as $ob) {
+                unlinkImage($ob);
+            }
+        }
+    }
+
+];
+$container[HOME_ADS] = $container[CUSTOMS_IMAGES];
+$container[TYPE] = $container[CUSTOMS_IMAGES];
 $container[PURCH] = [
     BEFORE . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
         echo "\n inside container  before VIEW";

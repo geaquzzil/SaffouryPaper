@@ -19,39 +19,8 @@ final class Delete extends BaseController
         array $args
     ): Response {
         parent::init($request);
-        $iD = $this->checkForID($args);
-        //TODO BEFORE DELETE 
-        //TODO DELETE
-        //TODO AFTER DELETE
-
-        $this->getRepository();
-        
-	$pdo = setupDatabase();
-	try {
-		$query = "SELECT * FROM  `" . addslashes($tableName) . "` " . getWhereQuery($object);
-		$toDeleteObjects = getFetshALLTableWithQuery($query);
-		if (empty($toDeleteObjects)) {
-			return null;
-		}
-		$responseArray = array();
-		foreach ($toDeleteObjects as $deleteObject) {
-			// echo "F";
-			$deleteObject["serverStatus"] = doDelete($deleteObject, $tableName, $sendNoti);
-			fixDeleteResponseObjectExtenstion($deleteObject, $tableName);
-			$responseArray[] = $deleteObject;
-			//	array_push($responseArray,$deleteObject);
-		}
-		return $responseArray;
-	} catch (PDOException $e) {
-		return null;
-	}
-        // $userIdLogged = $this->getAndValidateUserId($input);
-
-        // $this->checkUserPermissions($id, $userIdLogged);
-        // $this->getDeleteUserService()->delete($id);
-
-
-
-        return $this->textResponse($response, "Delete $iD");
+        $iD = (int)$args['iD'];
+        $result = $this->container['repository']->delete($this->tableName, $iD, $this->options);
+        return $this->jsonResponse($response, 'success', $result, 200);
     }
 }

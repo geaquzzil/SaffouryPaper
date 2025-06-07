@@ -144,7 +144,7 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
     {
         $option = Options::getInstance($option)
             ->withStaticWhereQuery($staticWhere)
-            ->addStaticQuery("(isDirect is NULL OR isDirect=0)")
+            //TODO ->addStaticQuery("(isDirect is NULL OR isDirect=0)")TODO check This
             ->addStaticQuery("(FromBox is NULL OR FromBox=0)")
             ->withDate($date)->withGroupByArray(
                 [

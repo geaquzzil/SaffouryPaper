@@ -69,7 +69,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                     echo "addforginKeysList isParent skip";
                     continue;
                 }
-                $iD = Helpers::getKeyValueFromObj($obj, "iD");
+                $iD = Helpers::getKeyValueFromObj($obj, ID);
                 $where = $forgin["COLUMN_NAME"];
                 if (
                     !QueryHelpers::isDetailedIDEmpty($obj, $forgin) &&
@@ -247,8 +247,6 @@ abstract class BaseRepository extends BaseDataBaseFunction
     {
         $origianlObject = Helpers::cloneByJson($object);
         Helpers::convertToObject($origianlObject);
-
-
         $this->before($tableName, $object, ServerAction::ADD, $option, $this);
         // todo unset foringlists to another array 
         Helpers::convertToObject($object);
@@ -262,9 +260,10 @@ abstract class BaseRepository extends BaseDataBaseFunction
             $searchedArray = $this->search($tableName, $object, true, false, true, $resultsForingList);
             if ($searchedArray) {
                 $iD = $searchedArray['iD'];
-                Helpers::setKeyValueFromObj($object, "iD", $iD);
+                Helpers::setKeyValueFromObj($object, ID, $iD);
                 echo "founded  $tableName--->->-> $iD\n";
                 if (!empty($resultsForingList)) {
+                    echo " \n im in addForginListFromObject for $tableName\n";
                     $this->addForginListFromObject($tableName, $object, $this, $resultsForingList);
                 }
 
@@ -276,16 +275,17 @@ abstract class BaseRepository extends BaseDataBaseFunction
         // $hasForginList=
         echo "----->->->->->to be added to $tableName \n\n";
 
-        Helpers::setKeyValueFromObj($object, "iD", null);
+        Helpers::setKeyValueFromObj($object, ID, null);
 
         $query = $this->getInsertQuery($tableName, (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true));
         echo "\n $query \n";
         $insertID = $this->getInsertTableWithQuery($query);
-        Helpers::setKeyValueFromObj($object, "iD", $insertID);
+        Helpers::setKeyValueFromObj($object, ID, $insertID);
         // print_r($object);
         if (!empty($resultsForingList)) {
+            echo " \n im in addForginListFromObject for $tableName\n";
             $this->addForginListFromObject($tableName, $object, $this, $resultsForingList);
-            echo " \n im in add for $tableName\n";
+
             die;
         }
         //
@@ -315,7 +315,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             echo "search is disabled for $tableName\n";
             return array();
         }
-        Helpers::unSetKeyFromObj($cloned, "iD");
+        Helpers::unSetKeyFromObj($cloned, ID);
         if ($this->unsetDateWhenSearch($tableName)) {
             Helpers::unSetKeyFromObj($cloned, "date");
         }
@@ -324,7 +324,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         Helpers::unSetKeyFromObj($cloned, "password");
         Helpers::unSetKeyFromObj($cloned, "profile");
         $cloned = $this->unsetAllForginList($tableName, $cloned, $resultsForingList, true);
-        // print_r($cloned);
+        print_r($cloned);
 
         $option = Options::getInstance();
         $option->searchRepository = $this->getSearchRepository();
@@ -345,7 +345,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
     }
     public function delete(string $tableName, ?int $iD, ?Options $option = null)
     {
-        if ((!$iD && !$option?->isSetRequestColumnsKey("iD")) || ($iD && $option?->isSetRequestColumnsKey("iD"))) {
+        if ((!$iD && !$option?->isSetRequestColumnsKey(ID)) || ($iD && $option?->isSetRequestColumnsKey(ID))) {
             throw new Exception("cant determine id");
         }
         if ($iD) {
@@ -358,9 +358,9 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $this->before($tableName, $iD, ServerAction::DELETE, $option, $this);
         $query = $this->getQuery($tableName, ServerAction::DELETE,  $option);
         $rowCount = $this->getDeleteTableWithQuery($query);
-        $requestArrayCount = count($option?->getRequestColumnValue("iD"));
+        $requestArrayCount = count($option?->getRequestColumnValue(ID));
         $requestCount = $iD ? 1 : $requestArrayCount;
-        $requestIDS = $iD ? [$iD] : ($option?->getRequestColumnValue("iD") ?? []);
+        $requestIDS = $iD ? [$iD] : ($option?->getRequestColumnValue(ID) ?? []);
         $response = array();
         $response["requestCount"] = $requestCount;
         $response["requestIDS"] = $requestIDS;
@@ -515,7 +515,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
         $objectToCheck = array();
         foreach ($tableColumns as $table) {
-            if ($table === "iD" && !is_numeric($object)) {
+            if ($table === ID && !is_numeric($object)) {
                 continue;
             }
             //do something with your $key and $value;
