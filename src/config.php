@@ -69,6 +69,7 @@ define('PR', "products");
 define('PR_SEARCH', "products_search_view");
 define('PR_INV', "inventory_products");
 define('PR_INV_NEW', "new_inventory_products");
+define('INV', "inventory");
 
 
 define('PR_INPUT', "products_inputs");

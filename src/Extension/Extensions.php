@@ -146,48 +146,51 @@ $container[PURCH] = [
         echo "\n inside container after VIEW";
     },
 ];
-// $container[PR] = [
-//     BEFORE . LISTO => function (&$object, ?Options &$option, BaseRepository $reo) {
-//         if ($option->notFoundedColumns->get("requiresInventory", null)) {
-//             $option->addJoin(new Joins(PR_INV_NEW, PR, ID, JoinType::RIGHT));
-//             $option->addStaticQuery("quantity <> 0");
-//         }
-//     },
-//     //TODO takes 2 sec for each 20 rows
-//     ONFEH => function (&$arr, ?Options &$option, BaseRepository $reo) {
-//         if ($option->notFoundedColumns->get("requiresInventory", null)) {
-//             $arr = array_values($arr);
-//             foreach (($arr) as &$a) {
-//                 // print_r($a);
-//                 $obj = array();
-//                 $obj['ProductID'] = $a['ProductID'];
-//                 $obj['WarehouseID'] = $a['WarehouseID'];
-//                 $obj['quantity'] = $a['quantity'];
-//                 $obj[WARE] = $reo->view(WARE, $obj['WarehouseID']);
-//                 unset($a['ProductID'], $a['WarehouseID'], $a['quantity']);
-//                 $a["inStock"] = array();
-//                 $a["inStock"][] = $obj;
-//             }
-//             // print_r($arr);
-//             $arr = array_values(Helpers::removeDuplicatesAndAdd($arr, ID, "inStock"));
-//         }
-//     },
-//     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
+$container[PR] = [
+    BEFORE . LISTO => function (&$object, ?Options &$option, BaseRepository $reo) {
+        if ($option->notFoundedColumns->get("requiresInventory", null)) {
+            $option
+                ->replaceTableName(INV)
+                ->addJoin(new Joins(INV, PR, "ProductID", JoinType::RIGHT, ID))
+                ->addStaticQuery("quantity <> 0")
+                ->addGroupBy("ProductID");
+        }
+    },
+    //TODO takes 2 sec for each 20 rows
+    // ONFEH => function (&$arr, ?Options &$option, BaseRepository $reo) {
+    //     if ($option->notFoundedColumns->get("requiresInventory", null)) {
+    //         $arr = array_values($arr);
+    //         foreach (($arr) as &$a) {
+    //             // print_r($a);
+    //             $obj = array();
+    //             $obj['ProductID'] = $a['ProductID'];
+    //             $obj['WarehouseID'] = $a['WarehouseID'];
+    //             $obj['quantity'] = $a['quantity'];
+    //             $obj[WARE] = $reo->view(WARE, $obj['WarehouseID']);
+    //             unset($a['ProductID'], $a['WarehouseID'], $a['quantity']);
+    //             $a["inStock"] = array();
+    //             $a["inStock"][] = $obj;
+    //         }
+    //         // print_r($arr);
+    //         $arr = array_values(Helpers::removeDuplicatesAndAdd($arr, ID, "inStock"));
+    //     }
+    // },
+    // AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
 
-//         if (!Helpers::isSetKeyFromObj($object, "inStock")) {
-//             $iD = Helpers::getKeyValueFromObj($object, ID);
-//             Helpers::setKeyValueFromObj(
-//                 $object,
-//                 "inStock",
-//                 $reo->list(
-//                     PR_INV_NEW,
-//                     PR,
-//                     Options::getInstance()->addStaticQuery("ProductID='$iD'")->requireObjects()
-//                 )
-//             );
-//         }
-//     },
-// ];
+    //     if (!Helpers::isSetKeyFromObj($object, "inStock")) {
+    //         $iD = Helpers::getKeyValueFromObj($object, ID);
+    //         Helpers::setKeyValueFromObj(
+    //             $object,
+    //             "inStock",
+    //             $reo->list(
+    //                 PR_INV_NEW,
+    //                 PR,
+    //                 Options::getInstance()->addStaticQuery("ProductID='$iD'")->requireObjects()
+    //             )
+    //         );
+    //     }
+    // },
+];
 $container[TYPE] = [
     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
         $text_purchase_price = $option->auth->checkForPermissionBoolean("text_purchase_price");

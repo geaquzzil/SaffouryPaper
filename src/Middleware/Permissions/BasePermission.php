@@ -136,10 +136,10 @@ abstract class BasePermission implements ServerActionInterface
 
     protected function checkToSendNotification(Request $request, Response $response)
     {
-        //todo
         $tableName = $this->getTableName($request);
         $action = $this->getAction();
         echo "  \nim in checkToSend Notificaiton\n :tableNAme $tableName, Action is : $action \n";
+        // if($action==)
 
         $originalObject = (array)$request->getParsedBody();
         // StreamInterface $s; 

@@ -1,10 +1,22 @@
-BEGIN
-IF OLD.isDirect !=0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Jouranl cannot be deleted.';
+
+BEGIN 
+IF OLD.fromWarehouse <> NEW.fromWarehouse
+OR OLD.toWarehouse <> NEW.toWarehouse THEN
+DECLARE done INT DEFAULT FALSE;
+DECLARE p INT;
+DECLARE q DOUBLE;
+DECLARE cur CURSOR FOR SELECT ProductID,quantity FROM transfers_details WHERE transfers_details.TransferID = OLD.iD;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+OPEN cur;
+ins_loop: LOOP 
+FETCH cur INTO p,q;
+IF done THEN LEAVE ins_loop;
 END IF;
-END
-
-
-INSERT INTO `spendings` (`iD`, `CashBoxID`, `EqualitiesID`, `EmployeeID`, `NameID`, `isDirect`, `date`, `value`, `fromBox`, `comments`) VALUES ('37', '1', '157', '1', '16', NULL, current_timestamp(), '322000', '0', NULL);
-INSERT INTO `incomes` (`iD`, `CashBoxID`, `EqualitiesID`, `EmployeeID`, `NameID`, `isDirect`, `date`, `value`, `fromBox`, `comments`) VALUES ('53', '1', '158', '1', '16', NULL, current_timestamp(), '100', '0', '100 $ مقابل: 322,000 ل.س سعر الصرف: 3220\"');
+CALL PlusQuantity(OLD.fromWarehouse, p, q, -1);
+CALL MinusQuantity(NEW.fromWarehouse, p, q, -1);
+CALL MinusQuantity(OLD.toWarehouse, p, q, -1);
+CALL PlusQuantity(NEW.toWarehouse, p, q, -1);
+END LOOP;
+CLOSE cur;
+END IF;
+END;

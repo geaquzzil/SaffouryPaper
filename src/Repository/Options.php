@@ -36,7 +36,7 @@ class Options
 
 
 
-
+    public ?string $replaceTableNameInWhereClouser = null;
 
     public  $listObjects;
 
@@ -107,6 +107,7 @@ class Options
         $instance = clone $this;
         $instance->auth = $old?->auth;
         $instance->tableName = $old->tableName;
+        $instance->replaceTableNameInWhereClouser = $old->replaceTableNameInWhereClouser;
         return $instance;
     }
     public function removeDate()
@@ -212,6 +213,11 @@ class Options
             return implode(",", $arr);
         }
     }
+    public function replaceTableName(string $tableName)
+    {
+        $this->replaceTableNameInWhereClouser = $tableName;
+        return $this;
+    }
     public function requireDetails(?array $arr = null)
     {
         $this->addForginsList = $arr ?? true;
@@ -227,6 +233,7 @@ class Options
         $instance = new self();
         $instance->auth = $old?->auth;
         $instance->tableName = $old?->tableName;
+        $instance->replaceTableNameInWhereClouser = $old->replaceTableNameInWhereClouser;
         return $instance;
     }
 
@@ -463,8 +470,8 @@ class Options
     {
 
         $limitQuery = $this->getLimitOrPageCountOffset();
-        $sortQuery = $this->sortOption?->getQuery();
-        $dateQuery = $this->date?->getQuery($tableName);
+        $sortQuery = $this->sortOption?->getQuery($this->replaceTableNameInWhereClouser ?? $this->tableName);
+        $dateQuery = $this->date?->getQuery($this->replaceTableNameInWhereClouser ?? $tableName);
         $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request, $this);
         $statics = null;
         $groupBy = null;
@@ -634,8 +641,13 @@ class SortOption
         $this->fields[] = $field;
     }
     public function __construct(public array $fields, protected SortType $sortType) {}
-    public function getQuery(): string
+    public function getQuery(?string $tableName = null): string
     {
+        if ($tableName) {
+            $this->fields = array_map(function ($item) use ($tableName) {
+                return " $tableName.$item ";
+            }, $this->fields);
+        }
         switch ($this->sortType) {
             case SortType::ASC:
                 return  " ORDER BY " .  implode(",", $this->fields) . " ASC ";
@@ -743,7 +755,7 @@ enum JoinType
 }
 class Joins
 {
-    public function __construct(public string $tableName, public string $onTableName, public string $onField, public JoinType $joinType) {}
+    public function __construct(public string $tableName, public string $onTableName, public string $onField, public JoinType $joinType, public ?string $onFiledJoined = null) {}
     private function getJoinType()
     {
         switch ($this->joinType) {
@@ -759,7 +771,8 @@ class Joins
     public function getQuery()
     {
         $join = $this->getJoinType();
+        $onFieldJ = $this->onFiledJoined ?? $this->onField;
 
-        return  "$join `$this->tableName` ON `$this->tableName`.`$this->onField` = `$this->onTableName`.`$this->onField` ";
+        return  "$join `$this->tableName` ON `$this->tableName`.`$this->onField` = `$this->onTableName`.`$onFieldJ` ";
     }
 }

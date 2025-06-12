@@ -106,7 +106,7 @@ class QueryHelpers
         $tableName = self::getJsonKeyFromForginArray($key);
         $primaryKey = $key["COLUMN_NAME"];
         $iD = Helpers::getKeyValueFromObj($object, "iD");
-        $query = "SELECT Count(iD) AS result FROM  `" . addslashes($tableName) . "`  WHERE `$primaryKey`='$iD'";
+        $query = "SELECT Count(*) AS result FROM  `" . addslashes($tableName) . "`  WHERE `$primaryKey`='$iD'";
         echo $query . "\n";
         return $query;
     }
