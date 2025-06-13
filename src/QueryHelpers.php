@@ -3,6 +3,7 @@
 namespace Etq\Restful;
 
 use Etq\Restful\Helpers;
+use Etq\Restful\Repository\Options;
 
 class QueryHelpers
 {
@@ -100,6 +101,11 @@ class QueryHelpers
         $primaryKey = $key["COLUMN_NAME"];
         $iD = Helpers::getKeyValueFromObj($object, "iD");
         return "SELECT * FROM  " . addslashes($tableName) . "  WHERE $primaryKey='$iD'";
+    }
+    public static function getCountQueryForTable($tableName, ?Options $options = null)
+    {
+        $query = "SELECT Count(*) AS result FROM  " . addslashes($tableName) . " " . ($options?->getQuery($tableName) ?? "");
+        return $query;
     }
     public static function getCountQuery($object, $key)
     {

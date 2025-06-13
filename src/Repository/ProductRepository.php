@@ -70,7 +70,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
 
     public function getMovement(int $iD, Options $options)
     {
-        $object = $this->view(PR, $iD, null, $options->getClone()->removeDate());
+        $object = $this->view(PR, $iD, null, $options->getClone($options)->removeDate());
         $options =  $options->addStaticQuery("ProductID='$iD'");
 
         $this->setListsWithAnalysisByListByDetail($object, ORDR, ORDR_D, $options);
@@ -89,7 +89,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         $this->setListsWithAnalysis(
             $object,
             CUT,
-            $options->getClone()->requireDetails()->requireObjects(),
+            $options->getClone($options)->requireDetails()->requireObjects(),
             null,
             true
         );

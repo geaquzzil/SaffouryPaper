@@ -25,8 +25,6 @@ final class ProductController extends BaseController
         $val = Helpers::isSetKeyFromObjReturnValue($args, 'iD');
         $this->iD = $val ? (int)$val : null;
     }
-
-    //TODO bad performance
     public function getMovement(Request $request, Response $response, array $args): Response
     {
         $this->initi($request, $args);

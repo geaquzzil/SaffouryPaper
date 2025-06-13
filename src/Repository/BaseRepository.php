@@ -147,7 +147,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $detailsResult = $this->list(
             $detailTableName,
             $masterTableName,
-            $option->getClone()
+            $option->getClone($option)
                 ->removeDate()->requireObjects()
         );
         if (empty($detailsResult)) return (array());

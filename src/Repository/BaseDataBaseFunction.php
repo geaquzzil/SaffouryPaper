@@ -90,7 +90,14 @@ abstract class BaseDataBaseFunction
     {
         return $this->container->get("fund_repository");
     }
-
+    public function getFetshCountQueryForTable($tableName,?Options $option=null)
+    {
+        return
+            Helpers::getKeyValueFromObj(
+                $this->getFetshTableWithQuery(QueryHelpers::getCountQueryForTable($tableName, $option)),
+                "result"
+            );
+    }
     public function getCount($obj, $foreing)
     {
         return

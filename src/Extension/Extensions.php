@@ -156,60 +156,25 @@ $container[PR] = [
                 ->addGroupBy("ProductID");
         }
     },
-    //TODO takes 2 sec for each 20 rows
-    // ONFEH => function (&$arr, ?Options &$option, BaseRepository $reo) {
-    //     if ($option->notFoundedColumns->get("requiresInventory", null)) {
-    //         $arr = array_values($arr);
-    //         foreach (($arr) as &$a) {
-    //             // print_r($a);
-    //             $obj = array();
-    //             $obj['ProductID'] = $a['ProductID'];
-    //             $obj['WarehouseID'] = $a['WarehouseID'];
-    //             $obj['quantity'] = $a['quantity'];
-    //             $obj[WARE] = $reo->view(WARE, $obj['WarehouseID']);
-    //             unset($a['ProductID'], $a['WarehouseID'], $a['quantity']);
-    //             $a["inStock"] = array();
-    //             $a["inStock"][] = $obj;
-    //         }
-    //         // print_r($arr);
-    //         $arr = array_values(Helpers::removeDuplicatesAndAdd($arr, ID, "inStock"));
-    //     }
-    // },
-    // AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
 
-    //     if (!Helpers::isSetKeyFromObj($object, "inStock")) {
-    //         $iD = Helpers::getKeyValueFromObj($object, ID);
-    //         Helpers::setKeyValueFromObj(
-    //             $object,
-    //             "inStock",
-    //             $reo->list(
-    //                 PR_INV_NEW,
-    //                 PR,
-    //                 Options::getInstance()->addStaticQuery("ProductID='$iD'")->requireObjects()
-    //             )
-    //         );
-    //     }
-    // },
 ];
 $container[TYPE] = [
     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
-        $text_purchase_price = $option->auth->checkForPermissionBoolean("text_purchase_price");
-        $text_prices_for_customer = $option->auth->checkForPermissionBoolean("text_prices_for_customer");
+        $text_purchase_price = $option?->auth?->checkForPermissionBoolean("text_purchase_price");
+        $text_prices_for_customer = $option?->auth?->checkForPermissionBoolean("text_prices_for_customer");
         if (!$text_prices_for_customer) {
             Helpers::unSetKeyFromObj($object, "sellPrice");
         }
         if (!$text_purchase_price) {
             Helpers::unSetKeyFromObj($object, "purchasePrice");
         }
-
-        // $iD = $object['iD'];
-        //todo fixing bad performance
-        // $results=getFetshTableWithQuery("SELECT COUNT(`ProductTypeID`) AS availability FROM `".PR_SEARCH."` WHERE `ProductTypeID`='$iD'");
-        // if(!empty($results) || !is_null($results)){
-        //     $object['availability']=$results['availability'];
-        // }else{
-        //     $object['availability']=0;
-        // }
+        $iD = Helpers::getKeyValueFromObj($object, ID);
+        $res = $reo->getFetshCountQueryForTable(PR_SEARCH, Options::getInstance($option)->addStaticQuery("ProductTypeID='$iD'"));
+        Helpers::setKeyValueFromObj(
+            $object,
+            "availability",
+            $res
+        );
     },
 ];
 $container[PR_INV_NEW] = [

@@ -106,8 +106,8 @@ class Options
     {
         $instance = clone $this;
         $instance->auth = $old?->auth;
-        $instance->tableName = $old->tableName;
-        $instance->replaceTableNameInWhereClouser = $old->replaceTableNameInWhereClouser;
+        $instance->tableName = $old?->tableName;
+        $instance->replaceTableNameInWhereClouser = $old?->replaceTableNameInWhereClouser;
         return $instance;
     }
     public function removeDate()
@@ -233,7 +233,7 @@ class Options
         $instance = new self();
         $instance->auth = $old?->auth;
         $instance->tableName = $old?->tableName;
-        $instance->replaceTableNameInWhereClouser = $old->replaceTableNameInWhereClouser;
+        $instance->replaceTableNameInWhereClouser = $old?->replaceTableNameInWhereClouser;
         return $instance;
     }
 
