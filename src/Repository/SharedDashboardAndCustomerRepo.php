@@ -54,7 +54,6 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
     {
 
         $iDQuery = "";
-
         if ($iD) {
             $iDQuery = "WHERE customers.iD='$iD' ";
         }
@@ -62,12 +61,9 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
         $d = $date ? "WHERE" . $date->getQuery('equality_debits') : "";
         $o = $date ? "WHERE" . $date->getQuery('extended_order_refund') : "";
         $p = $date ? "WHERE" . $date->getQuery('extended_purchases_refund') : "";
-
-        // echo "popo \n$c $d $o $p";
-        // die;
-
-        return $this->getFetshALLTableWithQuery("SELECT customers.iD,
-            customers.name,
+        return $this->getFetshALLTableWithQuery("
+        SELECT
+            customers.iD,customers.name,customers.phone,
             COALESCE(credits.sumPay,0) AS totalCredits,
             COALESCE(debits.Sum_eq,0) AS totalDebits,
             COALESCE(orders.Sum_ExtendedPrice,0) AS totalOrders,

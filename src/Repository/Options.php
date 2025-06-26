@@ -696,51 +696,6 @@ class SearchOption
         // die;
 
         return implode(" AND ", $searchWhere);
-
-        if ($SEARCH_QUERY) {
-
-            $option["SEARCH_QUERY"] =  getSearchQueryMasterStringValue(getRequestValue('searchStringQuery'), $tableName);
-            if (!empty($RequestTableColumnsCustom)) {
-
-                $whereQuery = array();
-
-                //this line to add AND VIA implode because the implode function does not add any value if array ===1
-                foreach ($RequestTableColumnsCustom as $rtc) {
-                    $requestValue = getRequestValue("<" . $rtc . ">");
-                    $query = getCustomSearchQueryColumnReturnQuery($tableName, $rtc, $requestValue);
-                    if (!isEmptyString($query)) {
-                        $whereQuery[] =    $query;
-                    }
-                }
-                $joinedQuery = "";
-                if (!empty($RequestTableColumns)) {
-                    $joinedQuery = ($option["WHERE_EXTENSION"] . " AND " . implode(" AND ", $whereQuery));
-                } else {
-                    $joinedQuery = implode(" AND ", $whereQuery);
-                }
-
-                $option["WHERE_EXTENSION"] =  $joinedQuery;
-            }
-            if (!empty($RequestTableColumns)) {
-
-                $whereQuery = array();
-
-                //this line to add AND VIA implode because the implode function does not add any value if array ===1
-                foreach ($RequestTableColumns as $rtc) {
-
-                    $requestValue = getRequestValue("<" . $rtc . ">");
-
-                    if (!isEmptyString($requestValue)) {
-                        $whereQuery[] =    $rtc . " LIKE '" . $requestValue . "'";
-                    }
-                }
-
-                $joinedQuery = "";
-                $joinedQuery = implode(" AND ", $whereQuery);
-                //echo $joinedQuery."   sdasda";
-                $option["WHERE_EXTENSION"] =  $joinedQuery;
-            }
-        }
     }
 }
 enum SortType

@@ -97,7 +97,7 @@ abstract class BaseController implements BaseControllerInterface
 
     protected function init(Request $request)
     {
-        $this->tableName  = Helpers::explodeURIGetTtableName($request->getUri()->getPath());
+        $this->tableName  = Helpers::explodeURIGetTableName($request->getUri()->getPath());
         $this->options = $this->getOptions($request);
         $this->auth  = $request->getAttribute('Auth', null);
     }
