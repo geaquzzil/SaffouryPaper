@@ -1,15 +1,6 @@
 <?php
 ///should require db_config
 //permission table
-define('PER', "permissions_levels");
-define('USR_L', "userlevels");
-
-define('PERV', "permission");
-define("ACTIVATION_FIELD", "activated");
-define("USER_FIELD", "phone");
-define("PASSWORD_FIELD", "password");
-define("ADMIN_ID", -2);
-define("LOGIN", "login");
 
 
 

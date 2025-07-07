@@ -70,7 +70,7 @@ abstract class BaseController implements BaseControllerInterface
         string $status,
         $message,
         int $code,
-        ?bool  $withHeder = true
+        ?bool  $withHeder = false
     ): Response {
 
         $result = [

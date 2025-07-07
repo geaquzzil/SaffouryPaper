@@ -3,6 +3,12 @@
 
 define('FB_URL', 'https://fcm.googleapis.com/v1/projects/falconpaper-c7f81/messages:send');
 
+
+
+define('ERR_SERVER_UNKNOWN', 400);
+define('ERR_USER_INCORRET', 401);
+define('ERR_BLOCK', 402);
+
 /*
  * All database connection variables
  */
@@ -125,6 +131,17 @@ define('KSIZE', "SizeID");
 define('KCOUNTRY', "CountryID");
 define('KMANUFACTURE', "ManufactureID");
 define('KLVL', "userlevelid");
+
+
+define('PER', "permissions_levels");
+define('USR_L', "userlevels");
+
+define('PERV', "permission");
+define("USER_FIELD", "phone");
+define("PASSWORD_FIELD", "password");
+define("ADMIN_ID", -2);
+define("LOGIN", "login");
+
 
 
 

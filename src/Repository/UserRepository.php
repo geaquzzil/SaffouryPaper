@@ -7,6 +7,7 @@ namespace Etq\Restful\Repository;
 
 use Etq\Restful\Repository\BaseRepository;
 use Exception;
+use Etq\Restful\Helpers;
 
 class UserRepository extends BaseRepository
 {
@@ -14,10 +15,10 @@ class UserRepository extends BaseRepository
     {
         return "
                SELECT
-                     iD,phone , password, userlevelid from employees WHERE phone = :phone 
+                     iD,phone , password, userlevelid,name from employees WHERE phone = :phone 
                 UNION all 
                 SELECT
-                    iD,phone , password, userlevelid from customers WHERE phone = :phone2
+                    iD,phone , password, userlevelid,name from customers WHERE phone = :phone2
             ";
     }
 
@@ -76,7 +77,16 @@ class UserRepository extends BaseRepository
             false
         );
     }
-
+    public function isBlocked($user)
+    {
+        $isBlocked = Helpers::isSetKeyAndNotNullFromObj($user, ACTIVATION_FIELD);
+        if (is_null($isBlocked)) {
+            throw new \Exception('server failure', ERR_SERVER_UNKNOWN);
+        }
+        if ($isBlocked == 0) {
+            throw new \Exception('server failure', ERR_BLOCK);
+        }
+    }
     private function checkToLogin(string $phone)
     {
         $query = $this->getQueryLoginUser();
@@ -91,7 +101,7 @@ class UserRepository extends BaseRepository
         if (! $user) {
             throw new \Exception(
                 'Login failed: phone or password incorrect.',
-                400
+                ERR_USER_INCORRET
             );
         }
 
@@ -104,10 +114,16 @@ class UserRepository extends BaseRepository
         if (! password_verify($password, $user["password"])) {
             throw new \Exception(
                 'Login failed: phone or password incorrect.',
-                400
+                ERR_USER_INCORRET
             );
         }
+        isBlocked();
 
+        Helpers::setKeyValueFromObj(
+            $user,
+            USR,
+            $this->view(USR, Helpers::getKeyValueFromObj($user, KLVL))
+        );
 
         return $user;
     }
