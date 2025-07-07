@@ -16,6 +16,7 @@ if (PHP_SAPI == 'cli-server') {
 // date_default_timezone_set('UTC');
 
 require __DIR__ . '/../vendor/autoload.php';
+// require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'vendor/composer', 'vendor/autoload.php']);
 
 use Etq\Restful\App;
 
