@@ -44,11 +44,8 @@ final class Login extends BaseController
             'HS256'
         );
 
-        return $this->jsonResponse($response, 'success', [
-            'name' => Helpers::isSetKeyFromObjReturnValue($user, 'name'),
-            'phone' => Helpers::isSetKeyFromObjReturnValue($user, 'phone'),
-            'userlevelid' => Helpers::isSetKeyFromObjReturnValue($user, 'userlevelid'),
-            'token' => $message
-        ], 200);
+        Helpers::setKeyValueFromObj($user, 'token', $message);
+        Helpers::unSetKeyFromObj($user, 'password');
+        return $this->jsonResponse($response, 'success', $user, 200);
     }
 }

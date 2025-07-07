@@ -15,10 +15,10 @@ class UserRepository extends BaseRepository
     {
         return "
                SELECT
-                     iD,phone , password, userlevelid,name from employees WHERE phone = :phone 
+                     iD,phone , password, userlevelid, name,activated from employees WHERE phone = :phone 
                 UNION all 
                 SELECT
-                    iD,phone , password, userlevelid,name from customers WHERE phone = :phone2
+                    iD,phone , password, userlevelid,name,activated from customers WHERE phone = :phone2
             ";
     }
 
@@ -79,12 +79,13 @@ class UserRepository extends BaseRepository
     }
     public function isBlocked($user)
     {
-        $isBlocked = Helpers::isSetKeyAndNotNullFromObj($user, ACTIVATION_FIELD);
-        if (is_null($isBlocked)) {
+        $val = Helpers::getKeyValueFromObj($user, ACTIVATION_FIELD);
+        if (is_null($val)) {
             throw new \Exception('server failure', ERR_SERVER_UNKNOWN);
         }
-        if ($isBlocked == 0) {
-            throw new \Exception('server failure', ERR_BLOCK);
+
+        if ($val === 0) {
+            throw new \Exception('Sorry You have been blocked', code: ERR_BLOCK);
         }
     }
     private function checkToLogin(string $phone)
@@ -117,12 +118,19 @@ class UserRepository extends BaseRepository
                 ERR_USER_INCORRET
             );
         }
-        isBlocked();
+
+        $this->isBlocked($user);
 
         Helpers::setKeyValueFromObj(
             $user,
             USR,
             $this->view(USR, Helpers::getKeyValueFromObj($user, KLVL))
+        );
+        $userlevelid = Helpers::getKeyValueFromObj($user, KLVL);
+        Helpers::setKeyValueFromObj(
+            $user,
+            PER,
+            $this->list(PER, null, Options::getInstance()->addStaticQuery(KLVL . "='$userlevelid'"))
         );
 
         return $user;
