@@ -33,7 +33,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             foreach ($forgins as $forgin) {
                 $forginTableName = QueryHelpers::getJsonKeyFromForginObject($forgin);
                 if ($forginTableName == $parentTableName) {
-                    echo "addforginKeys isParent skip";
+                    // echo "addforginKeys isParent skip";
                     continue;
                 }
                 if (
@@ -66,7 +66,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 $forginTableName = QueryHelpers::getJsonKeyFromForginArray($forgin);
                 $valueKey = $isParent ? "childs" : $forginTableName;
                 if ($forginTableName == $parentTableName) {
-                    echo "addforginKeysList isParent skip";
+                    //   echo "addforginKeysList isParent skip";
                     continue;
                 }
                 $iD = Helpers::getKeyValueFromObj($obj, ID);
@@ -191,13 +191,13 @@ abstract class BaseRepository extends BaseDataBaseFunction
     public function view(string $tableName, int $iD, ?string $parentTableName = null, ?Options $option = null)
     {
         if (!$option) {
-            echo "\nnew Options\n";
+            //  echo "\nnew Options\n";
             $option = Options::getInstance($option)->withStaticWhereQuery("iD = '$iD'");
         } else {
 
-            echo "\n clone Options\n";
+            // echo "\n clone Options\n";
             $bool = is_null(($option->auth)) ? "is sauth null" : "not auth null";
-            echo "\n" . $bool . " \n";
+            //echo "\n" . $bool . " \n";
             $option = $option->getClone($option)->addStaticQuery("iD = '$iD'");
         }
 
@@ -230,7 +230,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true),
             $iD
         );
-        echo "\n$query\n";
+        // echo "\n$query\n";
         $rowCount = $this->getUpdateTableWithQuery(
             $query
         );
@@ -238,7 +238,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         if ($rowCount == 0) {
             throw new Exception("no records were edited");
         }
-        echo "\nAfter edit $rowCount\n";
+        // echo "\nAfter edit $rowCount\n";
         $this->after($tableName, $object, ServerAction::EDIT, $option, $this);
         return $this->view($tableName, $iD, null, $option);
     }
@@ -256,14 +256,14 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $resultsForingList = [];
 
         if (!$isSearchedBefore) {
-            echo " not searching before $tableName ";
+            // echo " not searching before $tableName ";
             $searchedArray = $this->search($tableName, $object, true, false, true, $resultsForingList);
             if ($searchedArray) {
                 $iD = $searchedArray['iD'];
                 Helpers::setKeyValueFromObj($object, ID, $iD);
-                echo "founded  $tableName--->->-> $iD\n";
+                //  echo "founded  $tableName--->->-> $iD\n";
                 if (!empty($resultsForingList)) {
-                    echo " \n im in addForginListFromObject for $tableName\n";
+                    //    echo " \n im in addForginListFromObject for $tableName\n";
                     $this->addForginListFromObject($tableName, $object, $this, $resultsForingList);
                 }
 
@@ -273,17 +273,17 @@ abstract class BaseRepository extends BaseDataBaseFunction
         // $forginsDetails= $this->getCachedForginList($tableName);
 
         // $hasForginList=
-        echo "----->->->->->to be added to $tableName \n\n";
+        //   echo "----->->->->->to be added to $tableName \n\n";
 
         Helpers::setKeyValueFromObj($object, ID, null);
 
         $query = $this->getInsertQuery($tableName, (array) $this->unsetAllForginListWithOutRefrence($tableName, $object, $iDontWantToUse, true));
-        echo "\n $query \n";
+        // echo "\n $query \n";
         $insertID = $this->getInsertTableWithQuery($query);
         Helpers::setKeyValueFromObj($object, ID, $insertID);
         // print_r($object);
         if (!empty($resultsForingList)) {
-            echo " \n im in addForginListFromObject for $tableName\n";
+            // echo " \n im in addForginListFromObject for $tableName\n";
             $this->addForginListFromObject($tableName, $object, $this, $resultsForingList);
 
             die;
@@ -310,9 +310,9 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
     ) {
         $cloned =   Helpers::cloneByJson($object);
-        echo "search for $tableName\n";
+        //   echo "search for $tableName\n";
         if ($this->isSearchDisbled($tableName)) {
-            echo "search is disabled for $tableName\n";
+            //   echo "search is disabled for $tableName\n";
             return array();
         }
         Helpers::unSetKeyFromObj($cloned, ID);
@@ -402,7 +402,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $optionQuery = $this->getOption($tableName, $option);
         $selectColumn = $option->getSelectQuery($tableName);
 
-        echo "\nSELECT $selectColumn from $tableName " . $optionQuery . " \n";
+        //   echo "\nSELECT $selectColumn from $tableName " . $optionQuery . " \n";
 
         switch ($action) {
             case ServerAction::ADD:
@@ -683,7 +683,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         bool $requireTotalAsCount = false,
         bool $requireDayInterval = false
     ) {
-        echo "\n";
+        // echo "\n";
         $toFind = $toFind ?? $this->getGrowthRateFindKey($tableName);
         $tableName = $this->changeTableNameToExtendedForGrowthRate($tableName);
         $selectColumn = $requireTotalAsCount ? "Count(*)" : "COALESCE( round(Sum($tableName.`$toFind`),3) ,0)";
@@ -716,7 +716,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             FROM
                 $tableName   
             $query";
-        echo "\nsoso :" . $query . "\n";
+        // echo "\nsoso :" . $query . "\n";
         // die;
         // die;
         return $this->getFetshAllTableWithQuery(
@@ -744,7 +744,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             ORDER BY `year`,
             month ";
 
-        echo "\n";
+        //   echo "\n";
         $toFind = $toFind ?? $this->getGrowthRateFindKey($tableName);
         $tableName = $this->changeTableNameToExtendedForGrowthRate($tableName);
         $selectColumn = $requireTotalAsCount ? "Count(*)" : "COALESCE( round(Sum($tableName.`$toFind`),3) ,0)";
@@ -777,7 +777,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             FROM
                 $tableName   
             $query";
-        echo "\nsoso :" . $query . "\n";
+        // echo "\nsoso :" . $query . "\n";
         // die;
         // die;
         return $this->getFetshAllTableWithQuery(

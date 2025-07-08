@@ -70,16 +70,16 @@ abstract class BaseController implements BaseControllerInterface
         string $status,
         $message,
         int $code,
-        ?bool  $withHeder = false
+        bool  $withHeder = false
     ): Response {
-
+        $code = empty($message) ? 204 : $code;
         $result = [
-            'code' => $code,
+            'code' =>  $code,
             'status' => $status,
             'message' => $message,
         ];
 
-        return $response->withJson($withHeder ? $result : $message, $code, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        return $response->withJson($withHeder ? $result : $message, $code,  JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     }
 
     protected static function isRedisEnabled(): bool

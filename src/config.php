@@ -8,6 +8,10 @@ define('FB_URL', 'https://fcm.googleapis.com/v1/projects/falconpaper-c7f81/messa
 define('ERR_SERVER_UNKNOWN', 400);
 define('ERR_USER_INCORRET', 401);
 define('ERR_BLOCK', 402);
+define('ERR_PER', 403);
+define('ERR_AUTH_REQ', 405);
+define('ERR_AUTH_INVAILD', 406);
+
 
 /*
  * All database connection variables

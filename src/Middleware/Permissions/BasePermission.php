@@ -111,9 +111,9 @@ abstract class BasePermission implements ServerActionInterface
         $result = $this->checkPermissionTableAccess($this->currentID, $tableName, $action);
         if (!$result) {
             if ($this->currentID == 0) {
-                throw new \Exception('Token required.', 400);
+                throw new \Exception('Token required.', ERR_AUTH_REQ);
             } else {
-                throw new \Exception('Permission denied.', 400);
+                throw new \Exception('Permission denied.', ERR_PER);
             }
         }
     }
@@ -127,7 +127,7 @@ abstract class BasePermission implements ServerActionInterface
         }
         $jwt = explode('Bearer ', $jwtHeader);
         if (! isset($jwt[1])) {
-            throw new \Exception('Token invalid.', 400);
+            throw new \Exception('Token invalid.', ERR_AUTH_INVAILD);
         }
         $decoded = $this->checkToken($jwt[1]);
         return $decoded;
@@ -138,7 +138,7 @@ abstract class BasePermission implements ServerActionInterface
     {
         $tableName = $this->getTableName($request);
         $action = $this->getAction();
-        echo "  \nim in checkToSend Notificaiton\n :tableNAme $tableName, Action is : $action \n";
+        //   echo "  \nim in checkToSend Notificaiton\n :tableNAme $tableName, Action is : $action \n";
         // if($action==)
 
         $originalObject = (array)$request->getParsedBody();

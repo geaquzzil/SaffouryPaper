@@ -94,9 +94,9 @@ class Helpers
     }
     public static function unSetKeyFromObj(&$object, $key)
     {
-        echo "\checking set $key\n";
+        // echo "\checking set $key\n";
         if (self::isSetKeyFromObj($object, $key)) {
-            echo "\nis set $key\n";
+            // echo "\nis set $key\n";
             if (self::isObject($object)) {
                 unset($object->$key);
             } else {

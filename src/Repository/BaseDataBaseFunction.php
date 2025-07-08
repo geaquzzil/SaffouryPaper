@@ -90,7 +90,7 @@ abstract class BaseDataBaseFunction
     {
         return $this->container->get("fund_repository");
     }
-    public function getFetshCountQueryForTable($tableName,?Options $option=null)
+    public function getFetshCountQueryForTable($tableName, ?Options $option = null)
     {
         return
             Helpers::getKeyValueFromObj(
@@ -182,7 +182,7 @@ abstract class BaseDataBaseFunction
             $query = $action . addslashes($tableName) .
                 " (`" . implode('`,`',  array_keys(($object))) .
                 "`) VALUES (" . implode(",", (($array))) . ")";
-            echo "\n $query \n";
+            //   echo "\n $query \n";
             return $query;
         } else {
             $query = "UPDATE `" . addslashes($tableName) . "` SET ";
@@ -228,7 +228,7 @@ abstract class BaseDataBaseFunction
             if (in_array($key, $forginsListsOriginal)) {
                 if (is_null($val) || empty($val)) {
                     Helpers::setKeyValueFromObj($cloned, $key, "");
-                    echo "\n unsetAllForginListWithOutRefrence is  null or empty ------>$key\n ";
+                    //  echo "\n unsetAllForginListWithOutRefrence is  null or empty ------>$key\n ";
                     Helpers::unSetKeyFromObj($cloned, $key);
                     continue;
                 }
@@ -250,13 +250,13 @@ abstract class BaseDataBaseFunction
             if (in_array($key, $forginsListsOriginal)) {
                 if (is_null($val) || empty($val)) {
                     Helpers::setKeyValueFromObj($object, $key, "");
-                    echo "\n unsetAllForginList is  null or empty ------>$key\n ";
+                    // echo "\n unsetAllForginList is  null or empty ------>$key\n ";
                     Helpers::unSetKeyFromObj($object, $key);
                     continue;
                 }
                 $resultsForginLists[] = $key;
                 if ($unset) {
-                    echo "\nunsetAllForginList unset $key\n";
+                    // echo "\nunsetAllForginList unset $key\n";
                     Helpers::unSetKeyFromObj($object, $key);
                 }
             }
@@ -294,7 +294,7 @@ abstract class BaseDataBaseFunction
         $this->changeParentsToChild($tableName, $forginsLists);
         $onlyTableColumn = array_values($tableColumns);
 
-        echo "\nvalidateObject $tableName\n";
+        //  echo "\nvalidateObject $tableName\n";
 
 
 
@@ -345,7 +345,7 @@ abstract class BaseDataBaseFunction
     {
         $type = ForginCheckType::NONE;
         if (is_array($typeArray)) {
-            echo "\ngetValueToCheckForeing is array for $currentForeingTableName \n";
+            //  echo "\ngetValueToCheckForeing is array for $currentForeingTableName \n";
             if (key_exists($currentForeingTableName, $typeArray)) {
 
                 $type = $typeArray[$currentForeingTableName];
@@ -354,29 +354,29 @@ abstract class BaseDataBaseFunction
         switch ($type) {
             case ForginCheckType::NONE:
                 $key = $foreing[rtn];
-                echo "\ngetValueToCheckForeing NONE -->->key is  $key\n";
+                //    echo "\ngetValueToCheckForeing NONE -->->key is  $key\n";
                 return Helpers::isSetKeyFromObjReturnValue($object, $key);
             case ForginCheckType::BY_FOREING_ID:
                 $key = $foreing[cn];
-                echo "\ngetValueToCheckForeing BY_FOREING_ID -->->key is  $key\n";
+                //  echo "\ngetValueToCheckForeing BY_FOREING_ID -->->key is  $key\n";
                 return Helpers::isSetKeyFromObjReturnValue($object, $key);
             case ForginCheckType::BY_ID_IN_VALUE:
                 $key = $foreing[rtn];
-                echo "\ngetValueToCheckForeing BY_ID_IN_VALUE -->->key is  $key\n";
+                //    echo "\ngetValueToCheckForeing BY_ID_IN_VALUE -->->key is  $key\n";
                 $val =
                     Helpers::isSetKeyFromObjReturnValue($object, $foreing[rtn]);
                 if (!$val) {
-                    echo "---> is NULL";
+                    //     echo "---> is NULL";
                     return null;
                 }
                 $val = Helpers::isSetKeyFromObjReturnValue($val, "iD");
-                echo "\ngetValueToCheckForeing BY_ID_IN_VALUE -->->value $key is  $val\n";
+                //  echo "\ngetValueToCheckForeing BY_ID_IN_VALUE -->->value $key is  $val\n";
                 return $val;
         }
     }
     private function addForginObjectsFromObject($tableName, &$object, BaseRepository $baseRepository, $type = ForginCheckType::NONE, ?string $parentTableName = null)
     {
-        echo "\nstarting addForginObjectsFromObject for table $tableName with type\n ";
+        //    echo "\nstarting addForginObjectsFromObject for table $tableName with type\n ";
         print_r($type);
         // $originalType =clone $type;
         $forginsObjectsOriginal = $this->getCachedForginObject($tableName);
@@ -389,17 +389,17 @@ abstract class BaseDataBaseFunction
 
             if ($childTableName == $parentTableName) {
                 Helpers::setKeyValueFromObj($object, $forginIDInParent, $val);
-                echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and child $childTableName and set $forginIDInParent: $val ";
+                //   echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and child $childTableName and set $forginIDInParent: $val ";
                 unset($object->$childTableName);
                 continue;
             }
             if ($otherType != ForginCheckType::NONE) {
                 $array = ["iD" => $val];
                 if (Helpers::isNewRecord($array)) {
-                    echo "\n addingForginOBjectsFromOBject is new record ";
+                    //      echo "\n addingForginOBjectsFromOBject is new record ";
                     $val = $this->getValueToCheckForeing($object, $fo,  ForginCheckType::NONE, $childTableName, $otherType);
                 } else {
-                    echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and set $forginIDInParent: $val ";
+                    //    echo "\n addingForginOBjectsFromOBject skip parent $parentTableName and set $forginIDInParent: $val ";
                     Helpers::setKeyValueFromObj($object, $forginIDInParent, $val);
                     unset($object->$childTableName);
                     continue;
@@ -426,7 +426,7 @@ abstract class BaseDataBaseFunction
                 if ($res) {
                     $iD =
                         Helpers::getKeyValueFromObj($res, "iD");
-                    echo "founded  $childTableName--->->-> $iD\n";
+                    //    echo "founded  $childTableName--->->-> $iD\n";
                     Helpers::setKeyValueFromObj($object, $forginIDInParent, $iD);
                     Helpers::unSetKeyFromObj($object, $childTableName);
                 }
@@ -464,8 +464,8 @@ abstract class BaseDataBaseFunction
                 Helpers::setKeyValueFromObj($item, $res[cn], $iD);
 
                 Helpers::setKeyValueFromObj($item, $tableName, $object);
-                echo "\nforing list item to be added \n";
-                print_r($item);
+                //   echo "\nforing list item to be added \n";
+                // print_r($item);
                 // echo "\nstarting adding foring list for $fo\n\n\n";
                 if ($fo == "childs") {
                     // echo "\nis childs chnging to $tableName \n";
@@ -502,7 +502,7 @@ abstract class BaseDataBaseFunction
     protected function before($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
     {
         if ($this->container->offsetExists($tableName)) {
-            echo "\n before $tableName\n";
+            //     echo "\n before $tableName\n";
             $list =    $this->container->get($tableName);
             $key = BEFORE . $this->getServerActionString($action);
             if (key_exists($key, $list)) {
@@ -523,9 +523,9 @@ abstract class BaseDataBaseFunction
     }
     protected function after($tableName, &$object, ServerAction $action, ?Options &$option, BaseRepository $repo)
     {
-        echo "\nafter $tableName \n";
+        //  echo "\nafter $tableName \n";
         $bool = is_null(($option?->auth)) ? " $tableName is auth null\n" : " $tableName not auth null\n";
-        echo "\n" . $bool . " \n";
+        //  echo "\n" . $bool . " \n";
 
         if ($this->container->offsetExists($tableName)) {
 

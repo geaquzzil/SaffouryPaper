@@ -45,7 +45,9 @@ final class Login extends BaseController
         );
 
         Helpers::setKeyValueFromObj($user, 'token', $message);
-        Helpers::unSetKeyFromObj($user, 'password');
+        Helpers::setKeyValueFromObj($user, 'phone', strval(Helpers::isSetKeyFromObjReturnValue($user, 'phone')));
+        Helpers::unSetKeyFromObj($user, PASSWORD_FIELD);
+
         return $this->jsonResponse($response, 'success', $user, 200);
     }
 }

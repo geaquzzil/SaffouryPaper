@@ -292,7 +292,7 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
             $i++;
         }
         $query = $query . $subQuery . str_replace("WHERE", " AND ", ($option?->getQuery($tableName, "a") ?? ""));
-        echo $query;
+        //  echo $query;
         return $query;
     }
     public function deleteNotUsedRecords($tableName, Options $option)

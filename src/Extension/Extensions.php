@@ -63,8 +63,8 @@ $container[CUST] = [
 $container[CUT_RESULT] = [
     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $rep) {
         $bool = is_null(($option->auth)) ? "is sauth null" : "not auth null";
-        echo "\n" . $bool . " \n";
-        echo "\npermission" . $option->auth->checkForPermissionBoolean(CUT) . "\n";
+        // echo "\n" . $bool . " \n";
+        //  echo "\npermission" . $option->auth->checkForPermissionBoolean(CUT) . "\n";
         $iD = Helpers::getKeyValueFromObj($object, "ProductInputID");
         $prInput = Helpers::getKeyValueFromObj($object, PR_INPUT);
 
@@ -140,10 +140,10 @@ $container[HOME_ADS] = $container[CUSTOMS_IMAGES];
 $container[TYPE] = $container[CUSTOMS_IMAGES];
 $container[PURCH] = [
     BEFORE . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
-        echo "\n inside container  before VIEW";
+        //    echo "\n inside container  before VIEW";
     },
     AFTER . VIEW => function (&$object, ?Options &$option, BaseRepository $reo) {
-        echo "\n inside container after VIEW";
+        //  echo "\n inside container after VIEW";
     },
 ];
 $container[PR] = [
