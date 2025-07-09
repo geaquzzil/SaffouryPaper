@@ -79,7 +79,7 @@ abstract class BaseController implements BaseControllerInterface
             'message' => $message,
         ];
 
-        return $response->withJson($withHeder ? $result : $message, $code,  JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        return $response->withJson($withHeder ? $result : $message, $code,  JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK);
     }
 
     protected static function isRedisEnabled(): bool

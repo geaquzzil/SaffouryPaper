@@ -32,7 +32,7 @@ function getTableColumns($tableName)
 	foreach ($result as $res) {
 		$r[] = $res["Field"];
 	}
-	
+
 	return $r;
 }
 function getObjectForginKeys($tableName)

@@ -5,7 +5,7 @@ function returnResponseCompress($response)
 		//TODO remove comment on publish	http_response_code(204);
 	}
 	$data = (gzcompress(beforeReturnResponseObjectExtenstion(json_encode($response, JSON_NUMERIC_CHECK), getRequestValue('table')), 9));
-	echo ($data);
+	// echo ($data);
 	die;
 }
 function returnResponseSlim($response)
@@ -37,7 +37,7 @@ function returnResponse($response)
 	} else {
 		$data = beforeReturnResponseObjectExtenstion(json_encode($response), getRequestValue('table'));
 	}
-	echo $data;
+	// echo $data;
 	die;
 }
 function getResponseDataForFlutter($data)

@@ -113,7 +113,7 @@ class QueryHelpers
         $primaryKey = $key["COLUMN_NAME"];
         $iD = Helpers::getKeyValueFromObj($object, "iD");
         $query = "SELECT Count(*) AS result FROM  `" . addslashes($tableName) . "`  WHERE `$primaryKey`='$iD'";
-        echo $query . "\n";
+        // echo $query . "\n";
         return $query;
     }
     public static function isDetailObjectRequire($ParentKey, $key, $detailObjectTable)

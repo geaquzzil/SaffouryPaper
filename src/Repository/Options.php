@@ -299,7 +299,7 @@ class Options
         if (!$request) return;
         $this->auth = $request->getAttribute("Auth", null);
         $bool = is_null(($this->auth)) ? "is auth null" : "not auth null";
-        echo "\n" . $bool . " \n";
+        // echo "\n" . $bool . " \n";
 
         // $this->auths=$request->attrib
 

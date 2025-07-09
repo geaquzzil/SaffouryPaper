@@ -148,7 +148,9 @@ $container[PURCH] = [
 ];
 $container[PR] = [
     BEFORE . LISTO => function (&$object, ?Options &$option, BaseRepository $reo) {
+        // print_r($option->notFoundedColumns);
         if ($option->notFoundedColumns->get("requiresInventory", null)) {
+            // echo ("dssdds");
             $option
                 ->replaceTableName(INV)
                 ->addJoin(new Joins(INV, PR, "ProductID", JoinType::RIGHT, ID))

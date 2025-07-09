@@ -377,7 +377,7 @@ abstract class BaseDataBaseFunction
     private function addForginObjectsFromObject($tableName, &$object, BaseRepository $baseRepository, $type = ForginCheckType::NONE, ?string $parentTableName = null)
     {
         //    echo "\nstarting addForginObjectsFromObject for table $tableName with type\n ";
-        print_r($type);
+        // print_r($type);
         // $originalType =clone $type;
         $forginsObjectsOriginal = $this->getCachedForginObject($tableName);
         foreach ($forginsObjectsOriginal as $fo) {
@@ -405,7 +405,7 @@ abstract class BaseDataBaseFunction
                     continue;
                 }
             }
-            print_r($val);
+            // print_r($val);
             if (!is_null($val)) {
                 Helpers::convertToObject($object->$ob);
                 Helpers::setKeyValueFromObj(
@@ -444,7 +444,7 @@ abstract class BaseDataBaseFunction
     protected function addForginListFromObject($tableName, &$object,  BaseRepository $baseRepository, $resultsForingList)
     {
         $type = [$tableName => ForginCheckType::BY_ID_IN_VALUE];
-        print_r($type);
+        // print_r($type);
         $forginsLists = $this->getCachedForginList($tableName);
         $iD = Helpers::getKeyValueFromObj($object, ID);
         foreach ($resultsForingList as $fo) {

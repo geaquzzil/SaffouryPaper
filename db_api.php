@@ -467,7 +467,7 @@ function searchByID($ParentTableName, $forginsDetails, $forgins, $obj, $tableNam
 	$result = addObjectExtenstion($result, $tableName);
 	$endtime = microtime(true);
 	$duration = $endtime - $starttime;
-	echo  " searchByID -->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration \n ";
+	// echo  " searchByID -->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration \n ";
 	return $result;
 }
 function changeToExtended($tableName)
@@ -564,11 +564,11 @@ function depthSearch($iD, $tableName, $recursiveLevel, $detailArrayTable, $detai
 		}
 		$endtime2 = microtime(true);
 		$duration2 = $endtime2 - $starttime2;
-		echo  "forloop-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration2 \n ";
+		// echo  "forloop-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration2 \n ";
 
 		$endtime = microtime(true);
 		$duration = $endtime - $starttime;
-		echo  "\ndepthSearch-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration \n ";
+		// echo  "\ndepthSearch-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$duration \n ";
 		return $response;
 	}
 	//one row
