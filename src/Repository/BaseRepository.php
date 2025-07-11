@@ -400,7 +400,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $query = "";
         $tableName = $this->canChangeToExtended($action) ? $this->changeTableNameToExtended($tableName) : $tableName;
         $optionQuery = $this->getOption($tableName, $option);
-        $selectColumn = $option->getSelectQuery($tableName);
+        $selectColumn = $option?->getSelectQuery($tableName) ?? "*";
 
         //   echo "\nSELECT $selectColumn from $tableName " . $optionQuery . " \n";
 
