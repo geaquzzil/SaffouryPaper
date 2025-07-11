@@ -322,6 +322,8 @@ class Options
                 $key = substr($ke, 1, -1);
                 if (Helpers::isJson($val)) {
                     $json =  (Helpers::jsonDecode($val));
+
+                    // die;
                     if ($this->validate($tableName, $key, $json)) {
                         $this->between[$key] = $json;
                     }
@@ -677,7 +679,7 @@ class SearchOption
             $generatedSearchQuery = $repo->getSearchObjectStringValue($this->searchQuery, $tableName);
             $endtime = microtime(true);
             $duration = $endtime - $starttime;
-            echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";
+            // echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";
             $searchWhere[] = $generatedSearchQuery;
         }
         if ($option->between) {
@@ -685,7 +687,7 @@ class SearchOption
             $generatedSearchQuery = $repo->getSearchQueryBetween($option->between, $tableName);
             $endtime = microtime(true);
             $duration = $endtime - $starttime;
-            echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";
+            // echo  "\SearchOption-->->->->-->->->->---->-> $tableName-->->->->-->->->->---->-> \n$generatedSearchQuery\n$duration \n ";
             $searchWhere[] = $generatedSearchQuery;
         }
         if ($this->searchByColumn) {

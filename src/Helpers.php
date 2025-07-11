@@ -44,6 +44,16 @@ class Helpers
             $object = $soso;
         }
     }
+
+    public static function isMultiDimensionalArray(array $array): bool
+    {
+        foreach ($array as $element) {
+            if (is_array($element)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public static function isJson($str)
     {
         if (self::IsNullOrEmptyString($str)) return false;

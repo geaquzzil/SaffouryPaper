@@ -38,9 +38,11 @@ class SearchRepository extends BaseRepository
             }
             return implode(" AND ", $between);
         }
-        $from = Helpers::isSetKeyFromObjReturnValue($value, "from");
-        $to = Helpers::isSetKeyFromObjReturnValue($value, "to");
-        if (!$from  || !$to) {
+        // print_r($value);
+        $from = Helpers::getKeyValueFromObj($value, "from");
+        $to = Helpers::getKeyValueFromObj($value, "to");
+        // echo " from: $from to :$to\n";
+        if (is_null($from)  || is_null($to)) {
             throw new Exception("u have to set from and to");
         }
         return  "$key BETWEEN  $from AND $to";
@@ -50,29 +52,38 @@ class SearchRepository extends BaseRepository
     ///@param $betweenArray is has key : SizeID value of width:{from: , to:} or list
     public function getSearchQueryBetween($betweenArray, $tableName)
     {
-        // $this->getFor
-        /// @param key is ColumnName in TableName
-        // @param b is the value 
-
+        $between = array();
         $queryR = array();
-        foreach ($betweenArray as $columnInParent => $b) {
-            $between = array();
-            $childTableName = $this->getCachedForginObjectTableName($tableName, $columnInParent);
-            foreach ($b as $columnInChild => $value) {
-                if ($this->validate($childTableName, $columnInChild)) {
-                    $between[] = "(" . $this->getSearchBetweenValue($columnInChild, $value) . ")";
+        foreach ($betweenArray as $forginID => $item) {
+            foreach (array_values($item) as  $value) {
+                $be = array();
+                foreach ($value as $oneItem) {
+
+                    $field = Helpers::getKeyValueFromObj($oneItem, "field");
+                    $value = Helpers::getKeyValueFromObj($oneItem, "fromTo");
+                    $childTableName = $this->getCachedForginObjectTableName($tableName, $forginID);
+
+                    // echo " validate parent tableName $tableName tableName $childTableName Column:$field\n";
+                    // print_r($value);
+                    // die;
+                    if ($this->validate($childTableName, $field)) {
+                        $be[] = "(" . $this->getSearchBetweenValue($field, array_values($value)) . ")";
+                    }
                 }
+                $between["and"][] =  "( " . implode(" AND ", $be) . " )";
             }
-            $impolded = implode(" AND ", $between);
+
+            $impolded = " ( " . implode(" OR ", $between["and"]) . " )";
             $query = "SELECT " . addslashes($childTableName) . ".`iD` FROM "
                 . addslashes($childTableName) . " WHERE " . $impolded;
-            echo "\n" . $query . "\n";
+            // echo "\n" . $query . "\n";
             $result = $this->getFetshALLTableWithQuery($query);
-            $ids = ((array_column($result, ID)));
+            $ids = array_column($result, ID);
             // $queryR[$columnInParent] = $ids;
-            $queryR[] = $this->getSearchKeyValueWhereClouser($tableName, $columnInParent, $ids);
+            $queryR[] = $this->getSearchKeyValueWhereClouser($tableName, $forginID, $ids);
         }
-        return implode(" AND ", $queryR);
+        $query = implode(" AND ", $queryR);
+        return $query;
     }
 
     public function getSearchByColumnQuery(
