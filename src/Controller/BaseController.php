@@ -73,6 +73,7 @@ abstract class BaseController implements BaseControllerInterface
         bool  $withHeder = false
     ): Response {
         $code = empty($message) ? 204 : $code;
+        // $message=$this->getResponseDataForFlutter($message);
         $result = [
             'code' =>  $code,
             'status' => $status,
@@ -80,6 +81,16 @@ abstract class BaseController implements BaseControllerInterface
         ];
 
         return $response->withJson($withHeder ? $result : $message, $code,  JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK);
+    }
+    private function getResponseDataForFlutter($data)
+    {
+        $numeric = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+        $nonnumeric = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        preg_match_all("/\"[0\+]+(\d+)\"/", $nonnumeric, $vars);
+        foreach ($vars[0] as $k => $v) {
+            $numeric = preg_replace("/\:\s*{$vars[1][$k]},/", ": {$v},", $numeric);
+        }
+        return $numeric;
     }
 
     protected static function isRedisEnabled(): bool

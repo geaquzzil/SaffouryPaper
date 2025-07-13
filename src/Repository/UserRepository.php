@@ -124,7 +124,12 @@ class UserRepository extends BaseRepository
         Helpers::setKeyValueFromObj(
             $user,
             USR,
-            $this->view(USR, Helpers::getKeyValueFromObj($user, KLVL))
+            $this->view(
+                USR,
+                Helpers::getKeyValueFromObj($user, KLVL),
+                null,
+                Options::getInstance()->requireDetails(["permissions_levels"])
+            )
         );
         Helpers::setKeyValueFromObj($user, 'setting', $this->view('setting', 1,));
         $userlevelid = Helpers::getKeyValueFromObj($user, KLVL);

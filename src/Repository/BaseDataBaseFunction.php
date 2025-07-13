@@ -289,7 +289,7 @@ abstract class BaseDataBaseFunction
 
         $tableColumnType = $this->getCachedColumnType($tableName);
 
-        $this->validatePhoneNumber($object, false);
+        // $this->validatePhoneNumber($object, false);
 
         $this->changeParentsToChild($tableName, $forginsLists);
         $onlyTableColumn = array_values($tableColumns);

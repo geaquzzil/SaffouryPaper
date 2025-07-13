@@ -113,8 +113,9 @@ class SearchRepository extends BaseRepository
 
         return implode(" AND ", $whereQuery);
     }
-    public function getSearchObjectStringValue($object, $tableName)
+    public function getSearchObjectStringValue($searchQuery, $tableName)
     {
+        // echo "\n getSearchObjectStringValue for $object tablename $tableName\n";
         $tableColumns = $this->getCachedTableColumns($tableName);
 
         $forgins = $this->getCachedForginObject($tableName);
@@ -125,23 +126,26 @@ class SearchRepository extends BaseRepository
 
         $objectToCheck = array();
         foreach ($tableColumns as $table) {
-            if ($table === "iD" && !is_numeric($object)) {
+            if ($table === "iD" && !is_numeric($searchQuery)) {
+                // echo " cop\n";
                 continue;
             }
             //do something with your $key and $value;
             if ((($i = array_search((string)$table, $forginsKey)) === FALSE)) {
-                $objectToCheck[$table] = $object;
+                $objectToCheck[$table] = [false => $searchQuery];
             } else {
                 $forginTableName = $forgins[$i]["REFERENCED_TABLE_NAME"];
                 if ($forginTableName === $tableName) {
                     //its parent id skip 
+                    // echo " its parent id skip  cop\n";
                     continue;
                 }
                 //TODO
                 // if (canSearchInCustomSearchQuery($object, $tableName, $forginTableName)) {
-                $res = $this->searchObjectDetailStringValue($object, $forginTableName);
+                $res = $this->searchObjectDetailStringValue($searchQuery, $forginTableName);
+                // echo "dsadsa $res\n";
                 if (!is_null($res)) {
-                    $objectToCheck[$table] = $res;
+                    $objectToCheck[$table] = [true => $res];
                 }
                 // }
             }
@@ -155,23 +159,36 @@ class SearchRepository extends BaseRepository
         //unSetKeyFromObj($object,'iD');
         $whereQuery = array();
         foreach ($object as $key => $value) {
-            $whereQuery[] = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, true, null);
+            // echo "\n getSearchQueryAttributesOrDontUnSetID key :$key";
+            $is = key($value);
+            $query = '';
+            if ($is) {
+                $query = $this->getSearchKeyValueWhereClouser($tableName, $key, $value[$is], false, null);
+            } else {
+                $query = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, true, null);
+            }
+            // echo "  \nkey $key $query \n";
+            $whereQuery[] = $query;
             //do something with your $key and $value;
 
         }
-        return implode(" OR ", $whereQuery);
+        $query = implode(" OR ", $whereQuery);
+        // echo "\ngetSearchQueryAttributesOrDontUnSetID $query\n";
+        return $query;
     }
     public function searchObjectDetailStringValue($object, $tableName)
     {
         $searchQuery = $this->getSearchObjectStringValue($object, $tableName);
-
+        // echo "\nsearchObjectDetailStringValue $searchQuery";
         if (Helpers::isEmptyString($searchQuery)) {
             return null;
         }
         $query = "SELECT " . addslashes($tableName) . ".`iD` FROM "
             . addslashes($tableName) . " WHERE " . $searchQuery;
 
-        $result = $this->getFetshTableWithQuery($query);
-        return empty($result) ? null : Helpers::getKeyValueFromObj($result, 'iD');
+        $result = $this->getFetshALLTableWithQuery($query);
+        // print_r($result);
+
+        return empty($result) ? null : Helpers::getIDFromArray($result,);
     }
 }

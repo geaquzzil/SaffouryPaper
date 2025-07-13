@@ -163,6 +163,12 @@ class Helpers
     {
         return gettype($object) === "object";
     }
+    public static function getIDFromArray($array)
+    {
+        return array_map(function ($tmp) {
+            return $tmp['iD'];
+        }, $array);
+    }
     public static function getIDSImpolde($array, $keyToFind, $getValueFromArray = false)
     {
         if ($getValueFromArray) {
@@ -300,6 +306,7 @@ class Helpers
     }
     public static function searchInArray($search, $arr)
     {
+        if (is_null($arr)) return false;
         return array_search($search, $arr) !== false;
     }
     public static function has_perfix_reg($string, $reg)

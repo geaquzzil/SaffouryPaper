@@ -37,6 +37,7 @@ class Options
 
 
     public ?string $replaceTableNameInWhereClouser = null;
+    public ?array $replaceOnlyIfFieldIsEqualsTo = null;
 
     public  $listObjects;
 
@@ -90,6 +91,10 @@ class Options
         $this->throwExceptionOnColumnNotFound = false;
         return $this;
     }
+    public function shouldReplaceTableName($field)
+    {
+        return Helpers::searchInArray($field, $this->replaceOnlyIfFieldIsEqualsTo);
+    }
     public function withLimit(?int $limit = null)
     {
         if ($limit) {
@@ -108,6 +113,7 @@ class Options
         $instance->auth = $old?->auth;
         $instance->tableName = $old?->tableName;
         $instance->replaceTableNameInWhereClouser = $old?->replaceTableNameInWhereClouser;
+        $instance->replaceOnlyIfFieldIsEqualsTo = $old?->replaceOnlyIfFieldIsEqualsTo;
         return $instance;
     }
     public function removeDate()
@@ -213,6 +219,11 @@ class Options
             return implode(",", $arr);
         }
     }
+    public function replaceTableNameOnlyIfFiled(?array  $arr = null)
+    {
+        $this->replaceOnlyIfFieldIsEqualsTo = $arr;
+        return $this;
+    }
     public function replaceTableName(string $tableName)
     {
         $this->replaceTableNameInWhereClouser = $tableName;
@@ -234,6 +245,7 @@ class Options
         $instance->auth = $old?->auth;
         $instance->tableName = $old?->tableName;
         $instance->replaceTableNameInWhereClouser = $old?->replaceTableNameInWhereClouser;
+        $instance->replaceOnlyIfFieldIsEqualsTo = $old?->replaceOnlyIfFieldIsEqualsTo;
         return $instance;
     }
 
@@ -470,11 +482,12 @@ class Options
     }
     public function getQuery(string $tableName, ?string $replaceTableNameInWhereClouser = null): string
     {
-
+        // die;
         $limitQuery = $this->getLimitOrPageCountOffset();
-        $sortQuery = $this->sortOption?->getQuery($this->replaceTableNameInWhereClouser ?? $this->tableName);
+        $sortQuery = $this->sortOption?->getQuery($this->replaceTableNameInWhereClouser ?? $this->tableName, $this);
         $dateQuery = $this->date?->getQuery($this->replaceTableNameInWhereClouser ?? $tableName);
         $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request, $this);
+
         $statics = null;
         $groupBy = null;
         $joins = null;
@@ -643,10 +656,15 @@ class SortOption
         $this->fields[] = $field;
     }
     public function __construct(public array $fields, protected SortType $sortType) {}
-    public function getQuery(?string $tableName = null): string
+    public function getQuery(?string $tableName = null, Options $options): string
     {
         if ($tableName) {
-            $this->fields = array_map(function ($item) use ($tableName) {
+            $this->fields = array_map(function ($item) use ($tableName, $options) {
+                if ($options->shouldReplaceTableName($item)) {
+                    return " $tableName.$item ";
+                }
+
+                $tableName = $options->tableName;
                 return " $tableName.$item ";
             }, $this->fields);
         }

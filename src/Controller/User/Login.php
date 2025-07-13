@@ -14,7 +14,12 @@ use \Firebase\JWT\Key;
 final class Login extends BaseController
 {
 
-
+    private function setPhoneFirstChar(&$user)
+    {
+        if (!str_starts_with($user->phone, "+")) {
+            $user->phone = "+" . $user->phone;
+        }
+    }
     public function __invoke(Request $request, Response $response): Response
     {
         $input = $this->checkForBody($request);
@@ -25,6 +30,7 @@ final class Login extends BaseController
         if (! isset($data->password)) {
             throw new Exception('The field "password" is required.', 400);
         }
+        $this->setPhoneFirstChar($data);
         $user = $this->container['user_repository']->loginUser($data->phone, $data->password);
         $token = [
             'iat' => time(),

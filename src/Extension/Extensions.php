@@ -153,6 +153,7 @@ $container[PR] = [
             // echo ("dssdds");
             $option
                 ->replaceTableName(INV)
+                ->replaceTableNameOnlyIfFiled(["ProductID", "quanitity", "WarehouseID"])
                 ->addJoin(new Joins(INV, PR, "ProductID", JoinType::RIGHT, ID))
                 ->addStaticQuery("quantity <> 0")
                 ->addGroupBy("ProductID");

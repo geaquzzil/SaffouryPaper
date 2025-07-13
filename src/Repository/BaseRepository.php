@@ -203,7 +203,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
 
         $query = $this->getQuery($tableName, ServerAction::VIEW,  $option, $parentTableName);
         $result = $this->getFetshTableWithQuery($query);
-        $this->validatePhoneNumber($result);
+        // $this->validatePhoneNumber($result);
 
 
         // print_r($result);
