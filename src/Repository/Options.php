@@ -93,6 +93,8 @@ class Options
     }
     public function shouldReplaceTableName($field)
     {
+        if (is_null($this->replaceOnlyIfFieldIsEqualsTo)) return false;
+        if (empty($this->replaceOnlyIfFieldIsEqualsTo)) return false;
         return Helpers::searchInArray($field, $this->replaceOnlyIfFieldIsEqualsTo);
     }
     public function withLimit(?int $limit = null)
@@ -480,12 +482,12 @@ class Options
             return false;
         }
     }
-    public function getQuery(string $tableName, ?string $replaceTableNameInWhereClouser = null): string
+    public function getQuery(string $tableName, ?string $replaceTableNameInWhereClouser = null, bool $disableTableName = false): string
     {
         // die;
         $limitQuery = $this->getLimitOrPageCountOffset();
-        $sortQuery = $this->sortOption?->getQuery($this->replaceTableNameInWhereClouser ?? $this->tableName, $this);
-        $dateQuery = $this->date?->getQuery($this->replaceTableNameInWhereClouser ?? $tableName);
+        $sortQuery = $this->sortOption?->getQuery($disableTableName ? null : $replaceTableNameInWhereClouser ?? $tableName, $this);
+        $dateQuery = $this->date?->getQuery($disableTableName ? null : $replaceTableNameInWhereClouser ?? $tableName);
         $searchQuery = $this->searchOption?->getQuery($tableName, $this->searchRepository, $replaceTableNameInWhereClouser, $this->request, $this);
 
         $statics = null;
@@ -659,14 +661,21 @@ class SortOption
     public function getQuery(?string $tableName = null, Options $options): string
     {
         if ($tableName) {
-            $this->fields = array_map(function ($item) use ($tableName, $options) {
+            $fields = array_map(function ($item) use ($tableName, $options) {
                 if ($options->shouldReplaceTableName($item)) {
                     return " $tableName.$item ";
                 }
 
-                $tableName = $options->tableName;
+                // $tableName = $options->tableName;
                 return " $tableName.$item ";
             }, $this->fields);
+            switch ($this->sortType) {
+                case SortType::ASC:
+                    return  " ORDER BY " .  implode(",", $fields) . " ASC ";
+
+                case SortType::DESC:
+                    return  " ORDER BY " .  implode(",", $fields) . " DESC ";
+            }
         }
         switch ($this->sortType) {
             case SortType::ASC:

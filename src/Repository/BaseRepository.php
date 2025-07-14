@@ -179,7 +179,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
             }
             $keys = array_keys(array_column($detailsResult, $columnNameInMaster), $iD);
 
-            $res->$detailTableName = (array_intersect_key(
+            $res->$detailTableName = array_values(array_intersect_key(
                 $detailsResult,
                 array_flip($keys)
             ));
@@ -399,6 +399,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
     {
         $query = "";
         $tableName = $this->canChangeToExtended($action) ? $this->changeTableNameToExtended($tableName) : $tableName;
+        // echo $tableName;
         $optionQuery = $this->getOption($tableName, $option);
         $selectColumn = $option?->getSelectQuery($tableName) ?? "*";
 
@@ -707,7 +708,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 ->addGroupBy("Day(`$tableName`.date)")
                 ->addOrderBy("`day`");
         }
-        $query = $IDS ? Helpers::getIDsWhereIN($IDS, ID) :  $option->getQuery($tableName);
+        $query = $IDS ? Helpers::getIDsWhereIN($IDS, ID) :  $option->getQuery($tableName, null, true);
         $query = "
             SELECT
                 Year(`$tableName`.`date`) AS `year`,
