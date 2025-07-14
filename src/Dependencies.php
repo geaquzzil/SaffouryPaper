@@ -42,13 +42,17 @@ $container['db'] = function ($container) {
         $database['name'],
         $database['port']
     );
-    $pdo = new PDO($dsn, $database['user'], $database['pass']);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    // $pdo->exec("set names utf8");
+    try {
+        $pdo = new PDO($dsn, $database['user'], $database['pass']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        // $pdo->exec("set names utf8");
 
-    return $pdo;
+        return $pdo;
+    } catch (PDOException $e) {
+        throw  new Exception($e->getMessage(), $e->getCode(), $e);
+    }
 };
 # database
 $container['capsule'] = function ($container) {
