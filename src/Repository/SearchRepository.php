@@ -165,7 +165,7 @@ class SearchRepository extends BaseRepository
             if ($is) {
                 $query = $this->getSearchKeyValueWhereClouser($tableName, $key, $value[$is], false, null);
             } else {
-                $query = $this->getSearchKeyValueWhereClouser($tableName, $key, $value, true, null);
+                $query = $this->getSearchKeyValueWhereClouser($tableName, $key, $value[$is], true, null);
             }
             // echo "  \nkey $key $query \n";
             $whereQuery[] = $query;
