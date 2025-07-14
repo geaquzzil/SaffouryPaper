@@ -163,10 +163,15 @@ class Helpers
     {
         return gettype($object) === "object";
     }
+    public static function getIDsWhereIN($arrayOfIDS, $keyToFind, bool $addWhereText = true)
+    {
+        $ids = implode("','", ($arrayOfIDS));
+        return ($addWhereText ? "WHERE " : "") . "  $keyToFind IN ( '" . $ids . "' )";
+    }
     public static function getIDFromArray($array)
     {
         return array_map(function ($tmp) {
-            return $tmp['iD'];
+            return self::getKeyValueFromObj($tmp, ID);
         }, $array);
     }
     public static function getIDSImpolde($array, $keyToFind, $getValueFromArray = false)

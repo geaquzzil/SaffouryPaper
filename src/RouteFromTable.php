@@ -226,8 +226,8 @@ class RouteFromTable
                 '/movement' . self::ID_REQUIRED,
                 'Etq\Restful\Controller\ProductController:getMovement',
                 'get',
-                PR,
-                ExtenstionPermissionType::BY_STATIC
+                [UserType::EMPLOYEE, true],
+                ExtenstionPermissionType::BY_AUTH
             ],
         ],
         TYPE => [

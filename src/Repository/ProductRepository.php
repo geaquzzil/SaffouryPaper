@@ -70,21 +70,23 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
 
     public function getMovement(int $iD, Options $options)
     {
-        $object = $this->view(PR, $iD, null, $options->getClone($options)->removeDate());
+        $object = array();
+        Helpers::setKeyValueFromObj($object, PR, $this->view(PR, $iD, null, $options->getClone($options)->removeDate()));
+
         $options =  $options->addStaticQuery("ProductID='$iD'");
 
-        $this->setListsWithAnalysisByListByDetail($object, ORDR, ORDR_D, $options);
-        $this->setListsWithAnalysisByListByDetail($object, ORDR_R, ORDR_R_D, $options);
+        $this->setListsWithAnalysisByListByDetail($object, ORDR, ORDR_D, $options, null, true);
+        $this->setListsWithAnalysisByListByDetail($object, ORDR_R, ORDR_R_D, $options, null, true);
 
-        $this->setListsWithAnalysisByListByDetail($object, PURCH, PURCH_D, $options);
-        $this->setListsWithAnalysisByListByDetail($object, PURCH_R, PURCH_R_D, $options);
+        $this->setListsWithAnalysisByListByDetail($object, PURCH, PURCH_D, $options, null, true);
+        $this->setListsWithAnalysisByListByDetail($object, PURCH_R, PURCH_R_D, $options, null, true);
 
-        $this->setListsWithAnalysisByListByDetail($object, RI, RI_D, $options);
+        $this->setListsWithAnalysisByListByDetail($object, RI, RI_D, $options, null, true);
 
-        $this->setListsWithAnalysisByListByDetail($object, PR_INPUT, PR_INPUT_D, $options);
-        $this->setListsWithAnalysisByListByDetail($object, PR_OUTPUT, PR_OUTPUT_D, $options);
+        $this->setListsWithAnalysisByListByDetail($object, PR_INPUT, PR_INPUT_D, $options, null, true);
+        $this->setListsWithAnalysisByListByDetail($object, PR_OUTPUT, PR_OUTPUT_D, $options, null, true);
 
-        $this->setListsWithAnalysisByListByDetail($object, TR, TR_D, $options);
+        $this->setListsWithAnalysisByListByDetail($object, TR, TR_D, $options, null, true);
 
         $this->setListsWithAnalysis(
             $object,

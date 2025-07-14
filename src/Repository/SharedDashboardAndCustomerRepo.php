@@ -294,6 +294,15 @@ class SharedDashboardAndCustomerRepo extends BaseRepository
             $this->listByDetailListColumn($tableName, $detailTableName, $option)
         );
         if ($withAnalysis) {
+
+            $iDs = Helpers::getIDFromArray((array)Helpers::getKeyValueFromObj($object, $tableName));
+            if (!$iDs || empty($iDs)) return;
+
+            Helpers::setKeyValueFromObj(
+                $object,
+                $tableName . "Analysis",
+                $this->getGrowthRate(($tableName), null, $option, false, false, array_values($iDs))
+            );
         }
     }
     public function getProfits(Options $option)

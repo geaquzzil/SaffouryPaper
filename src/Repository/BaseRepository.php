@@ -544,7 +544,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         foreach ($object as $key => $value) {
             //do something with your $key and $value;
             if (is_array($value)) {
-                $ids = implode("','", $value);
+                $ids = implode("','", array: $value);
                 $query = addslashes($tableName) . ".`$key` IN ( '" . $ids . "' )";
                 $whereQuery[] = $query;
             }
@@ -681,7 +681,8 @@ abstract class BaseRepository extends BaseDataBaseFunction
         $toFind = null,
         Options $option,
         bool $requireTotalAsCount = false,
-        bool $requireDayInterval = false
+        bool $requireDayInterval = false,
+        ?array $IDS = null,
     ) {
         // echo "\n";
         $toFind = $toFind ?? $this->getGrowthRateFindKey($tableName);
@@ -706,7 +707,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
                 ->addGroupBy("Day(`$tableName`.date)")
                 ->addOrderBy("`day`");
         }
-        $query = $option->getQuery($tableName);
+        $query = $IDS ? Helpers::getIDsWhereIN($IDS, ID) :  $option->getQuery($tableName);
         $query = "
             SELECT
                 Year(`$tableName`.`date`) AS `year`,
