@@ -149,7 +149,7 @@ $container[PURCH] = [
 $container[PR] = [
     BEFORE . LISTO => function (&$object, ?Options &$option, BaseRepository $reo) {
         // print_r($option->notFoundedColumns);
-        if ($option->notFoundedColumns->get("requiresInventory", null)) {
+        if ($option->isSetRequestColumnsKeyNonFound("requiresInventory")) {
             // echo ("dssdds");
             $option
                 ->replaceTableName(INV)

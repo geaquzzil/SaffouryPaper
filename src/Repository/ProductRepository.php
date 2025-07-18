@@ -103,7 +103,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         $options = $options
             ->withGroupByArray(["products.iD"])
             ->withDESCArray(["extendedNetQuantity"])
-            ->withLimit(10);
+            ->withLimit(20);
 
         $optionQuery = $options->getQuery("extended_order_refund");
         $query = "
@@ -125,7 +125,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         foreach ($result as $res) {
 
             $product = $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects());
-            Helpers::setKeyValueFromObj($product, "orders_details", $res);
+            Helpers::setKeyValueFromObj($product, "orders_details", [$res]);
             array_push($response, $product);
         }
         return $response;
@@ -156,7 +156,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         foreach ($result as $res) {
 
             $product = $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects());
-            Helpers::setKeyValueFromObj($product, "orders_details", $res);
+            Helpers::setKeyValueFromObj($product, "orders_details", [$res]);
             array_push($response, $product);
         }
         return $response;
@@ -165,7 +165,7 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
     {
         $date = $options->date;
         $options = $options->getClone()->unsetDate()
-            ->withGroupByArray(["products.iD", "year", "month"], "count(products.iD)>10")
+            ->withGroupByArray(["products.iD", "month"], "count(products.iD)>7")
             ->withDESCArray(["extendedNetQuantity"]);
         // ->withLimit(40);
 
@@ -173,9 +173,8 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         $query = "
         SELECT 
             count(products.iD) AS extendedNetQuantity,
-            Year(extended_order_refund.date) as year,
+            sum(extendedNetQuantity) as quantity,
             Month(extended_order_refund.date) as month,
-
             (products.iD) AS iD
         FROM
             extended_order_refund
@@ -184,14 +183,20 @@ class ProductRepository extends SharedDashboardAndCustomerRepo
         INNER JOIN
             products ON products.iD = orders_details.ProductID
         $optionQuery";
-
+        // echo $query;
         $result = $this->getFetshALLTableWithQuery($query);
+        // print_r($result);
         $response = array();
         $monthNumber = $date?->getMonthNumber(true);
+        // echo "\nmonthNumber $monthNumber";
         if ($monthNumber) {
             foreach ($result as $res) {
                 if ($res['month'] == (int)$monthNumber) {
-                    array_push($response, $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects()));
+                    $pr = $this->view(PR, $res['iD'], null, Options::getInstance($options)->requireObjects());
+
+                    Helpers::setKeyValueFromObj($pr, 'orders_details_count', $res['extendedNetQuantity']);
+                    Helpers::setKeyValueFromObj($pr, 'inventory_count', $res['quantity']);
+                    array_push($response, $pr);
                     // echo "\n" . $res['iD'];
                 }
             }

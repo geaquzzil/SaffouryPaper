@@ -301,6 +301,13 @@ class Options
         }
         return key_exists($key, $arr);
     }
+    public function isSetRequestColumnsKeyNonFound($key): bool
+    {
+        if ($this->notFoundedColumns->get($key, null)) {
+            return true;
+        }
+        return false;
+    }
     public function __construct(
         protected ?Request $request = null,
         public $tableName = null,

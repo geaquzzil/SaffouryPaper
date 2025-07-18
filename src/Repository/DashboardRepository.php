@@ -317,10 +317,14 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
     public function getNotUsedRecords($tableName, Options $option)
     {
 
-        $results = $this->getFetshAllTableWithQuery($this->getNotUsedRecordsQuery($tableName));
-        $results = array_map(function ($tmp) {
+        $id = $this->getFetshAllTableWithQuery($this->getNotUsedRecordsQuery($tableName));
+        $id = array_map(function ($tmp) {
             return $tmp['iD'];
-        }, $results);
+        }, $id);
+        $results['list'] = $id;
+        if ($option->isSetRequestColumnsKeyNonFound("requireObjects")) {
+            $results['listObjects'] = $this->list($tableName, null, $option->addStaticQuery(Helpers::getIDsWhereIN($id, ID, false)));
+        }
         return $results;
     }
 }
