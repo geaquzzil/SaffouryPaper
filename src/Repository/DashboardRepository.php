@@ -276,7 +276,6 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
     private function getNotUsedRecordsQuery($tableName, ?Options $option = null)
     {
         $forginsDetails = $this->getCachedForginList($tableName);
-
         if (is_null($forginsDetails) || empty($forginsDetails)) {
             return array();
         }
@@ -321,6 +320,10 @@ class DashboardRepository extends SharedDashboardAndCustomerRepo
         $id = array_map(function ($tmp) {
             return $tmp['iD'];
         }, $id);
+        $results = array();
+        if (empty($id)) {
+            return $results;
+        }
         $results['list'] = $id;
         if ($option->isSetRequestColumnsKeyNonFound("requireObjects")) {
             $results['listObjects'] = $this->list($tableName, null, $option->addStaticQuery(Helpers::getIDsWhereIN($id, ID, false)));

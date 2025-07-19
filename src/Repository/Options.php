@@ -209,14 +209,14 @@ class Options
         } else {
 
             $arr = $this->staticSelect;
-            print_r($this->staticGroupBySelect);
+            // print_r($this->staticGroupBySelect);
             if (!empty($this->staticGroupBySelect)) {
                 $arr = array_merge($arr, $this->staticGroupBySelect);
             }
             if (!empty($this->staticSumSelect)) {
                 $arr = array_merge($arr, $this->staticSumSelect);
             }
-            print_r($arr);
+            // print_r($arr);
 
             return implode(",", $arr);
         }

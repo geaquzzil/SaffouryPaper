@@ -324,7 +324,7 @@ abstract class BaseRepository extends BaseDataBaseFunction
         Helpers::unSetKeyFromObj($cloned, "password");
         Helpers::unSetKeyFromObj($cloned, "profile");
         $cloned = $this->unsetAllForginList($tableName, $cloned, $resultsForingList, true);
-        print_r($cloned);
+        // print_r($cloned);
 
         $option = Options::getInstance();
         $option->searchRepository = $this->getSearchRepository();

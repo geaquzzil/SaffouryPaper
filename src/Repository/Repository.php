@@ -83,25 +83,12 @@ final class Repository extends BaseRepository
     }
     public function getChangedRecords($tableName, ?ListPermission $permission = null, ?Options $options = null)
     {
-        // print_r($options->notFoundedColumns->all());
-        // $query = $options->getQuery($tableName);
-
-        // $this->getGrowthRate()
-
-        // $options->getClone()->addStaticSelect("COUNT(*) as count")
-        // $soso = $options->notFoundedColumns->get("SOSO", null);
-        // echo "value is $soso";
-        // print_r($soso);
-        // if (is_null($options->notFoundedColumns->get("SOSO", null))) {
-        //     throw new Exception("NOT SET ");
-        // }
-
         return $this->list(
             $tableName,
             null,
             $options
                 ->addStaticSelect("COUNT(*) as count")
-                ->addOrderBy("count")
+            // ->addOrderBy("count")
         );
     }
 }
