@@ -45,16 +45,17 @@ class SearchRepository extends BaseRepository
         if (is_null($from)  || is_null($to)) {
             throw new Exception("u have to set from and to");
         }
-        return  "$key BETWEEN  $from AND $to";
+        return  "$key BETWEEN  '$from' AND '$to'";
     }
 
     ///
     ///@param $betweenArray is has key : SizeID value of width:{from: , to:} or list
     public function getSearchQueryBetween($betweenArray, $tableName)
     {
-        $between = array();
+
         $queryR = array();
         foreach ($betweenArray as $forginID => $item) {
+            $between = array();
             foreach (array_values($item) as  $value) {
                 $be = array();
                 foreach ($value as $oneItem) {
